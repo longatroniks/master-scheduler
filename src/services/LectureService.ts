@@ -25,6 +25,7 @@ export class LectureService {
     if (lectureDoc.exists()) {
       return new Lecture(
         lectureDoc.data().classroom_id,
+        lectureDoc.data().day,
         lectureDoc.data().end_time,
         lectureDoc.data().section_id,
         lectureDoc.data().start_time
@@ -42,6 +43,7 @@ export class LectureService {
       (doc) =>
         new Lecture(
           doc.data().classroom_id,
+          doc.data().day,
           doc.data().end_time,
           doc.data().section_id,
           doc.data().start_time,
@@ -62,7 +64,7 @@ export class LectureService {
 
   // DELETE: Remove a Lecture
   async deleteLecture(lectureId: string): Promise<void> {
-    const lectureRef = doc(db, "Lectures", lectureId);
+    const lectureRef = doc(db, "lectures", lectureId);
     await deleteDoc(lectureRef);
   }
 }

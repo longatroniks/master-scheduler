@@ -15,18 +15,21 @@ import BookIcon from "@mui/icons-material/Book";
 import SchoolIcon from "@mui/icons-material/School";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ClassIcon from "@mui/icons-material/Class";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import ChecklistIcon from "@mui/icons-material/Checklist";
 import { Link } from "react-router-dom";
 import UserTable from "./UserTable.tsx";
 import SectionTable from "./SectionTable.tsx";
 import { Routes, Route } from "react-router-dom";
-import { LectureSchedule } from "./LectureSchedule.tsx";
+import {MasterSchedule} from "./MasterSchedule.tsx";
+import LectureTable from "./LectureTable.tsx";
+import BackHandIcon from "@mui/icons-material/BackHand";
+import ClassroomTable from "./ClassroomTable.tsx";
 
 const drawerWidth = 250;
 
 // Extend the type of the styled component
 interface MainContentProps {
-  open?: boolean; // Add this line
+  open?: boolean;
 }
 
 const MainContent = styled("div", {
@@ -49,19 +52,23 @@ const MainContent = styled("div", {
 }));
 
 const AppBarButton = styled(IconButton)(({ theme }) => ({
+  marginLeft: theme.spacing(2),
   marginRight: theme.spacing(2),
 }));
 
 const AppDrawer = styled(Drawer)(({ theme }) => ({
   width: drawerWidth,
-  "& .MuiDrawer-paper": {
+  flexShrink: 0,
+  '& .MuiDrawer-paper': {
     width: drawerWidth,
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
   },
 }));
 
 const Sidebar = ({ open, onToggle }) => (
   <AppDrawer variant="persistent" anchor="left" open={open}>
-    <IconButton onClick={onToggle}>
+    <IconButton sx={{ borderRadius: "0px" }} onClick={onToggle}>
       <ChevronLeftIcon />
     </IconButton>
     <List>
@@ -83,6 +90,12 @@ const Sidebar = ({ open, onToggle }) => (
         </ListItemIcon>
         <ListItemText primary="Lecturers" />
       </ListItem>
+      <ListItem key="Lectures" component={Link} to="/lectures">
+        <ListItemIcon>
+          <BackHandIcon />
+        </ListItemIcon>
+        <ListItemText primary="Lectures" />
+      </ListItem>
       <ListItem key="Sections" component={Link} to="/sections">
         <ListItemIcon>
           <ViewListIcon />
@@ -97,15 +110,9 @@ const Sidebar = ({ open, onToggle }) => (
       </ListItem>
       <ListItem key="Schedule" component={Link} to="/schedule">
         <ListItemIcon>
-          <ClassIcon />
+          <ChecklistIcon />
         </ListItemIcon>
         <ListItemText primary="Schedule" />
-      </ListItem>
-      <ListItem key="Create Lecture" component={Link} to="/create-lecture">
-        <ListItemIcon>
-          <AddCircleOutlineIcon />
-        </ListItemIcon>
-        <ListItemText primary="Create Lecture" />
       </ListItem>
     </List>
   </AppDrawer>
@@ -134,7 +141,9 @@ const Layout = () => {
         <Routes>
           <Route path="/users" element={<UserTable />} />
           <Route path="/sections" element={<SectionTable />} />
-          <Route path="/schedule" element={<LectureSchedule />} />
+          <Route path="/lectures" element={<LectureTable />} />
+          <Route path="/classrooms" element={<ClassroomTable />} />
+          <Route path="/schedule" element={<MasterSchedule />} />
         </Routes>
       </MainContent>
     </div>
