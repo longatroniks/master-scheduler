@@ -10,16 +10,17 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import PeopleIcon from '@mui/icons-material/People';
-import BookIcon from '@mui/icons-material/Book';
-import SchoolIcon from '@mui/icons-material/School';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import ClassIcon from '@mui/icons-material/Class';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { Link } from 'react-router-dom';
+import PeopleIcon from "@mui/icons-material/People";
+import BookIcon from "@mui/icons-material/Book";
+import SchoolIcon from "@mui/icons-material/School";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ClassIcon from "@mui/icons-material/Class";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { Link } from "react-router-dom";
 import UserTable from "./UserTable.tsx";
 import SectionTable from "./SectionTable.tsx";
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from "react-router-dom";
+import { LectureSchedule } from "./LectureSchedule.tsx";
 
 const drawerWidth = 250;
 
@@ -65,27 +66,45 @@ const Sidebar = ({ open, onToggle }) => (
     </IconButton>
     <List>
       <ListItem key="Users" component={Link} to="/users">
-        <ListItemIcon><PeopleIcon /></ListItemIcon>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
         <ListItemText primary="Users" />
       </ListItem>
       <ListItem key="Courses" component={Link} to="/courses">
-        <ListItemIcon><BookIcon /></ListItemIcon>
+        <ListItemIcon>
+          <BookIcon />
+        </ListItemIcon>
         <ListItemText primary="Courses" />
       </ListItem>
       <ListItem key="Lecturers" component={Link} to="/lecturers">
-        <ListItemIcon><SchoolIcon /></ListItemIcon>
+        <ListItemIcon>
+          <SchoolIcon />
+        </ListItemIcon>
         <ListItemText primary="Lecturers" />
       </ListItem>
       <ListItem key="Sections" component={Link} to="/sections">
-        <ListItemIcon><ViewListIcon /></ListItemIcon>
+        <ListItemIcon>
+          <ViewListIcon />
+        </ListItemIcon>
         <ListItemText primary="Sections" />
       </ListItem>
       <ListItem key="Classrooms" component={Link} to="/classrooms">
-        <ListItemIcon><ClassIcon /></ListItemIcon>
+        <ListItemIcon>
+          <ClassIcon />
+        </ListItemIcon>
         <ListItemText primary="Classrooms" />
       </ListItem>
+      <ListItem key="Schedule" component={Link} to="/schedule">
+        <ListItemIcon>
+          <ClassIcon />
+        </ListItemIcon>
+        <ListItemText primary="Schedule" />
+      </ListItem>
       <ListItem key="Create Lecture" component={Link} to="/create-lecture">
-        <ListItemIcon><AddCircleOutlineIcon /></ListItemIcon>
+        <ListItemIcon>
+          <AddCircleOutlineIcon />
+        </ListItemIcon>
         <ListItemText primary="Create Lecture" />
       </ListItem>
     </List>
@@ -115,7 +134,7 @@ const Layout = () => {
         <Routes>
           <Route path="/users" element={<UserTable />} />
           <Route path="/sections" element={<SectionTable />} />
-          {/* Define more routes as needed */}
+          <Route path="/schedule" element={<LectureSchedule />} />
         </Routes>
       </MainContent>
     </div>
