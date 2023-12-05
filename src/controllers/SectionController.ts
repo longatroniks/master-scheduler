@@ -1,4 +1,5 @@
-import { SectionService } from '../services/SectionService.ts';
+import { SectionService } from "../services/SectionService.ts";
+import { Section } from "../models/Section.ts";
 
 export class SectionController {
   sectionService: SectionService;
@@ -10,13 +11,47 @@ export class SectionController {
   async fetchSections() {
     try {
       const sections = await this.sectionService.getSections();
-      // Handle the fetched Sections (e.g., store in state, pass to components)
       return sections;
     } catch (error) {
       console.error("Error fetching Sections: ", error);
-      // Handle errors appropriately
+      throw error;
     }
   }
 
-  // Additional methods (e.g., createSection, deleteSection) can be added here
+  async addSection(SectionData: Section) {
+    try {
+      await this.sectionService.createSection(SectionData);
+    } catch (error) {
+      console.error("Error adding Section: ", error);
+      throw error;
+    }
+  }
+
+  async updateSection(Section: Section) { // Updated to take a Section object
+    try {
+      await this.sectionService.updateSection(Section);
+    } catch (error) {
+      console.error("Error updating Section: ", error);
+      throw error;
+    }
+  }
+
+  async removeSection(SectionId: string) {
+    try {
+      await this.sectionService.deleteSection(SectionId);
+    } catch (error) {
+      console.error("Error removing Section: ", error);
+      throw error;
+    }
+  }
+
+  async fetchSectionById(SectionId: string) {
+    try {
+      const Section = await this.sectionService.getSection(SectionId);
+      return Section;
+    } catch (error) {
+      console.error("Error fetching Section by id: ", error);
+      throw error;
+    }
+  }
 }

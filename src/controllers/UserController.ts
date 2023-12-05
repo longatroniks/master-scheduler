@@ -1,4 +1,5 @@
-import { UserService } from '../services/UserService.ts';
+import { UserService } from "../services/UserService.ts";
+import { User } from "../models/User.ts";
 
 export class UserController {
   userService: UserService;
@@ -10,13 +11,47 @@ export class UserController {
   async fetchUsers() {
     try {
       const users = await this.userService.getUsers();
-      // Handle the fetched users (e.g., store in state, pass to components)
       return users;
     } catch (error) {
       console.error("Error fetching users: ", error);
-      // Handle errors appropriately
+      throw error;
     }
   }
 
-  // Additional methods (e.g., createUser, deleteUser) can be added here
+  async addUser(userData: User) {
+    try {
+      await this.userService.createUser(userData);
+    } catch (error) {
+      console.error("Error adding user: ", error);
+      throw error;
+    }
+  }
+
+  async updateUser(user: User) { // Updated to take a User object
+    try {
+      await this.userService.updateUser(user);
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      throw error;
+    }
+  }
+
+  async removeUser(userId: string) {
+    try {
+      await this.userService.deleteUser(userId);
+    } catch (error) {
+      console.error("Error removing user: ", error);
+      throw error;
+    }
+  }
+
+  async fetchUserById(userId: string) {
+    try {
+      const user = await this.userService.getUser(userId);
+      return user;
+    } catch (error) {
+      console.error("Error fetching user by id: ", error);
+      throw error;
+    }
+  }
 }
