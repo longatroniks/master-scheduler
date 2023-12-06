@@ -24,6 +24,7 @@ import {MasterSchedule} from "./MasterSchedule.tsx";
 import LectureTable from "./LectureTable.tsx";
 import BackHandIcon from "@mui/icons-material/BackHand";
 import ClassroomTable from "./ClassroomTable.tsx";
+import CourseTable from "./CourseTable.tsx";
 
 const drawerWidth = 250;
 
@@ -140,6 +141,7 @@ const Layout = () => {
       <MainContent open={open} theme={undefined}>
         <Routes>
           <Route path="/users" element={<UserTable />} />
+          <Route path="/courses" element={<CourseTable />} />
           <Route path="/sections" element={<SectionTable />} />
           <Route path="/lectures" element={<LectureTable />} />
           <Route path="/classrooms" element={<ClassroomTable />} />

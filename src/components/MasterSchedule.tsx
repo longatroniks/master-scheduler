@@ -13,10 +13,14 @@ import { Lecture } from "../models/Lecture.ts";
 import { Classroom } from "../models/Classroom.ts";
 import { LectureController } from "../controllers/LectureController.ts";
 import { ClassroomController } from "../controllers/ClassroomController.ts";
+import { SectionController } from "../controllers/SectionController.ts";
+import { CourseController } from "../controllers/CourseController.ts";
+import { Section } from "../models/Section.ts";
+import { Course } from "../models/Course.ts";
 
 const timeSlots = [
-  "8:00",
-  "9:00",
+  "08:00",
+  "09:00",
   "10:00",
   "11:00",
   "12:00",
@@ -30,7 +34,6 @@ const timeSlots = [
   "20:00",
 ];
 
-// Utility function to calculate the index difference between start and end times
 const calculateDurationInSlots = (startTime, endTime) => {
   const startIndex = timeSlots.indexOf(startTime);
   const endIndex = timeSlots.indexOf(endTime);
@@ -41,16 +44,38 @@ export const MasterSchedule = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
 
+  const [sections, setSections] = useState<Section[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [sectionCourseMap, setSectionCourseMap] = useState<{
+    [key: string]: Course;
+  }>({});
+
+  const sectionController = new SectionController();
+  const courseController = new CourseController();
   const lectureController = new LectureController();
   const classroomController = new ClassroomController();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedLectures = await lectureController.fetchLectures();
-        const fetchedClassrooms = await classroomController.fetchClassrooms();
-        setLectures(fetchedLectures);
-        setClassrooms(fetchedClassrooms);
+        const lectures = await lectureController.fetchLectures();
+        const classrooms = await classroomController.fetchClassrooms();
+        const sections = await sectionController.fetchSections();
+        const courses = await courseController.fetchCourses();
+
+        const sectionToCourse = sections.reduce((acc, section) => {
+          const course = courses.find((c) => c.id === section.course_id);
+          if (course) {
+            acc[section.id as string] = course;
+          }
+          return acc;
+        }, {});
+
+        setLectures(lectures);
+        setClassrooms(classrooms);
+        setSections(sections);
+        setCourses(courses);
+        setSectionCourseMap(sectionToCourse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -59,7 +84,6 @@ export const MasterSchedule = () => {
     fetchData();
   }, []);
 
-  // Process and organize the lectures into a schedule format
   const schedule = {};
   lectures.forEach((lecture) => {
     const durationSlots = calculateDurationInSlots(
@@ -79,6 +103,23 @@ export const MasterSchedule = () => {
       startIndex + durationSlots
     );
   });
+
+  const getBackgroundColor = (sectionId: string) => {
+    const course = sectionCourseMap[sectionId];
+    console.log(course.year_level);
+    switch (course?.year_level) {
+      case 1:
+        return "yellow";
+      case 2:
+        return "green";
+      case 3:
+        return "blue";
+      case 4:
+        return "orange";
+      default:
+        return "gray";
+    }
+  };
 
   return (
     <div>
@@ -114,7 +155,11 @@ export const MasterSchedule = () => {
                             if (
                               index === timeSlots.indexOf(lecture.start_time)
                             ) {
-                              // Render the lecture cell with colSpan
+                              const backgroundColor =
+                                lecture.section_id &&
+                                sectionCourseMap[lecture.section_id]
+                                  ? getBackgroundColor(lecture.section_id)
+                                  : "gray";
                               return (
                                 <TableCell
                                   key={`${classroom.id}-${index}`}
@@ -122,32 +167,26 @@ export const MasterSchedule = () => {
                                     lecture.start_time,
                                     lecture.end_time
                                   )}
-                                  style={{ backgroundColor: "#e0e0e0" }} // Apply a background color to indicate the chamber is occupied
-                                >
-                                  {lecture.section_id}{" "}
-                                  {/* Include any other lecture details you need here */}
-                                </TableCell>
+                                  style={{ backgroundColor }}
+                                ></TableCell>
                               );
                             } else if (
                               schedule[day][classroom.id][index - 1] === lecture
                             ) {
-                              // This time slot is part of a spanning lecture, so don't render a new cell
                               return null;
                             }
                           }
-                          // This time slot is not part of a lecture
                           return (
                             <TableCell
                               key={`${classroom.id}-${index}`}
                             ></TableCell>
-                          ); // Render empty cell without "No Lecture"
+                          );
                         })
                       : timeSlots.map((_, index) => (
                           <TableCell
                             key={`${classroom.id}-${index}`}
                           ></TableCell>
-                        )) // Render empty cells for no lectures
-                    }
+                        ))}
                   </TableRow>
                 ))}
               </TableBody>
