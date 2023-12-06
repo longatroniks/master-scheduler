@@ -1,6 +1,8 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { SectionController } from "../controllers/SectionController.ts";
+import { CourseController } from "../controllers/CourseController.ts"; // Import CourseController
 import { Section } from "../models/Section.ts";
+import { Course } from "../models/Course.ts"; // Import Course model
 import {
   Table,
   TableBody,
@@ -15,6 +17,10 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 
 const SectionTable = () => {
@@ -23,13 +29,18 @@ const SectionTable = () => {
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const sectionController = new SectionController();
 
+  const [courses, setCourses] = useState<Course[]>([]);
+  const courseController = new CourseController();
+
   useEffect(() => {
-    const fetchSections = async () => {
+    const fetchData = async () => {
       const fetchedSections = await sectionController.fetchSections();
+      const fetchedCourses = await courseController.fetchCourses();
       setSections(fetchedSections || []);
+      setCourses(fetchedCourses || []);
     };
 
-    fetchSections();
+    fetchData();
   }, []);
 
   const handleOpenCreateEditModal = (section: Section | null) => {
@@ -80,7 +91,9 @@ const SectionTable = () => {
   return (
     <div>
       <h1>Sections</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Section</Button>
+      <Button onClick={() => handleOpenCreateEditModal(null)}>
+        Add Section
+      </Button>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -107,7 +120,9 @@ const SectionTable = () => {
                   <Button onClick={() => handleOpenCreateEditModal(section)}>
                     Edit
                   </Button>
-                  <Button onClick={() => handleDeleteSection(section)}>Delete</Button>
+                  <Button onClick={() => handleDeleteSection(section)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -116,7 +131,9 @@ const SectionTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>{editingSection ? "Edit Section" : "Add Section"}</DialogTitle>
+        <DialogTitle>
+          {editingSection ? "Edit Section" : "Add Section"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -131,16 +148,22 @@ const SectionTable = () => {
             onChange={handleChange}
           />
           <TextField
+            select
             margin="dense"
             id="course_id"
-            label="Course ID"
-            type="text"
+            label="Course"
             fullWidth
             variant="standard"
             name="course_id"
             value={editingSection?.course_id || ""}
             onChange={handleChange}
-          />
+          >
+            {courses.map((course) => (
+              <MenuItem key={course.id} value={course.id}>
+                {course.name}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             margin="dense"
             id="lecturer_id"
