@@ -1,8 +1,8 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { SectionController } from "../controllers/SectionController.ts";
-import { CourseController } from "../controllers/CourseController.ts"; // Import CourseController
-import { Section } from "../models/Section.ts";
-import { Course } from "../models/Course.ts"; // Import Course model
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { SectionController } from '../controllers/SectionController';
+import { CourseController } from '../controllers/CourseController'; // Import CourseController
+import { Section } from '../models/Section';
+import { Course } from '../models/Course'; // Import Course model
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-} from "@mui/material";
+} from '@mui/material';
 
 const SectionTable = () => {
   const [sections, setSections] = useState<Section[]>([]);
@@ -48,7 +48,7 @@ const SectionTable = () => {
       setEditingSection(section);
     } else {
       // Create a new Section instance with empty fields for adding a new section
-      setEditingSection(new Section(0, "", "", ""));
+      setEditingSection(new Section(0, '', '', ''));
     }
     setOpenCreateEditModal(true);
   };
@@ -83,17 +83,13 @@ const SectionTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingSection((prev) =>
-      prev ? prev.updateFields({ [name]: value }) : null
-    );
+    setEditingSection((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   return (
     <div>
       <h1>Sections</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>
-        Add Section
-      </Button>
+      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Section</Button>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -108,7 +104,7 @@ const SectionTable = () => {
           <TableBody>
             {sections.map((section) => (
               <TableRow key={section.id}>
-                {" "}
+                {' '}
                 {/* Use ID for key */}
                 <TableCell component="th" scope="row">
                   {section.name}
@@ -117,12 +113,8 @@ const SectionTable = () => {
                 <TableCell>{section.lecturer_id}</TableCell>
                 <TableCell>{section.course_id}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(section)}>
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDeleteSection(section)}>
-                    Delete
-                  </Button>
+                  <Button onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
+                  <Button onClick={() => handleDeleteSection(section)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -131,9 +123,7 @@ const SectionTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>
-          {editingSection ? "Edit Section" : "Add Section"}
-        </DialogTitle>
+        <DialogTitle>{editingSection ? 'Edit Section' : 'Add Section'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -155,7 +145,7 @@ const SectionTable = () => {
             fullWidth
             variant="standard"
             name="course_id"
-            value={editingSection?.course_id || ""}
+            value={editingSection?.course_id || ''}
             onChange={handleChange}
           >
             {courses.map((course) => (
@@ -172,7 +162,7 @@ const SectionTable = () => {
             fullWidth
             variant="standard"
             name="lecturer_id"
-            value={editingSection?.lecturer_id || ""}
+            value={editingSection?.lecturer_id || ''}
             onChange={handleChange}
           />
           <TextField
@@ -183,7 +173,7 @@ const SectionTable = () => {
             fullWidth
             variant="standard"
             name="name"
-            value={editingSection?.name || ""}
+            value={editingSection?.name || ''}
             onChange={handleChange}
           />
         </DialogContent>

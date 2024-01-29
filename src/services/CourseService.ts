@@ -1,17 +1,9 @@
-import { Course } from "../models/Course.ts";
-import { db } from "../firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { Course } from '../models/Course';
+import { db } from '../firebase';
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 
 export class CourseService {
-  private collectionRef = collection(db, "courses");
+  private collectionRef = collection(db, 'courses');
 
   // CREATE: Add a new Course
   async createCourse(course: Course): Promise<void> {
@@ -20,17 +12,17 @@ export class CourseService {
 
   // READ: Get a single Course by id
   async getCourse(courseId: string): Promise<Course | undefined> {
-    const courseRef = doc(db, "courses", courseId);
+    const courseRef = doc(db, 'courses', courseId);
     const courseDoc = await getDoc(courseRef);
     if (courseDoc.exists()) {
       return new Course(
         courseDoc.data().abbreviation,
         courseDoc.data().name,
         courseDoc.data().program,
-        courseDoc.data().year_level,
+        courseDoc.data().year_level
       );
     } else {
-      console.log("No such document!");
+      console.log('No such document!');
       return undefined;
     }
   }
@@ -53,16 +45,16 @@ export class CourseService {
   // UPDATE: Update a Course's details
   async updateCourse(course: Course): Promise<void> {
     if (!course.id) {
-      throw new Error("Course ID is missing");
+      throw new Error('Course ID is missing');
     }
-    const courseRef = doc(db, "courses", course.id);
+    const courseRef = doc(db, 'courses', course.id);
     const updateData = course.toFirestore();
     await updateDoc(courseRef, updateData);
   }
 
   // DELETE: Remove a Course
   async deleteCourse(courseId: string): Promise<void> {
-    const courseRef = doc(db, "courses", courseId);
+    const courseRef = doc(db, 'courses', courseId);
     await deleteDoc(courseRef);
   }
 }

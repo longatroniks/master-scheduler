@@ -1,6 +1,3 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { CourseController } from "../controllers/CourseController.ts";
-import { Course } from "../models/Course.ts";
 import {
   Table,
   TableBody,
@@ -16,31 +13,36 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
-} from "@mui/material";
+} from '@mui/material';
+import React, { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
+import { CourseController } from '../controllers/CourseController';
+import { Course } from '../models/Course';
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const courseController = new CourseController();
+  // const courseController = new CourseController();
   const yearLevels = [0, 1, 2, 3, 4];
-  const programs = ["WMC", "IB", "HT", "ALL"];
+  const programs = ['WMC', 'IB', 'HT', 'ALL'];
+
+  const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
+
+  const fetchCourses = useCallback(async () => {
+    const fetchedCourses = await courseController.fetchCourses();
+    setCourses(fetchedCourses || []);
+  }, [courseController]);
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      const fetchedCourses = await courseController.fetchCourses();
-      setCourses(fetchedCourses || []);
-    };
-
     fetchCourses();
-  }, []);
+  }, [fetchCourses]);
 
   const handleOpenCreateEditModal = (course: Course | null) => {
     if (course) {
       setEditingCourse(course);
     } else {
       // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course("", "", "", 0));
+      setEditingCourse(new Course('', '', '', 0));
     }
     setOpenCreateEditModal(true);
   };
@@ -50,9 +52,7 @@ const CourseTable = () => {
   };
 
   const handleDeleteCourse = async (course: Course) => {
-    if (
-      window.confirm(`Are you sure you want to delete Course ${course.name}?`)
-    ) {
+    if (window.confirm(`Are you sure you want to delete Course ${course.name}?`)) {
       await courseController.removeCourse(course.id as string); // Use the Course's ID for deletion
       setCourses(courses.filter((u) => u.id !== course.id));
     }
@@ -73,17 +73,13 @@ const CourseTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingCourse((prev) =>
-      prev ? prev.updateFields({ [name]: value }) : null
-    );
+    setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   return (
     <div>
       <h1>Courses</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>
-        Add Course
-      </Button>
+      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Course</Button>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -105,12 +101,8 @@ const CourseTable = () => {
                 <TableCell>{course.program}</TableCell>
                 <TableCell>{course.year_level}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(course)}>
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDeleteCourse(course)}>
-                    Delete
-                  </Button>
+                  <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
+                  <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -119,9 +111,7 @@ const CourseTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>
-          {editingCourse ? "Edit Course" : "Add Course"}
-        </DialogTitle>
+        <DialogTitle>{editingCourse ? 'Edit Course' : 'Add Course'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -132,7 +122,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="name"
-            value={editingCourse?.name || ""}
+            value={editingCourse?.name || ''}
             onChange={handleChange}
           />
           <TextField
@@ -143,7 +133,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="abbreviation"
-            value={editingCourse?.abbreviation || ""}
+            value={editingCourse?.abbreviation || ''}
             onChange={handleChange}
           />
           <TextField
@@ -154,7 +144,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="program"
-            value={editingCourse?.program || ""}
+            value={editingCourse?.program || ''}
             onChange={handleChange}
           >
             {programs.map((program) => (
@@ -171,7 +161,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="year_level"
-            value={editingCourse?.year_level || ""}
+            value={editingCourse?.year_level || ''}
             onChange={handleChange}
           >
             {yearLevels.map((yearLevel) => (

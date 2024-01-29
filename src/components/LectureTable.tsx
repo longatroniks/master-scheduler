@@ -1,8 +1,8 @@
-import React, { useState, useEffect, ChangeEvent, useMemo } from "react";
-import { LectureController } from "../controllers/LectureController.ts";
-import { ClassroomController } from "../controllers/ClassroomController.ts";
-import { SectionController } from "../controllers/SectionController.ts";
-import { Lecture } from "../models/Lecture.ts";
+import React, { useState, useEffect, ChangeEvent, useMemo } from 'react';
+import { LectureController } from '../controllers/LectureController';
+import { ClassroomController } from '../controllers/ClassroomController';
+import { SectionController } from '../controllers/SectionController';
+import { Lecture } from '../models/Lecture';
 import {
   Table,
   TableBody,
@@ -18,11 +18,11 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
-} from "@mui/material";
-import { Classroom } from "../models/Classroom.ts";
-import { Section } from "../models/Section.ts";
-import { CourseController } from "../controllers/CourseController.ts";
-import { Course } from "../models/Course.ts";
+} from '@mui/material';
+import { Classroom } from '../models/Classroom';
+import { Section } from '../models/Section';
+import { CourseController } from '../controllers/CourseController';
+import { Course } from '../models/Course';
 
 const LectureTable = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
@@ -37,33 +37,33 @@ const LectureTable = () => {
   const lectureController = new LectureController();
   const courseController = new CourseController();
 
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const timeSlots = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
+    '08:00',
+    '08:30',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00',
+    '18:30',
+    '19:00',
+    '19:30',
+    '20:00',
   ];
 
   useEffect(() => {
@@ -93,7 +93,7 @@ const LectureTable = () => {
       setEditingLecture(lecture);
     } else {
       // Create a new Lecture instance with empty fields for adding a new Lecture
-      setEditingLecture(new Lecture("", "", "", "", ""));
+      setEditingLecture(new Lecture('', '', '', '', ''));
     }
 
     // Fetch classroom and section names
@@ -129,9 +129,7 @@ const LectureTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingLecture((prev) =>
-      prev ? prev.updateFields({ [name]: value }) : null
-    );
+    setEditingLecture((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   const courseAbbreviationMap = useMemo(() => {
@@ -143,9 +141,7 @@ const LectureTable = () => {
   return (
     <div>
       <h1>Lectures</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>
-        Add Lecture
-      </Button>
+      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Lecture</Button>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -169,12 +165,8 @@ const LectureTable = () => {
                 </TableCell>
                 <TableCell>{lecture.section_id}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(lecture)}>
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDeleteLecture(lecture)}>
-                    Delete
-                  </Button>
+                  <Button onClick={() => handleOpenCreateEditModal(lecture)}>Edit</Button>
+                  <Button onClick={() => handleDeleteLecture(lecture)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -183,9 +175,7 @@ const LectureTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>
-          {editingLecture ? "Edit Lecture" : "Add Lecture"}
-        </DialogTitle>
+        <DialogTitle>{editingLecture ? 'Edit Lecture' : 'Add Lecture'}</DialogTitle>
         <DialogContent>
           <TextField
             select
@@ -195,7 +185,7 @@ const LectureTable = () => {
             fullWidth
             variant="standard"
             name="day"
-            value={editingLecture?.day || ""}
+            value={editingLecture?.day || ''}
             onChange={handleChange}
           >
             {daysOfWeek.map((day) => (
@@ -212,7 +202,7 @@ const LectureTable = () => {
             fullWidth
             variant="standard"
             name="start_time"
-            value={editingLecture?.start_time || ""}
+            value={editingLecture?.start_time || ''}
             onChange={handleChange}
           >
             {timeSlots.map((time) => (
@@ -229,7 +219,7 @@ const LectureTable = () => {
             fullWidth
             variant="standard"
             name="end_time"
-            value={editingLecture?.end_time || ""}
+            value={editingLecture?.end_time || ''}
             onChange={handleChange}
           >
             {timeSlots.map((time) => (
@@ -247,7 +237,7 @@ const LectureTable = () => {
             fullWidth
             variant="standard"
             name="classroom_id"
-            value={editingLecture?.classroom_id || ""}
+            value={editingLecture?.classroom_id || ''}
             onChange={handleChange}
           >
             {classrooms.map((classroom) => (
@@ -264,15 +254,13 @@ const LectureTable = () => {
             fullWidth
             variant="standard"
             name="section_id"
-            value={editingLecture?.section_id || ""}
+            value={editingLecture?.section_id || ''}
             onChange={handleChange}
           >
             {sections.map((section) => (
               <MenuItem key={section.id} value={section.id}>
-                {section.course_id
-                  ? courseAbbreviationMap.get(section.course_id)
-                  : "N/A"}
-                -{section.name}
+                {section.course_id ? courseAbbreviationMap.get(section.course_id) : 'N/A'}-
+                {section.name}
               </MenuItem>
             ))}
           </TextField>

@@ -1,5 +1,5 @@
-import { ClassroomService } from "../services/ClassroomService.ts";
-import { Classroom } from "../models/Classroom.ts";
+import { ClassroomService } from '../services/ClassroomService';
+import { Classroom } from '../models/Classroom';
 
 export class ClassroomController {
   classroomService: ClassroomService;
@@ -13,7 +13,7 @@ export class ClassroomController {
       const classrooms = await this.classroomService.getClassrooms();
       return classrooms;
     } catch (error) {
-      console.error("Error fetching Classrooms: ", error);
+      console.error('Error fetching Classrooms: ', error);
       throw error;
     }
   }
@@ -22,16 +22,17 @@ export class ClassroomController {
     try {
       await this.classroomService.createClassroom(classroomData);
     } catch (error) {
-      console.error("Error adding Classroom: ", error);
+      console.error('Error adding Classroom: ', error);
       throw error;
     }
   }
 
-  async updateClassroom(classroom: Classroom) { // Updated to take a Classroom object
+  async updateClassroom(classroom: Classroom) {
+    // Updated to take a Classroom object
     try {
       await this.classroomService.updateClassroom(classroom);
     } catch (error) {
-      console.error("Error updating Classroom: ", error);
+      console.error('Error updating Classroom: ', error);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ export class ClassroomController {
     try {
       await this.classroomService.deleteClassroom(classroomId);
     } catch (error) {
-      console.error("Error removing Classroom: ", error);
+      console.error('Error removing Classroom: ', error);
       throw error;
     }
   }
@@ -50,7 +51,7 @@ export class ClassroomController {
       const classroom = await this.classroomService.getClassroom(classroomId);
       return classroom;
     } catch (error) {
-      console.error("Error fetching Classroom by id: ", error);
+      console.error('Error fetching Classroom by id: ', error);
       throw error;
     }
   }

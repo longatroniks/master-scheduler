@@ -1,5 +1,5 @@
-import { SectionService } from "../services/SectionService.ts";
-import { Section } from "../models/Section.ts";
+import { SectionService } from '../services/SectionService';
+import { Section } from '../models/Section';
 
 export class SectionController {
   sectionService: SectionService;
@@ -13,7 +13,7 @@ export class SectionController {
       const sections = await this.sectionService.getSections();
       return sections;
     } catch (error) {
-      console.error("Error fetching Sections: ", error);
+      console.error('Error fetching Sections: ', error);
       throw error;
     }
   }
@@ -22,16 +22,17 @@ export class SectionController {
     try {
       await this.sectionService.createSection(SectionData);
     } catch (error) {
-      console.error("Error adding Section: ", error);
+      console.error('Error adding Section: ', error);
       throw error;
     }
   }
 
-  async updateSection(Section: Section) { // Updated to take a Section object
+  async updateSection(Section: Section) {
+    // Updated to take a Section object
     try {
       await this.sectionService.updateSection(Section);
     } catch (error) {
-      console.error("Error updating Section: ", error);
+      console.error('Error updating Section: ', error);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ export class SectionController {
     try {
       await this.sectionService.deleteSection(SectionId);
     } catch (error) {
-      console.error("Error removing Section: ", error);
+      console.error('Error removing Section: ', error);
       throw error;
     }
   }
@@ -50,7 +51,7 @@ export class SectionController {
       const Section = await this.sectionService.getSection(SectionId);
       return Section;
     } catch (error) {
-      console.error("Error fetching Section by id: ", error);
+      console.error('Error fetching Section by id: ', error);
       throw error;
     }
   }

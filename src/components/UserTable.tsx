@@ -1,6 +1,6 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { UserController } from "../controllers/UserController.ts";
-import { User } from "../models/User.ts";
+import React, { useState, useEffect, ChangeEvent } from 'react';
+import { UserController } from '../controllers/UserController';
+import { User } from '../models/User';
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-} from "@mui/material";
+} from '@mui/material';
 
 const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -37,7 +37,7 @@ const UserTable = () => {
       setEditingUser(user);
     } else {
       // Create a new User instance with empty fields for adding a new user
-      setEditingUser(new User("", "", "", "", ""));
+      setEditingUser(new User('', '', '', '', ''));
     }
     setOpenCreateEditModal(true);
   };
@@ -47,11 +47,7 @@ const UserTable = () => {
   };
 
   const handleDeleteUser = async (user: User) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${user.first_name} ${user.last_name}?`
-      )
-    ) {
+    if (window.confirm(`Are you sure you want to delete ${user.first_name} ${user.last_name}?`)) {
       await userController.removeUser(user.id as string); // Use the user's ID for deletion
       setUsers(users.filter((u) => u.id !== user.id));
     }
@@ -72,9 +68,7 @@ const UserTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingUser((prev) =>
-      prev ? prev.updateFields({ [name]: value }) : null
-    );
+    setEditingUser((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   return (
@@ -95,7 +89,7 @@ const UserTable = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                {" "}
+                {' '}
                 {/* Use ID for key */}
                 <TableCell component="th" scope="row">
                   {user.first_name}
@@ -104,9 +98,7 @@ const UserTable = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(user)}>
-                    Edit
-                  </Button>
+                  <Button onClick={() => handleOpenCreateEditModal(user)}>Edit</Button>
                   <Button onClick={() => handleDeleteUser(user)}>Delete</Button>
                 </TableCell>
               </TableRow>
@@ -116,7 +108,7 @@ const UserTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>{editingUser ? "Edit User" : "Add User"}</DialogTitle>
+        <DialogTitle>{editingUser ? 'Edit User' : 'Add User'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -127,7 +119,7 @@ const UserTable = () => {
             fullWidth
             variant="standard"
             name="first_name"
-            value={editingUser?.first_name || ""}
+            value={editingUser?.first_name || ''}
             onChange={handleChange}
           />
           <TextField
@@ -138,7 +130,7 @@ const UserTable = () => {
             fullWidth
             variant="standard"
             name="last_name"
-            value={editingUser?.last_name || ""}
+            value={editingUser?.last_name || ''}
             onChange={handleChange}
           />
           <TextField
@@ -149,7 +141,7 @@ const UserTable = () => {
             fullWidth
             variant="standard"
             name="email"
-            value={editingUser?.email || ""}
+            value={editingUser?.email || ''}
             onChange={handleChange}
           />
           <TextField
@@ -160,7 +152,7 @@ const UserTable = () => {
             fullWidth
             variant="standard"
             name="role"
-            value={editingUser?.role || ""}
+            value={editingUser?.role || ''}
             onChange={handleChange}
           />
         </DialogContent>

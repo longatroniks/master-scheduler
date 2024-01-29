@@ -1,17 +1,9 @@
-import { Lecture } from "../models/Lecture.ts";
-import { db } from "../firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { Lecture } from '../models/Lecture';
+import { db } from '../firebase';
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 
 export class LectureService {
-  private collectionRef = collection(db, "lectures");
+  private collectionRef = collection(db, 'lectures');
 
   // CREATE: Add a new Lecture
   async createLecture(lecture: Lecture): Promise<void> {
@@ -20,7 +12,7 @@ export class LectureService {
 
   // READ: Get a single Lecture by id
   async getLecture(lectureId: string): Promise<Lecture | undefined> {
-    const lectureRef = doc(db, "lectures", lectureId);
+    const lectureRef = doc(db, 'lectures', lectureId);
     const lectureDoc = await getDoc(lectureRef);
     if (lectureDoc.exists()) {
       return new Lecture(
@@ -31,7 +23,7 @@ export class LectureService {
         lectureDoc.data().start_time
       );
     } else {
-      console.log("No such document!");
+      console.log('No such document!');
       return undefined;
     }
   }
@@ -55,16 +47,16 @@ export class LectureService {
   // UPDATE: Update a Lecture's details
   async updateLecture(lecture: Lecture): Promise<void> {
     if (!lecture.id) {
-      throw new Error("Lecture ID is missing");
+      throw new Error('Lecture ID is missing');
     }
-    const lectureRef = doc(db, "lectures", lecture.id);
+    const lectureRef = doc(db, 'lectures', lecture.id);
     const updateData = lecture.toFirestore();
     await updateDoc(lectureRef, updateData);
   }
 
   // DELETE: Remove a Lecture
   async deleteLecture(lectureId: string): Promise<void> {
-    const lectureRef = doc(db, "lectures", lectureId);
+    const lectureRef = doc(db, 'lectures', lectureId);
     await deleteDoc(lectureRef);
   }
 }

@@ -1,5 +1,5 @@
-import { LectureService } from "../services/LectureService.ts";
-import { Lecture } from "../models/Lecture.ts";
+import { LectureService } from '../services/LectureService';
+import { Lecture } from '../models/Lecture';
 
 export class LectureController {
   lectureService: LectureService;
@@ -13,7 +13,7 @@ export class LectureController {
       const lectures = await this.lectureService.getLectures();
       return lectures;
     } catch (error) {
-      console.error("Error fetching Lectures: ", error);
+      console.error('Error fetching Lectures: ', error);
       throw error;
     }
   }
@@ -22,16 +22,17 @@ export class LectureController {
     try {
       await this.lectureService.createLecture(lectureData);
     } catch (error) {
-      console.error("Error adding Lecture: ", error);
+      console.error('Error adding Lecture: ', error);
       throw error;
     }
   }
 
-  async updateLecture(lecture: Lecture) { // Updated to take a Lecture object
+  async updateLecture(lecture: Lecture) {
+    // Updated to take a Lecture object
     try {
       await this.lectureService.updateLecture(lecture);
     } catch (error) {
-      console.error("Error updating Lecture: ", error);
+      console.error('Error updating Lecture: ', error);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ export class LectureController {
     try {
       await this.lectureService.deleteLecture(lectureId);
     } catch (error) {
-      console.error("Error removing Lecture: ", error);
+      console.error('Error removing Lecture: ', error);
       throw error;
     }
   }
@@ -50,7 +51,7 @@ export class LectureController {
       const Lecture = await this.lectureService.getLecture(LectureId);
       return Lecture;
     } catch (error) {
-      console.error("Error fetching Lecture by id: ", error);
+      console.error('Error fetching Lecture by id: ', error);
       throw error;
     }
   }

@@ -1,17 +1,9 @@
-import { Section } from "../models/Section.ts";
-import { db } from "../firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { Section } from '../models/Section';
+import { db } from '../firebase';
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 
 export class SectionService {
-  private collectionRef = collection(db, "sections");
+  private collectionRef = collection(db, 'sections');
 
   // CREATE: Add a new Section
   async createSection(section: Section): Promise<void> {
@@ -20,17 +12,17 @@ export class SectionService {
 
   // READ: Get a single Section by id
   async getSection(sectionId: string): Promise<Section | undefined> {
-    const sectionRef = doc(db, "sections", sectionId);
+    const sectionRef = doc(db, 'sections', sectionId);
     const sectionDoc = await getDoc(sectionRef);
     if (sectionDoc.exists()) {
       return new Section(
         sectionDoc.data().capacity,
         sectionDoc.data().course_id,
         sectionDoc.data().lecturer_id,
-        sectionDoc.data().name,
+        sectionDoc.data().name
       );
     } else {
-      console.log("No such document!");
+      console.log('No such document!');
       return undefined;
     }
   }
@@ -53,16 +45,16 @@ export class SectionService {
   // UPDATE: Update a section's details
   async updateSection(section: Section): Promise<void> {
     if (!section.id) {
-      throw new Error("section ID is missing");
+      throw new Error('section ID is missing');
     }
-    const sectionRef = doc(db, "sections", section.id);
+    const sectionRef = doc(db, 'sections', section.id);
     const updateData = section.toFirestore();
     await updateDoc(sectionRef, updateData);
   }
 
   // DELETE: Remove a section
   async deleteSection(sectionId: string): Promise<void> {
-    const sectionRef = doc(db, "sections", sectionId);
+    const sectionRef = doc(db, 'sections', sectionId);
     await deleteDoc(sectionRef);
   }
 }
