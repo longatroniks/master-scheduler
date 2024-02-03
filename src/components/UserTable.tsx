@@ -36,7 +36,6 @@ const UserTable = () => {
     if (user) {
       setEditingUser(user);
     } else {
-      // Create a new User instance with empty fields for adding a new user
       setEditingUser(new User("", "", "", "", ""));
     }
     setOpenCreateEditModal(true);
@@ -52,7 +51,7 @@ const UserTable = () => {
         `Are you sure you want to delete ${user.first_name} ${user.last_name}?`
       )
     ) {
-      await userController.removeUser(user.id as string); // Use the user's ID for deletion
+      await userController.removeUser(user.id as string);
       setUsers(users.filter((u) => u.id !== user.id));
     }
   };
@@ -60,11 +59,11 @@ const UserTable = () => {
   const handleSaveUser = async () => {
     if (editingUser) {
       if (editingUser.id) {
-        await userController.updateUser(editingUser); // Update existing user
+        await userController.updateUser(editingUser);
       } else {
-        await userController.addUser(editingUser); // Add new user
+        await userController.addUser(editingUser);
       }
-      const updatedUsers = await userController.fetchUsers(); // Refetch users to update the list
+      const updatedUsers = await userController.fetchUsers();
       setUsers(updatedUsers || []);
     }
     handleCloseCreateEditModal();
@@ -95,8 +94,6 @@ const UserTable = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                {" "}
-                {/* Use ID for key */}
                 <TableCell component="th" scope="row">
                   {user.first_name}
                 </TableCell>

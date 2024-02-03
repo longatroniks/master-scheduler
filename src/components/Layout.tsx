@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   List,
@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 import UserTable from "./UserTable.tsx";
 import SectionTable from "./SectionTable.tsx";
 import { Routes, Route } from "react-router-dom";
-import {MasterSchedule} from "./MasterSchedule.tsx";
+import { MasterSchedule } from "./MasterSchedule.tsx";
 import LectureTable from "./LectureTable.tsx";
 import BackHandIcon from "@mui/icons-material/BackHand";
 import ClassroomTable from "./ClassroomTable.tsx";
@@ -28,7 +28,6 @@ import CourseTable from "./CourseTable.tsx";
 
 const drawerWidth = 250;
 
-// Extend the type of the styled component
 interface MainContentProps {
   open?: boolean;
 }
@@ -60,7 +59,7 @@ const AppBarButton = styled(IconButton)(({ theme }) => ({
 const AppDrawer = styled(Drawer)(({ theme }) => ({
   width: drawerWidth,
   flexShrink: 0,
-  '& .MuiDrawer-paper': {
+  "& .MuiDrawer-paper": {
     width: drawerWidth,
     backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,

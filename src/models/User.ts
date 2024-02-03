@@ -27,9 +27,9 @@ export class User {
       fields.first_name ?? this.first_name,
       fields.last_name ?? this.last_name,
       fields.email ?? this.email,
-      this.password, // Password is not updated through this function
+      this.password,
       fields.role ?? this.role,
-      this.id // Maintain the existing ID
+      this.id
     );
   }
 }

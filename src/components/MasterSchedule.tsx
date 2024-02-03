@@ -20,17 +20,29 @@ import { Course } from "../models/Course.ts";
 
 const timeSlots = [
   "08:00",
+  "08:30",
   "09:00",
+  "09:30",
   "10:00",
+  "10:30",
   "11:00",
+  "11:30",
   "12:00",
+  "12:30",
   "13:00",
+  "13:30",
   "14:00",
+  "14:30",
   "15:00",
+  "15:30",
   "16:00",
+  "16:30",
   "17:00",
+  "17:30",
   "18:00",
+  "18:30",
   "19:00",
+  "19:30",
   "20:00",
 ];
 
@@ -97,8 +109,14 @@ export const MasterSchedule = () => {
       schedule[lecture.day][lecture.classroom_id] = timeSlots.map(() => null);
     }
     const startIndex = timeSlots.indexOf(lecture.start_time);
+    const section = sections.find((s) => s.id === lecture.section_id);
+    const course = section ? sectionCourseMap[section.id as string] : null;
     schedule[lecture.day][lecture.classroom_id].fill(
-      lecture,
+      {
+        lecture,
+        courseName: course ? course.name : "",
+        sectionName: section ? section.name : "",
+      },
       startIndex,
       startIndex + durationSlots
     );
@@ -117,7 +135,7 @@ export const MasterSchedule = () => {
       case 4:
         return "orange";
       default:
-        return "gray";
+        return "lightGray";
     }
   };
 
@@ -149,29 +167,32 @@ export const MasterSchedule = () => {
                     <TableCell style={{ backgroundColor: "#f0f0f0" }}>
                       {classroom.name}
                     </TableCell>
-                    {schedule[day] && schedule[day][classroom.id]
-                      ? schedule[day][classroom.id].map((lecture, index) => {
-                          if (lecture) {
+                    {schedule[day][classroom.id]
+                      ? schedule[day][classroom.id].map((item, index) => {
+                          if (item && item.lecture) {
                             if (
-                              index === timeSlots.indexOf(lecture.start_time)
+                              index ===
+                              timeSlots.indexOf(item.lecture.start_time)
                             ) {
-                              const backgroundColor =
-                                lecture.section_id &&
-                                sectionCourseMap[lecture.section_id]
-                                  ? getBackgroundColor(lecture.section_id)
-                                  : "gray";
+                              const backgroundColor = item.lecture.section_id
+                                ? getBackgroundColor(item.lecture.section_id)
+                                : "lightGray";
                               return (
                                 <TableCell
                                   key={`${classroom.id}-${index}`}
                                   colSpan={calculateDurationInSlots(
-                                    lecture.start_time,
-                                    lecture.end_time
+                                    item.lecture.start_time,
+                                    item.lecture.end_time
                                   )}
                                   style={{ backgroundColor }}
-                                ></TableCell>
+                                >
+                                  {`${item.courseName} - ${item.sectionName}`}{" "}
+                                </TableCell>
                               );
                             } else if (
-                              schedule[day][classroom.id][index - 1] === lecture
+                              schedule[day][classroom.id][index - 1] &&
+                              schedule[day][classroom.id][index - 1].lecture ===
+                                item.lecture
                             ) {
                               return null;
                             }

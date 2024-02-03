@@ -27,7 +27,7 @@ export class ClassroomController {
     }
   }
 
-  async updateClassroom(classroom: Classroom) { // Updated to take a Classroom object
+  async updateClassroom(classroom: Classroom) {
     try {
       await this.classroomService.updateClassroom(classroom);
     } catch (error) {

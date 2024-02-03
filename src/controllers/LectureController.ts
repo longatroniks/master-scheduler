@@ -27,7 +27,7 @@ export class LectureController {
     }
   }
 
-  async updateLecture(lecture: Lecture) { // Updated to take a Lecture object
+  async updateLecture(lecture: Lecture) {
     try {
       await this.lectureService.updateLecture(lecture);
     } catch (error) {

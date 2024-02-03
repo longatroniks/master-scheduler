@@ -27,7 +27,7 @@ export class SectionController {
     }
   }
 
-  async updateSection(Section: Section) { // Updated to take a Section object
+  async updateSection(Section: Section) {
     try {
       await this.sectionService.updateSection(Section);
     } catch (error) {

@@ -27,7 +27,7 @@ export class UserController {
     }
   }
 
-  async updateUser(user: User) { // Updated to take a User object
+  async updateUser(user: User) {
     try {
       await this.userService.updateUser(user);
     } catch (error) {

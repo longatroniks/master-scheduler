@@ -39,7 +39,6 @@ const CourseTable = () => {
     if (course) {
       setEditingCourse(course);
     } else {
-      // Create a new Course instance with empty fields for adding a new Course
       setEditingCourse(new Course("", "", "", 0));
     }
     setOpenCreateEditModal(true);
@@ -53,7 +52,7 @@ const CourseTable = () => {
     if (
       window.confirm(`Are you sure you want to delete Course ${course.name}?`)
     ) {
-      await courseController.removeCourse(course.id as string); // Use the Course's ID for deletion
+      await courseController.removeCourse(course.id as string);
       setCourses(courses.filter((u) => u.id !== course.id));
     }
   };
@@ -61,11 +60,11 @@ const CourseTable = () => {
   const handleSaveCourse = async () => {
     if (editingCourse) {
       if (editingCourse.id) {
-        await courseController.updateCourse(editingCourse); // Update existing Course
+        await courseController.updateCourse(editingCourse);
       } else {
-        await courseController.addCourse(editingCourse); // Add new Course
+        await courseController.addCourse(editingCourse);
       }
-      const updatedCourses = await courseController.fetchCourses(); // Refetch Courses to update the list
+      const updatedCourses = await courseController.fetchCourses();
       setCourses(updatedCourses || []);
     }
     handleCloseCreateEditModal();
