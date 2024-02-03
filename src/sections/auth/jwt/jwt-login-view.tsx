@@ -23,13 +23,13 @@ import { useAuthContext } from 'src/auth/hooks';
 // components
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
-import { Avatar } from '@mui/material';
+import { Avatar, Box } from '@mui/material';
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 
 // ----------------------------------------------------------------------
 
 export default function JwtLoginView() {
-  const { login } = useAuthContext();
+  // const { login } = useAuthContext();
 
   const router = useRouter();
 
@@ -41,38 +41,39 @@ export default function JwtLoginView() {
 
   const password = useBoolean();
 
-  const LoginSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
-  });
+  // const LoginSchema = Yup.object().shape({
+  //   email: Yup.string().required('Email is required').email('Email must be a valid email address'),
+  //   password: Yup.string().required('Password is required'),
+  // });
 
-  const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: 'demo1234',
-  };
+  // const defaultValues = {
+  //   email: 'demo@minimals.cc',
+  //   password: 'demo1234',
+  // };
 
-  const methods = useForm({
-    resolver: yupResolver(LoginSchema),
-    defaultValues,
-  });
+  // const methods = useForm({
+  //   resolver: yupResolver(LoginSchema),
+  //   defaultValues,
+  // });
 
-  const {
-    reset,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
+  // const {
+  //   reset,
+  //   handleSubmit,
+  //   formState: { isSubmitting },
+  // } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await login?.(data.email, data.password);
+  // const onSubmit = handleSubmit(async (data) => {
+  //   try {
+  //     // await login?.(data.email, data.password);
 
-      router.push(returnTo || PATH_AFTER_LOGIN);
-    } catch (error) {
-      console.error(error);
-      reset();
-      setErrorMsg(typeof error === 'string' ? error : error.message);
-    }
-  });
+  //     router.push('/dashboard');
+  //     console.log('pimpac');
+  //   } catch (error) {
+  //     console.error(error);
+  //     reset();
+  //     setErrorMsg(typeof error === 'string' ? error : error.message);
+  //   }
+  // });
 
   const { user } = useMockedUser();
   const renderHead = (
@@ -101,8 +102,10 @@ export default function JwtLoginView() {
         size="large"
         type="button"
         variant="contained"
-        loading={isSubmitting}
-        onClick={onSubmit}
+        // loading={isSubmitting}
+        onClick={() => {
+          router.push(PATH_AFTER_LOGIN);
+        }}
       >
         Enter
       </LoadingButton>
@@ -110,10 +113,10 @@ export default function JwtLoginView() {
   );
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
+    <Box>
       {renderHead}
 
       {renderForm}
-    </FormProvider>
+    </Box>
   );
 }

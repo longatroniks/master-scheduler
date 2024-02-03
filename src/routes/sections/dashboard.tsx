@@ -24,13 +24,11 @@ export const dashboardRoutes = [
   {
     path: 'dashboard',
     element: (
-      <AuthGuard>
-        <DashboardLayout>
-          <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
-      </AuthGuard>
+      <DashboardLayout>
+        <Suspense fallback={<LoadingScreen />}>
+          <Outlet />
+        </Suspense>
+      </DashboardLayout>
     ),
     children: [
       { element: <IndexPage />, index: true },
