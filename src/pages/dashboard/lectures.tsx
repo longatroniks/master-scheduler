@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import EightView from 'src/sections/eight/view';
 // sections
+import FourView from 'src/sections/lectures/view';
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +8,10 @@ export default function Page() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Three</title>
+        <title> Dashboard: Four</title>
       </Helmet>
 
-      <EightView />
+      <FourView />
     </>
   );
 }

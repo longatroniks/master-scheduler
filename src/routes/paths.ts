@@ -19,13 +19,13 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
-    one: `${ROOTS.DASHBOARD}/one`,
+    generator: `${ROOTS.DASHBOARD}/generator`,
     two: `${ROOTS.DASHBOARD}/two`,
-    three: `${ROOTS.DASHBOARD}/three`,
-    four: `${ROOTS.DASHBOARD}/four`,
-    five: `${ROOTS.DASHBOARD}/five`,
-    six: `${ROOTS.DASHBOARD}/six`,
-    seven: `${ROOTS.DASHBOARD}/seven`,
-    eight: `${ROOTS.DASHBOARD}/eight`,
+    classrooms: `${ROOTS.DASHBOARD}/classrooms`,
+    lectures: `${ROOTS.DASHBOARD}/lectures`,
+    professors: `${ROOTS.DASHBOARD}/professors`,
+    courses: `${ROOTS.DASHBOARD}/courses`,
+    users: `${ROOTS.DASHBOARD}/users`,
+    sections: `${ROOTS.DASHBOARD}/sections`,
   },
 };

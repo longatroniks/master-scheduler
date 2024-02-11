@@ -68,32 +68,32 @@ export function useNavData() {
         items: [
           {
             title: 'Courses',
-            path: paths.dashboard.six,
+            path: paths.dashboard.courses,
             icon: ICONS.kanban,
           },
           {
-            title: 'Rooms',
-            path: paths.dashboard.three,
+            title: 'Classrooms',
+            path: paths.dashboard.classrooms,
             icon: ICONS.banking,
           },
           {
             title: 'Lectures',
-            path: paths.dashboard.four,
+            path: paths.dashboard.lectures,
             icon: ICONS.booking,
           },
           {
             title: 'Professors',
-            path: paths.dashboard.five,
+            path: paths.dashboard.professors,
             icon: ICONS.user,
           },
           {
             title: 'Users',
-            path: paths.dashboard.seven,
+            path: paths.dashboard.users,
             icon: ICONS.user,
           },
           {
             title: 'Sections',
-            path: paths.dashboard.eight,
+            path: paths.dashboard.sections,
             icon: ICONS.user,
           },
         ],

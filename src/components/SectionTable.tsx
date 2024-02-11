@@ -1,8 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { SectionController } from '../controllers/SectionController';
-import { CourseController } from '../controllers/CourseController'; // Import CourseController
-import { Section } from '../models/Section';
-import { Course } from '../models/Course'; // Import Course model
+import { useState, useEffect, ChangeEvent } from 'react';
 import {
   Table,
   TableBody,
@@ -17,11 +13,12 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  Select,
   MenuItem,
-  InputLabel,
-  FormControl,
 } from '@mui/material';
+import { SectionController } from '../controllers/SectionController';
+import { CourseController } from '../controllers/CourseController'; // Import CourseController
+import { Section } from '../models/Section';
+import { Course } from '../models/Course'; // Import Course model
 
 const SectionTable = () => {
   const [sections, setSections] = useState<Section[]>([]);
@@ -41,7 +38,7 @@ const SectionTable = () => {
     };
 
     fetchData();
-  }, []);
+  });
 
   const handleOpenCreateEditModal = (section: Section | null) => {
     if (section) {
