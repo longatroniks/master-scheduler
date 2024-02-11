@@ -1,6 +1,6 @@
-import { Lecture } from '../models/Lecture';
-import { db } from '../firebase';
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { Lecture } from '../models/Lecture';
 
 export class LectureService {
   private collectionRef = collection(db, 'lectures');
@@ -22,24 +22,23 @@ export class LectureService {
         lectureDoc.data().section_id,
         lectureDoc.data().start_time
       );
-    } else {
-      console.log('No such document!');
-      return undefined;
     }
+    console.log('No such document!');
+    return undefined;
   }
 
   // READ: Get all Lectures
   async getLectures(): Promise<Lecture[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
-      (doc) =>
+      (document) =>
         new Lecture(
-          doc.data().classroom_id,
-          doc.data().day,
-          doc.data().end_time,
-          doc.data().section_id,
-          doc.data().start_time,
-          doc.id // Include the document ID
+          document.data().classroom_id,
+          document.data().day,
+          document.data().end_time,
+          document.data().section_id,
+          document.data().start_time,
+          document.id // Include the document ID
         )
     );
   }

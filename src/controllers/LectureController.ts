@@ -46,10 +46,10 @@ export class LectureController {
     }
   }
 
-  async fetchLectureById(LectureId: string) {
+  async fetchLectureById(lectureId: string) {
     try {
-      const Lecture = await this.lectureService.getLecture(LectureId);
-      return Lecture;
+      const lecture = await this.lectureService.getLecture(lectureId);
+      return lecture;
     } catch (error) {
       console.error('Error fetching Lecture by id: ', error);
       throw error;

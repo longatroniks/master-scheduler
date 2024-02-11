@@ -1,6 +1,6 @@
-import { User } from '../models/User';
-import { db } from '../firebase';
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { User } from '../models/User';
 
 export class UserService {
   private collectionRef = collection(db, 'users');
@@ -22,24 +22,23 @@ export class UserService {
         userDoc.data().password,
         userDoc.data().role
       );
-    } else {
-      console.log('No such document!');
-      return undefined;
     }
+    console.log('No such document!');
+    return undefined;
   }
 
   // READ: Get all users
   async getUsers(): Promise<User[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
-      (doc) =>
+      (document) =>
         new User(
-          doc.data().first_name,
-          doc.data().last_name,
-          doc.data().email,
-          doc.data().password,
-          doc.data().role,
-          doc.id // Include the document ID
+          document.data().first_name,
+          document.data().last_name,
+          document.data().email,
+          document.data().password,
+          document.data().role,
+          document.id // Include the document ID
         )
     );
   }

@@ -1,6 +1,3 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { ClassroomController } from '../controllers/ClassroomController';
-import { Classroom } from '../models/Classroom';
 import {
   Table,
   TableBody,
@@ -18,6 +15,9 @@ import {
   Switch,
   FormControlLabel,
 } from '@mui/material';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { ClassroomController } from '../controllers/ClassroomController';
+import { Classroom } from '../models/Classroom';
 
 const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
@@ -32,7 +32,7 @@ const ClassroomTable = () => {
     };
 
     fetchClassrooms();
-  }, []);
+  });
 
   const handleOpenCreateEditModal = (classroom: Classroom | null) => {
     if (classroom) {

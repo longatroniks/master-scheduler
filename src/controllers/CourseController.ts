@@ -48,8 +48,8 @@ export class CourseController {
 
   async fetchCourseById(courseId: string) {
     try {
-      const Course = await this.courseService.getCourse(courseId);
-      return Course;
+      const course = await this.courseService.getCourse(courseId);
+      return course;
     } catch (error) {
       console.error('Error fetching Course by id: ', error);
       throw error;

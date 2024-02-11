@@ -1,6 +1,6 @@
-import { Section } from '../models/Section';
-import { db } from '../firebase';
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { Section } from '../models/Section';
 
 export class SectionService {
   private collectionRef = collection(db, 'sections');
@@ -21,23 +21,22 @@ export class SectionService {
         sectionDoc.data().lecturer_id,
         sectionDoc.data().name
       );
-    } else {
-      console.log('No such document!');
-      return undefined;
     }
+    console.log('No such document!');
+    return undefined;
   }
 
   // READ: Get all sections
   async getSections(): Promise<Section[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
-      (doc) =>
+      (document) =>
         new Section(
-          doc.data().capacity,
-          doc.data().course_id,
-          doc.data().lecturer_id,
-          doc.data().name,
-          doc.id // Include the document ID
+          document.data().capacity,
+          document.data().course_id,
+          document.data().lecturer_id,
+          document.data().name,
+          document.id // Include the document ID
         )
     );
   }

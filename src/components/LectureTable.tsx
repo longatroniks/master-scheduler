@@ -1,8 +1,4 @@
 import React, { useState, useEffect, ChangeEvent, useMemo } from 'react';
-import { LectureController } from '../controllers/LectureController';
-import { ClassroomController } from '../controllers/ClassroomController';
-import { SectionController } from '../controllers/SectionController';
-import { Lecture } from '../models/Lecture';
 import {
   Table,
   TableBody,
@@ -19,6 +15,10 @@ import {
   TextField,
   MenuItem,
 } from '@mui/material';
+import { LectureController } from '../controllers/LectureController';
+import { ClassroomController } from '../controllers/ClassroomController';
+import { SectionController } from '../controllers/SectionController';
+import { Lecture } from '../models/Lecture';
 import { Classroom } from '../models/Classroom';
 import { Section } from '../models/Section';
 import { CourseController } from '../controllers/CourseController';
@@ -73,7 +73,7 @@ const LectureTable = () => {
     };
 
     fetchLectures();
-  }, []);
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,7 +86,7 @@ const LectureTable = () => {
     };
 
     fetchData();
-  }, []);
+  });
 
   const handleOpenCreateEditModal = async (lecture: Lecture | null) => {
     if (lecture) {

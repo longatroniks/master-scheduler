@@ -1,16 +1,18 @@
-import { Classroom } from '../models/Classroom';
-import { db } from '../firebase';
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { Classroom } from '../models/Classroom';
 
 export class ClassroomService {
   private collectionRef = collection(db, 'classrooms');
 
   // CREATE: Add a new Classroom
+  // eslint-disable-next-line class-methods-use-this
   async createClassroom(classroom: Classroom): Promise<void> {
     await addDoc(this.collectionRef, classroom.toFirestore());
   }
 
   // READ: Get a single Classroom by id
+  // eslint-disable-next-line class-methods-use-this
   async getClassroom(classroomId: string): Promise<Classroom | undefined> {
     const classroomRef = doc(db, 'classrooms', classroomId);
     const classroomDoc = await getDoc(classroomRef);
@@ -20,27 +22,27 @@ export class ClassroomService {
         classroomDoc.data().lab,
         classroomDoc.data().name
       );
-    } else {
-      console.log('No such document!');
-      return undefined;
     }
+    console.log('No such document!');
+    return undefined;
   }
 
   // READ: Get all Classrooms
   async getClassrooms(): Promise<Classroom[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
-      (doc) =>
+      (document) =>
         new Classroom(
-          doc.data().capacity,
-          doc.data().lab,
-          doc.data().name,
-          doc.id // Include the document ID
+          document.data().capacity,
+          document.data().lab,
+          document.data().name,
+          document.id // Include the document ID
         )
     );
   }
 
   // UPDATE: Update a Classroom's details
+  // eslint-disable-next-line class-methods-use-this
   async updateClassroom(classroom: Classroom): Promise<void> {
     if (!classroom.id) {
       throw new Error('Classroom ID is missing');
@@ -51,6 +53,7 @@ export class ClassroomService {
   }
 
   // DELETE: Remove a Classroom
+  // eslint-disable-next-line class-methods-use-this
   async deleteClassroom(classroomId: string): Promise<void> {
     const classroomRef = doc(db, 'classrooms', classroomId);
     await deleteDoc(classroomRef);

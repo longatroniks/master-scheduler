@@ -1,6 +1,3 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { UserController } from '../controllers/UserController';
-import { User } from '../models/User';
 import {
   Table,
   TableBody,
@@ -16,6 +13,9 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { UserController } from '../controllers/UserController';
+import { User } from '../models/User';
 
 const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -30,7 +30,7 @@ const UserTable = () => {
     };
 
     fetchUsers();
-  }, []);
+  });
 
   const handleOpenCreateEditModal = (user: User | null) => {
     if (user) {
