@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Three</title>
+        <title> Dashboard: Users</title>
       </Helmet>
 
       <UsersView />
