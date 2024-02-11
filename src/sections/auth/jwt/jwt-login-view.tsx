@@ -24,7 +24,6 @@ import { useAuthContext } from 'src/auth/hooks';
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { Avatar, Box } from '@mui/material';
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 
 // ----------------------------------------------------------------------
 
@@ -75,11 +74,10 @@ export default function JwtLoginView() {
   //   }
   // });
 
-  const { user } = useMockedUser();
   const renderHead = (
     <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 5 }}>
       <Avatar
-        src={user?.photoURL}
+        // src={user?.photoURL}
         alt="avatar"
         sx={{
           width: 36,
