@@ -73,7 +73,7 @@ const LectureTable = () => {
     };
 
     fetchLectures();
-  });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,7 +86,7 @@ const LectureTable = () => {
     };
 
     fetchData();
-  });
+  }, []);
 
   const handleOpenCreateEditModal = async (lecture: Lecture | null) => {
     if (lecture) {

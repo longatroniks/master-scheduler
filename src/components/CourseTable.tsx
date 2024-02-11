@@ -35,7 +35,7 @@ const CourseTable = () => {
 
   useEffect(() => {
     fetchCourses();
-  }, [fetchCourses]);
+  }, []);
 
   const handleOpenCreateEditModal = (course: Course | null) => {
     if (course) {

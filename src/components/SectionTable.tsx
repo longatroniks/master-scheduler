@@ -38,7 +38,7 @@ const SectionTable = () => {
     };
 
     fetchData();
-  });
+  }, []);
 
   const handleOpenCreateEditModal = (section: Section | null) => {
     if (section) {

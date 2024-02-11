@@ -30,7 +30,7 @@ const UserTable = () => {
     };
 
     fetchUsers();
-  });
+  }, []);
 
   const handleOpenCreateEditModal = (user: User | null) => {
     if (user) {

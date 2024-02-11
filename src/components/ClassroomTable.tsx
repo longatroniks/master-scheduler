@@ -32,7 +32,7 @@ const ClassroomTable = () => {
     };
 
     fetchClassrooms();
-  });
+  }, []);
 
   const handleOpenCreateEditModal = (classroom: Classroom | null) => {
     if (classroom) {
