@@ -52,9 +52,26 @@ const UserTable = () => {
       setUsers(users.filter((u) => u.id !== user.id));
     }
   };
-
+  
+  const disallowedChars = /[!#$%&/()=?*+'.,;:-_]/;
   const handleSaveUser = async () => {
     if (editingUser) {
+      if (!editingUser.first_name || !editingUser.last_name || !editingUser.email || !editingUser.role) {
+        alert('Please fill in all required fields!');
+        return;
+      }
+
+      if (disallowedChars.test(editingUser.first_name) || disallowedChars.test(editingUser.last_name)) {
+        alert('Names cannot contain characters like "!", "&", "#", etc.');
+        return; // Prevent saving
+      }
+
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      if (!emailRegex.test(editingUser.email)) {
+      alert('Please enter a valid email address (containing "@").');
+      return;
+    }
+
       if (editingUser.id) {
         await userController.updateUser(editingUser); // Update existing user
       } else {
@@ -68,8 +85,12 @@ const UserTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    
     setEditingUser((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
+
+  
 
   return (
     <div>
@@ -111,6 +132,7 @@ const UserTable = () => {
         <DialogTitle>{editingUser ? 'Edit User' : 'Add User'}</DialogTitle>
         <DialogContent>
           <TextField
+            required
             autoFocus
             margin="dense"
             id="first_name"
@@ -121,8 +143,10 @@ const UserTable = () => {
             name="first_name"
             value={editingUser?.first_name || ''}
             onChange={handleChange}
+            inputProps={{ maxLength: 12 }}
           />
           <TextField
+            required
             margin="dense"
             id="last_name"
             label="Last Name"
@@ -132,8 +156,10 @@ const UserTable = () => {
             name="last_name"
             value={editingUser?.last_name || ''}
             onChange={handleChange}
+            inputProps={{ maxLength: 20 }}
           />
           <TextField
+            required
             margin="dense"
             id="email"
             label="Email"
@@ -145,6 +171,7 @@ const UserTable = () => {
             onChange={handleChange}
           />
           <TextField
+            required
             margin="dense"
             id="role"
             label="Role"
