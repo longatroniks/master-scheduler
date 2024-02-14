@@ -60,6 +60,7 @@ const CourseTable = () => {
 
   const handleSaveCourse = async () => {
     if (editingCourse) {
+      
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse); // Update existing Course
       } else {
@@ -67,9 +68,20 @@ const CourseTable = () => {
       }
       const updatedCourses = await courseController.fetchCourses(); // Refetch Courses to update the list
       setCourses(updatedCourses || []);
+      handleCloseCreateEditModal();
+    } else {
+      alert('Please fill in all fields to save the course.');
     }
-    handleCloseCreateEditModal();
   };
+  
+  const isCourseValid = (course: Course) => {
+    return course.name.trim() !== '' &&
+           course.abbreviation.trim() !== '' &&
+           course.program.trim() !== '' &&
+           course.year_level !== 0;
+  };
+  
+  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
