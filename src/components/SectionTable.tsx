@@ -67,6 +67,7 @@ const SectionTable = () => {
 
   const handleSaveSection = async () => {
     if (editingSection) {
+      
       if (editingSection.id) {
         await sectionController.updateSection(editingSection); // Update existing section
       } else {
