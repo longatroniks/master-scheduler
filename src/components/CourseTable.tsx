@@ -60,7 +60,6 @@ const CourseTable = () => {
 
   const handleSaveCourse = async () => {
     if (editingCourse) {
-      
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse); // Update existing Course
       } else {

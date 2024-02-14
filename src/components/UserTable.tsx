@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  MenuItem
 } from '@mui/material';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { UserController } from '../controllers/UserController';
@@ -172,18 +173,26 @@ const UserTable = () => {
             value={editingUser?.email || ''}
             onChange={handleChange}
           />
+
+          
           <TextField
-            required
+            select
             margin="dense"
             id="role"
             label="Role"
-            type="text"
             fullWidth
             variant="standard"
             name="role"
             value={editingUser?.role || ''}
             onChange={handleChange}
-          />
+            >
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="editor">Editor</MenuItem>
+              <MenuItem value="user">User</MenuItem>
+              
+
+            </TextField>
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
