@@ -115,17 +115,38 @@ const LectureTable = () => {
   };
 
   const handleSaveLecture = async () => {
-    if (editingLecture) {
-      if (editingLecture.id) {
-        await lectureController.updateLecture(editingLecture); // Update existing Lecture
+    if (editingLecture && isLectureValid(editingLecture)) {
+      if (isEndTimeValid(editingLecture)) {
+        if (editingLecture.id) {
+          await lectureController.updateLecture(editingLecture); // Update existing Lecture
+        } else {
+          await lectureController.addLecture(editingLecture); // Add new Lecture
+        }
+        const updatedLectures = await lectureController.fetchLectures(); // Refetch Lectures to update the list
+        setLectures(updatedLectures || []);
+        handleCloseCreateEditModal();
       } else {
-        await lectureController.addLecture(editingLecture); // Add new Lecture
+        alert('End time cannot be before start time.');
       }
-      const updatedLectures = await lectureController.fetchLectures(); // Refetch Lectures to update the list
-      setLectures(updatedLectures || []);
+    } else {
+      alert('Please fill in all fields to save the lecture.');
     }
-    handleCloseCreateEditModal();
   };
+  
+  const isLectureValid = (lecture: Lecture) => {
+    return lecture.day.trim() !== '' &&
+           lecture.start_time.trim() !== '' &&
+           lecture.end_time.trim() !== '' &&
+           lecture.classroom_id.trim() !== '' &&
+           lecture.section_id.trim() !== '';
+  };
+  
+  const isEndTimeValid = (lecture: Lecture) => {
+    const startTime = new Date(`01/01/2000 ${lecture.start_time}`);
+    const endTime = new Date(`01/01/2000 ${lecture.end_time}`);
+    return endTime > startTime;
+  };
+  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
