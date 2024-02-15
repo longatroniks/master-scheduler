@@ -1,5 +1,5 @@
-import { UserService } from "../services/UserService.ts";
-import { User } from "../models/User.ts";
+import { UserService } from '../services/UserService';
+import { User } from '../models/User';
 
 export class UserController {
   userService: UserService;
@@ -13,7 +13,7 @@ export class UserController {
       const users = await this.userService.getUsers();
       return users;
     } catch (error) {
-      console.error("Error fetching users: ", error);
+      console.error('Error fetching users: ', error);
       throw error;
     }
   }
@@ -22,16 +22,17 @@ export class UserController {
     try {
       await this.userService.createUser(userData);
     } catch (error) {
-      console.error("Error adding user: ", error);
+      console.error('Error adding user: ', error);
       throw error;
     }
   }
 
   async updateUser(user: User) {
+    // Updated to take a User object
     try {
       await this.userService.updateUser(user);
     } catch (error) {
-      console.error("Error updating user: ", error);
+      console.error('Error updating user: ', error);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ export class UserController {
     try {
       await this.userService.deleteUser(userId);
     } catch (error) {
-      console.error("Error removing user: ", error);
+      console.error('Error removing user: ', error);
       throw error;
     }
   }
@@ -50,7 +51,7 @@ export class UserController {
       const user = await this.userService.getUser(userId);
       return user;
     } catch (error) {
-      console.error("Error fetching user by id: ", error);
+      console.error('Error fetching user by id: ', error);
       throw error;
     }
   }

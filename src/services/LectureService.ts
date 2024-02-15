@@ -1,24 +1,16 @@
-import { Lecture } from "../models/Lecture.ts";
-import { db } from "../firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { Lecture } from '../models/Lecture';
 
 export class LectureService {
-  private collectionRef = collection(db, "lectures");
+  private collectionRef = collection(db, 'lectures');
 
   async createLecture(lecture: Lecture): Promise<void> {
     await addDoc(this.collectionRef, lecture.toFirestore());
   }
 
   async getLecture(lectureId: string): Promise<Lecture | undefined> {
-    const lectureRef = doc(db, "lectures", lectureId);
+    const lectureRef = doc(db, 'lectures', lectureId);
     const lectureDoc = await getDoc(lectureRef);
     if (lectureDoc.exists()) {
       return new Lecture(
@@ -28,38 +20,37 @@ export class LectureService {
         lectureDoc.data().section_id,
         lectureDoc.data().start_time
       );
-    } else {
-      console.log("No such document!");
-      return undefined;
     }
+    console.log('No such document!');
+    return undefined;
   }
 
   async getLectures(): Promise<Lecture[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
-      (doc) =>
+      (document) =>
         new Lecture(
-          doc.data().classroom_id,
-          doc.data().day,
-          doc.data().end_time,
-          doc.data().section_id,
-          doc.data().start_time,
-          doc.id
+          document.data().classroom_id,
+          document.data().day,
+          document.data().end_time,
+          document.data().section_id,
+          document.data().start_time,
+          document.id
         )
     );
   }
 
   async updateLecture(lecture: Lecture): Promise<void> {
     if (!lecture.id) {
-      throw new Error("Lecture ID is missing");
+      throw new Error('Lecture ID is missing');
     }
-    const lectureRef = doc(db, "lectures", lecture.id);
+    const lectureRef = doc(db, 'lectures', lecture.id);
     const updateData = lecture.toFirestore();
     await updateDoc(lectureRef, updateData);
   }
 
   async deleteLecture(lectureId: string): Promise<void> {
-    const lectureRef = doc(db, "lectures", lectureId);
+    const lectureRef = doc(db, 'lectures', lectureId);
     await deleteDoc(lectureRef);
   }
 }

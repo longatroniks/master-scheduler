@@ -13,21 +13,20 @@ export class Course {
 
   toFirestore() {
     const yearLevelAsNumber = Number(this.year_level);
-    if (isNaN(yearLevelAsNumber)) {
+    if (Number.isNaN(yearLevelAsNumber)) {
       return {
         abbreviation: this.abbreviation,
         name: this.name,
         program: this.program,
         year_level: 0,
       };
-    } else {
-      return {
-        abbreviation: this.abbreviation,
-        name: this.name,
-        program: this.program,
-        year_level: yearLevelAsNumber,
-      };
     }
+    return {
+      abbreviation: this.abbreviation,
+      name: this.name,
+      program: this.program,
+      year_level: yearLevelAsNumber,
+    };
   }
 
   updateFields(fields: Partial<Course>) {

@@ -1,5 +1,5 @@
-import { SectionService } from "../services/SectionService.ts";
-import { Section } from "../models/Section.ts";
+import { SectionService } from '../services/SectionService';
+import { Section } from '../models/Section';
 
 export class SectionController {
   sectionService: SectionService;
@@ -13,44 +13,45 @@ export class SectionController {
       const sections = await this.sectionService.getSections();
       return sections;
     } catch (error) {
-      console.error("Error fetching Sections: ", error);
+      console.error('Error fetching Sections: ', error);
       throw error;
     }
   }
 
-  async addSection(SectionData: Section) {
+  async addSection(sectionData: Section) {
     try {
-      await this.sectionService.createSection(SectionData);
+      await this.sectionService.createSection(sectionData);
     } catch (error) {
-      console.error("Error adding Section: ", error);
+      console.error('Error adding Section: ', error);
       throw error;
     }
   }
 
-  async updateSection(Section: Section) {
+  async updateSection(section: Section) {
+    // Updated to take a Section object
     try {
-      await this.sectionService.updateSection(Section);
+      await this.sectionService.updateSection(section);
     } catch (error) {
-      console.error("Error updating Section: ", error);
+      console.error('Error updating Section: ', error);
       throw error;
     }
   }
 
-  async removeSection(SectionId: string) {
+  async removeSection(sectionId: string) {
     try {
-      await this.sectionService.deleteSection(SectionId);
+      await this.sectionService.deleteSection(sectionId);
     } catch (error) {
-      console.error("Error removing Section: ", error);
+      console.error('Error removing Section: ', error);
       throw error;
     }
   }
 
-  async fetchSectionById(SectionId: string) {
+  async fetchSectionById(sectionId: string) {
     try {
-      const Section = await this.sectionService.getSection(SectionId);
-      return Section;
+      const section = await this.sectionService.getSection(sectionId);
+      return section;
     } catch (error) {
-      console.error("Error fetching Section by id: ", error);
+      console.error('Error fetching Section by id: ', error);
       throw error;
     }
   }

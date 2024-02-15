@@ -1,6 +1,3 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { ClassroomController } from "../controllers/ClassroomController.ts";
-import { Classroom } from "../models/Classroom.ts";
 import {
   Table,
   TableBody,
@@ -17,14 +14,15 @@ import {
   TextField,
   Switch,
   FormControlLabel,
-} from "@mui/material";
+} from '@mui/material';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { ClassroomController } from '../controllers/ClassroomController';
+import { Classroom } from '../models/Classroom';
 
 const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
-  const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(
-    null
-  );
+  const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const classroomController = new ClassroomController();
 
   useEffect(() => {
@@ -40,7 +38,8 @@ const ClassroomTable = () => {
     if (classroom) {
       setEditingClassroom(classroom);
     } else {
-      setEditingClassroom(new Classroom(0, false, ""));
+      // Create a new Classroom instance with empty fields for adding a new Classroom
+      setEditingClassroom(new Classroom(0, false, ''));
     }
     setOpenCreateEditModal(true);
   };
@@ -71,17 +70,13 @@ const ClassroomTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingClassroom((prev) =>
-      prev ? prev.updateFields({ [name]: value }) : null
-    );
+    setEditingClassroom((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   return (
     <div>
       <h1>Classrooms</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>
-        Add Classroom
-      </Button>
+      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Classroom</Button>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -98,15 +93,11 @@ const ClassroomTable = () => {
                 <TableCell component="th" scope="row">
                   {classroom.name}
                 </TableCell>
-                <TableCell>{classroom.lab ? "Yes" : "No"}</TableCell>{" "}
+                <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>{' '}
                 <TableCell>{classroom.capacity}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(classroom)}>
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDeleteClassroom(classroom)}>
-                    Delete
-                  </Button>
+                  <Button onClick={() => handleOpenCreateEditModal(classroom)}>Edit</Button>
+                  <Button onClick={() => handleDeleteClassroom(classroom)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -115,9 +106,7 @@ const ClassroomTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>
-          {editingClassroom ? "Edit Classroom" : "Add Classroom"}
-        </DialogTitle>
+        <DialogTitle>{editingClassroom ? 'Edit Classroom' : 'Add Classroom'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -128,7 +117,7 @@ const ClassroomTable = () => {
             fullWidth
             variant="standard"
             name="name"
-            value={editingClassroom?.name || ""}
+            value={editingClassroom?.name || ''}
             onChange={handleChange}
           />
           <FormControlLabel
@@ -154,7 +143,7 @@ const ClassroomTable = () => {
             fullWidth
             variant="standard"
             name="capacity"
-            value={editingClassroom?.capacity || ""}
+            value={editingClassroom?.capacity || ''}
             onChange={handleChange}
           />
         </DialogContent>
