@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Table,
   TableBody,
@@ -42,7 +43,7 @@ const CourseTable = () => {
       setEditingCourse(course);
     } else {
       // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course('', '', '', 0));
+      setEditingCourse(new Course('', '', '', 0, 0, false));
     }
     setOpenCreateEditModal(true);
   };
@@ -60,7 +61,13 @@ const CourseTable = () => {
 
   const handleSaveCourse = async () => {
     // Check if editingCourse exists and all required fields are filled
-    if (editingCourse && editingCourse.name && editingCourse.abbreviation && editingCourse.program && editingCourse.year_level) {
+    if (
+      editingCourse &&
+      editingCourse.name &&
+      editingCourse.abbreviation &&
+      editingCourse.program &&
+      editingCourse.year_level
+    ) {
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse);
       } else {
@@ -71,10 +78,10 @@ const CourseTable = () => {
       handleCloseCreateEditModal();
     } else {
       // If any required field is missing, display an alert or handle the error accordingly
-      alert("Please fill in all fields.");
+      alert('Please fill in all fields.');
     }
   };
-  
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
@@ -185,4 +192,3 @@ const CourseTable = () => {
 };
 
 export default CourseTable;
-

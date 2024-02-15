@@ -6,6 +6,8 @@ export class Course {
     public name: string,
     public program: string,
     public year_level: number,
+    public credits: number,
+    public requires_lab: boolean,
     id?: string
   ) {
     if (id) this.id = id;
@@ -19,6 +21,8 @@ export class Course {
         name: this.name,
         program: this.program,
         year_level: 0,
+        credits: this.credits,
+        requires_lab: this.requires_lab,
       };
     }
     return {
@@ -26,6 +30,8 @@ export class Course {
       name: this.name,
       program: this.program,
       year_level: yearLevelAsNumber,
+      credits: this.credits,
+      requires_lab: this.requires_lab,
     };
   }
 
@@ -35,6 +41,8 @@ export class Course {
       fields.name ?? this.name,
       fields.program ?? this.program,
       fields.year_level ?? this.year_level,
+      fields.credits ?? this.credits,
+      fields.requires_lab ?? this.requires_lab,
       this.id
     );
   }

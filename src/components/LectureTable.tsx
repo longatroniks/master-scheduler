@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, ChangeEvent, useMemo } from 'react';
 import {
   Table,
@@ -109,7 +110,7 @@ const LectureTable = () => {
 
   const handleDeleteLecture = async (lecture: Lecture) => {
     if (window.confirm(`Are you sure you want to delete ${lecture.id}?`)) {
-      await lectureController.removeLecture(lecture.id as string); // Use the Lecture's ID for deletion
+      await lectureController.removeLecture(lecture.id as string);
       setLectures(lectures.filter((u) => u.id !== lecture.id));
     }
   };
@@ -133,13 +134,11 @@ const LectureTable = () => {
     }
   };
   
-  const isLectureValid = (lecture: Lecture) => {
-    return lecture.day.trim() !== '' &&
+  const isLectureValid = (lecture: Lecture) => lecture.day.trim() !== '' &&
            lecture.start_time.trim() !== '' &&
            lecture.end_time.trim() !== '' &&
            lecture.classroom_id.trim() !== '' &&
            lecture.section_id.trim() !== '';
-  };
   
   const isEndTimeValid = (lecture: Lecture) => {
     const startTime = new Date(`01/01/2000 ${lecture.start_time}`);

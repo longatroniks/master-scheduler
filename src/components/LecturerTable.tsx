@@ -20,7 +20,7 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { LecturerController } from '../controllers/LecturerController';
 import { CourseController } from '../controllers/CourseController'; // Ensure the path is correct
 import { Lecturer } from '../models/Lecturer';
@@ -147,7 +147,7 @@ const LecturerTable = () => {
               <TableRow key={lecturer.id}>
                 <TableCell>{lecturer.firstName}</TableCell>
                 <TableCell>{lecturer.lastName}</TableCell>
-                <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'INSIDE'}</TableCell>
+                <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
                 <TableCell>
                   {lecturer.courses
                     .map(

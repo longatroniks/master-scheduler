@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Course } from '../models/Course';
@@ -17,7 +18,9 @@ export class CourseService {
         courseDoc.data().abbreviation,
         courseDoc.data().name,
         courseDoc.data().program,
-        courseDoc.data().year_level
+        courseDoc.data().year_level,
+        courseDoc.data().credits,
+        courseDoc.data().requires_lab,
       );
     }
     console.log('No such document!');
@@ -33,6 +36,8 @@ export class CourseService {
           document.data().name,
           document.data().program,
           document.data().year_level,
+          document.data().credits,
+          document.data().requires_lab,
           document.id
         )
     );
