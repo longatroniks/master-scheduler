@@ -5,7 +5,6 @@ import { Section } from '../models/Section';
 export class SectionService {
   private collectionRef = collection(db, 'sections');
 
-  // CREATE: Add a new Section
   async createSection(section: Section): Promise<void> {
     await addDoc(this.collectionRef, section.toFirestore());
   }

@@ -5,12 +5,10 @@ import { Lecture } from '../models/Lecture';
 export class LectureService {
   private collectionRef = collection(db, 'lectures');
 
-  // CREATE: Add a new Lecture
   async createLecture(lecture: Lecture): Promise<void> {
     await addDoc(this.collectionRef, lecture.toFirestore());
   }
 
-  // READ: Get a single Lecture by id
   async getLecture(lectureId: string): Promise<Lecture | undefined> {
     const lectureRef = doc(db, 'lectures', lectureId);
     const lectureDoc = await getDoc(lectureRef);
@@ -27,7 +25,6 @@ export class LectureService {
     return undefined;
   }
 
-  // READ: Get all Lectures
   async getLectures(): Promise<Lecture[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(
@@ -38,12 +35,11 @@ export class LectureService {
           document.data().end_time,
           document.data().section_id,
           document.data().start_time,
-          document.id // Include the document ID
+          document.id
         )
     );
   }
 
-  // UPDATE: Update a Lecture's details
   async updateLecture(lecture: Lecture): Promise<void> {
     if (!lecture.id) {
       throw new Error('Lecture ID is missing');
@@ -53,7 +49,6 @@ export class LectureService {
     await updateDoc(lectureRef, updateData);
   }
 
-  // DELETE: Remove a Lecture
   async deleteLecture(lectureId: string): Promise<void> {
     const lectureRef = doc(db, 'lectures', lectureId);
     await deleteDoc(lectureRef);

@@ -76,11 +76,11 @@ const UserTable = () => {
     }
 
       if (editingUser.id) {
-        await userController.updateUser(editingUser); // Update existing user
+        await userController.updateUser(editingUser);
       } else {
-        await userController.addUser(editingUser); // Add new user
+        await userController.addUser(editingUser);
       }
-      const updatedUsers = await userController.fetchUsers(); // Refetch users to update the list
+      const updatedUsers = await userController.fetchUsers();
       setUsers(updatedUsers || []);
     }
     handleCloseCreateEditModal();

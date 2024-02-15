@@ -50,7 +50,7 @@ const ClassroomTable = () => {
 
   const handleDeleteClassroom = async (classroom: Classroom) => {
     if (window.confirm(`Are you sure you want to delete ${classroom.name}?`)) {
-      await classroomController.removeClassroom(classroom.id as string); // Use the Classroom's ID for deletion
+      await classroomController.removeClassroom(classroom.id as string);
       setClassrooms(classrooms.filter((u) => u.id !== classroom.id));
     }
   };
@@ -76,11 +76,11 @@ const ClassroomTable = () => {
     }
 
       if (editingClassroom.id) {
-        await classroomController.updateClassroom(editingClassroom); // Update existing Classroom
+        await classroomController.updateClassroom(editingClassroom);
       } else {
-        await classroomController.addClassroom(editingClassroom); // Add new Classroom
+        await classroomController.addClassroom(editingClassroom);
       }
-      const updatedClassrooms = await classroomController.fetchClassrooms(); // Refetch Classrooms to update the list
+      const updatedClassrooms = await classroomController.fetchClassrooms();
       setClassrooms(updatedClassrooms || []);
     }
     handleCloseCreateEditModal();

@@ -62,11 +62,11 @@ const CourseTable = () => {
     // Check if editingCourse exists and all required fields are filled
     if (editingCourse && editingCourse.name && editingCourse.abbreviation && editingCourse.program && editingCourse.year_level) {
       if (editingCourse.id) {
-        await courseController.updateCourse(editingCourse); // Update existing Course
+        await courseController.updateCourse(editingCourse);
       } else {
-        await courseController.addCourse(editingCourse); // Add new Course
+        await courseController.addCourse(editingCourse);
       }
-      const updatedCourses = await courseController.fetchCourses(); // Refetch Courses to update the list
+      const updatedCourses = await courseController.fetchCourses();
       setCourses(updatedCourses || []);
       handleCloseCreateEditModal();
     } else {
