@@ -14,6 +14,8 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import React, { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
 import { CourseController } from '../controllers/CourseController';
@@ -99,6 +101,8 @@ const CourseTable = () => {
               <TableCell>Abbreviation</TableCell>
               <TableCell>Program</TableCell>
               <TableCell>Year Level</TableCell>
+              <TableCell>Credits</TableCell>
+              <TableCell>Requires Lab</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -111,6 +115,8 @@ const CourseTable = () => {
                 <TableCell>{course.abbreviation}</TableCell>
                 <TableCell>{course.program}</TableCell>
                 <TableCell>{course.year_level}</TableCell>
+                <TableCell>{course.credits}</TableCell>
+                <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
                   <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
@@ -181,6 +187,31 @@ const CourseTable = () => {
               </MenuItem>
             ))}
           </TextField>
+          <TextField
+            margin="dense"
+            id="credits"
+            label="Credits"
+            type="number"
+            fullWidth
+            variant="standard"
+            name="credits"
+            value={editingCourse?.credits || ''}
+            onChange={handleChange}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingCourse?.requires_lab || false}
+                onChange={(e) =>
+                  setEditingCourse((prev) =>
+                    prev ? prev.updateFields({ requires_lab: e.target.checked }) : null
+                  )
+                }
+                name="requires_lab"
+              />
+            }
+            label="Requires Lab"
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

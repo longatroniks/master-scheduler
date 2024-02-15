@@ -22,17 +22,17 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { LecturerController } from '../controllers/LecturerController';
-import { CourseController } from '../controllers/CourseController'; // Ensure the path is correct
+import { SectionController } from '../controllers/SectionController'; // Ensure the path is correct
 import { Lecturer } from '../models/Lecturer';
-import { Course } from '../models/Course';
+import { Section } from '../models/Section';
 
 const LecturerTable = () => {
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]); // State to hold courses
+  const [sections, setSections] = useState<Section[]>([]); // State to hold sections
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingLecturer, setEditingLecturer] = useState<Lecturer | null>(null);
   const lecturerController = new LecturerController();
-  const courseController = new CourseController(); // Initialize the course controller
+  const sectionController = new SectionController(); // Initialize the section controller
 
   useEffect(() => {
     const fetchLecturers = async () => {
@@ -40,13 +40,13 @@ const LecturerTable = () => {
       setLecturers(fetchedLecturers || []);
     };
 
-    const fetchCourses = async () => {
-      const fetchedCourses = await courseController.fetchCourses();
-      setCourses(fetchedCourses || []);
+    const fetchSections = async () => {
+      const fetchedSections = await sectionController.fetchSections();
+      setSections(fetchedSections || []);
     };
 
     fetchLecturers();
-    fetchCourses();
+    fetchSections();
   }, []);
 
   const handleOpenCreateEditModal = (lecturer: Lecturer | null) => {
@@ -95,7 +95,6 @@ const LecturerTable = () => {
   ) => {
     const field = event.target.name as keyof Lecturer;
 
-    // Use type guards to safely cast 'value' to the expected type
     const isCheckbox = checked !== undefined; // Identifies if the source is a Switch/Checkbox
     const value: any = isCheckbox ? checked : event.target.value;
 
@@ -105,18 +104,14 @@ const LecturerTable = () => {
       // Create a shallow copy to manipulate and update
       const updatedLecturer: Partial<Lecturer> = { ...prev };
 
-      if (field === 'courses' && Array.isArray(value)) {
-        // Safely assert 'value' as string[] for 'courses'
+      if (field === 'sections' && Array.isArray(value)) {
         updatedLecturer[field] = value.map(String);
       } else {
-        // For other fields, including 'outsideAffiliate', directly assign 'value'
         updatedLecturer[field] = value;
       }
 
-      // Ensure the updated lecturer object conforms to the Lecturer type
-      // This might require further validation or type assertions depending on your model
       return new Lecturer(
-        updatedLecturer.courses || prev.courses,
+        updatedLecturer.sections || prev.sections,
         updatedLecturer.firstName || prev.firstName,
         updatedLecturer.lastName || prev.lastName,
         updatedLecturer.outsideAffiliate !== undefined
@@ -138,7 +133,7 @@ const LecturerTable = () => {
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
               <TableCell>Affiliate</TableCell>
-              <TableCell>Courses</TableCell>
+              <TableCell>Sections</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -149,10 +144,10 @@ const LecturerTable = () => {
                 <TableCell>{lecturer.lastName}</TableCell>
                 <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
                 <TableCell>
-                  {lecturer.courses
+                  {lecturer.sections
                     .map(
-                      (courseId) =>
-                        courses.find((course) => course.id === courseId)?.name || 'Unknown'
+                      (sectionId) =>
+                        sections.find((section) => section.id === sectionId)?.name || 'Unknown'
                     )
                     .join(', ')}
                 </TableCell>
@@ -204,33 +199,33 @@ const LecturerTable = () => {
           />
 
           <FormControl fullWidth margin="dense">
-            <InputLabel id="courses-label">Courses</InputLabel>
+            <InputLabel id="sections-label">Sections</InputLabel>
             <Select
-              labelId="courses-label"
-              id="courses"
+              labelId="sections-label"
+              id="sections"
               multiple
-              value={editingLecturer?.courses || []}
+              value={editingLecturer?.sections || []}
               onChange={(event) => {
                 const value = event.target.value;
                 handleChange({
                   target: {
-                    name: 'courses',
+                    name: 'sections',
                     value: typeof value === 'string' ? value.split(',') : value,
                   },
                 } as React.ChangeEvent<{ name?: string; value: unknown }>);
               }}
-              name="courses"
+              name="sections"
               renderValue={(selected) =>
                 selected
                   .map(
-                    (courseId) => courses.find((course) => course.id === courseId)?.name || courseId
+                    (sectionId) => sections.find((section) => section.id === sectionId)?.name || sectionId
                   )
                   .join(', ')
               }
             >
-              {courses.map((course) => (
-                <MenuItem key={course.id} value={course.id}>
-                  {course.name}
+              {sections.map((section) => (
+                <MenuItem key={section.id} value={section.id}>
+                  {section.name}
                 </MenuItem>
               ))}
             </Select>

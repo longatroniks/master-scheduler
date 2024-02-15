@@ -15,7 +15,7 @@ export class LecturerService {
     const lecturerDoc = await getDoc(lecturerRef);
     if (lecturerDoc.exists()) {
       return new Lecturer(
-        lecturerDoc.data().courses,
+        lecturerDoc.data().sections,
         lecturerDoc.data().firstName,
         lecturerDoc.data().lastName,
         lecturerDoc.data().outsideAffiliate,
@@ -30,7 +30,7 @@ export class LecturerService {
     return snapshot.docs.map(
       (document) =>
         new Lecturer(
-          document.data().courses,
+          document.data().sections,
           document.data().firstName,
           document.data().lastName,
           document.data().outsideAffiliate,

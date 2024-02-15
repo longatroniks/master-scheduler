@@ -29,6 +29,12 @@ export const MasterSchedule = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [sectionCourseMap, setSectionCourseMap] = useState<{ [key: string]: Course }>({});
 
+  const calculateDurationInSlots = (startTime: string, endTime: string): number => {
+    const startIndex = timeSlots.indexOf(startTime);
+    const endIndex = timeSlots.indexOf(endTime);
+    return endIndex - startIndex;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const fetchedLectures = await new LectureController().fetchLectures();
@@ -92,12 +98,6 @@ export const MasterSchedule = () => {
       default:
         return 'lightGray';
     }
-  };
-
-  const calculateDurationInSlots = (startTime: string, endTime: string): number => {
-    const startIndex = timeSlots.indexOf(startTime);
-    const endIndex = timeSlots.indexOf(endTime);
-    return endIndex - startIndex;
   };
 
   return (
