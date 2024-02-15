@@ -17,6 +17,8 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { LecturerController } from '../controllers/LecturerController';
@@ -51,7 +53,7 @@ const LecturerTable = () => {
     if (lecturer) {
       setEditingLecturer(lecturer);
     } else {
-      setEditingLecturer(new Lecturer([], '', ''));
+      setEditingLecturer(new Lecturer([], '', '', false));
     }
     setOpenCreateEditModal(true);
   };
@@ -87,22 +89,40 @@ const LecturerTable = () => {
     handleCloseCreateEditModal();
   };
 
-  const handleChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-    const name = event.target.name as keyof typeof editingLecturer; // Extract the name of the changed property
-    let value: any = event.target.value; // Directly use any here for simplicity, but consider refining this type
+  const handleChange = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>,
+    checked?: boolean
+  ) => {
+    const field = event.target.name as keyof Lecturer;
 
-    if (name === 'courses' && Array.isArray(value)) {
-      // Ensure the value is an array (for the courses Select component)
-      value = value.map((item) => String(item)); // Ensure all items are strings
-    }
+    // Use type guards to safely cast 'value' to the expected type
+    const isCheckbox = checked !== undefined; // Identifies if the source is a Switch/Checkbox
+    const value: any = isCheckbox ? checked : event.target.value;
 
     setEditingLecturer((prev) => {
       if (!prev) return null;
+
+      // Create a shallow copy to manipulate and update
+      const updatedLecturer: Partial<Lecturer> = { ...prev };
+
+      if (field === 'courses' && Array.isArray(value)) {
+        // Safely assert 'value' as string[] for 'courses'
+        updatedLecturer[field] = value.map(String);
+      } else {
+        // For other fields, including 'outsideAffiliate', directly assign 'value'
+        updatedLecturer[field] = value;
+      }
+
+      // Ensure the updated lecturer object conforms to the Lecturer type
+      // This might require further validation or type assertions depending on your model
       return new Lecturer(
-        name === 'courses' ? value : prev.courses,
-        name === 'firstName' ? String(value) : prev.firstName,
-        name === 'lastName' ? String(value) : prev.lastName,
-        prev.id // Keep the existing ID
+        updatedLecturer.courses || prev.courses,
+        updatedLecturer.firstName || prev.firstName,
+        updatedLecturer.lastName || prev.lastName,
+        updatedLecturer.outsideAffiliate !== undefined
+          ? updatedLecturer.outsideAffiliate
+          : prev.outsideAffiliate,
+        prev.id // Preserve the ID
       );
     });
   };
@@ -117,6 +137,7 @@ const LecturerTable = () => {
             <TableRow>
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
+              <TableCell>Affiliate</TableCell>
               <TableCell>Courses</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -126,6 +147,7 @@ const LecturerTable = () => {
               <TableRow key={lecturer.id}>
                 <TableCell>{lecturer.firstName}</TableCell>
                 <TableCell>{lecturer.lastName}</TableCell>
+                <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'INSIDE'}</TableCell>
                 <TableCell>
                   {lecturer.courses
                     .map(
@@ -170,6 +192,17 @@ const LecturerTable = () => {
             value={editingLecturer?.lastName || ''}
             onChange={handleChange}
           />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={editingLecturer?.outsideAffiliate || false}
+                onChange={(e, checked) => handleChange(e, checked)}
+                name="outsideAffiliate"
+              />
+            }
+            label="Is Outside Affiliate"
+          />
+
           <FormControl fullWidth margin="dense">
             <InputLabel id="courses-label">Courses</InputLabel>
             <Select

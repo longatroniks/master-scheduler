@@ -17,7 +17,8 @@ export class LecturerService {
       return new Lecturer(
         lecturerDoc.data().courses,
         lecturerDoc.data().firstName,
-        lecturerDoc.data().lastName
+        lecturerDoc.data().lastName,
+        lecturerDoc.data().outsideAffiliate,
       );
     }
     console.log('No such document!');
@@ -32,6 +33,7 @@ export class LecturerService {
           document.data().courses,
           document.data().firstName,
           document.data().lastName,
+          document.data().outsideAffiliate,
           document.id // Include the document ID
         )
     );
