@@ -5,14 +5,10 @@ import { Classroom } from '../models/Classroom';
 export class ClassroomService {
   private collectionRef = collection(db, 'classrooms');
 
-  // CREATE: Add a new Classroom
-  // eslint-disable-next-line class-methods-use-this
   async createClassroom(classroom: Classroom): Promise<void> {
     await addDoc(this.collectionRef, classroom.toFirestore());
   }
 
-  // READ: Get a single Classroom by id
-  // eslint-disable-next-line class-methods-use-this
   async getClassroom(classroomId: string): Promise<Classroom | undefined> {
     const classroomRef = doc(db, 'classrooms', classroomId);
     const classroomDoc = await getDoc(classroomRef);
@@ -27,7 +23,6 @@ export class ClassroomService {
     return undefined;
   }
 
-  // READ: Get all Classrooms
   async getClassrooms(): Promise<Classroom[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(

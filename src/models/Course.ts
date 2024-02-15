@@ -35,7 +35,7 @@ export class Course {
       fields.name ?? this.name,
       fields.program ?? this.program,
       fields.year_level ?? this.year_level,
-      this.id // Maintain the existing ID
+      this.id
     );
   }
 }

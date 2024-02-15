@@ -29,7 +29,7 @@ export class Lecture {
         fields.end_time ?? this.end_time,
         fields.section_id ?? this.section_id,
         fields.start_time ?? this.start_time,
-        this.id // Maintain the existing ID
+        this.id
       );
     }
   }

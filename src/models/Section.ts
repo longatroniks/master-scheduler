@@ -26,7 +26,7 @@ export class Section {
       fields.course_id ?? this.course_id,
       fields.lecturer_id ?? this.lecturer_id,
       fields.name ?? this.name,
-      this.id // Maintain the existing ID
+      this.id
     );
   }
 }

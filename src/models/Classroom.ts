@@ -23,7 +23,7 @@ export class Classroom {
         fields.capacity ?? this.capacity,
         fields.lab ?? this.lab,
         fields.name ?? this.name,
-        this.id // Maintain the existing ID
+        this.id
       );
     }
   }
