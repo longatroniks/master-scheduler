@@ -66,22 +66,68 @@ const SectionTable = () => {
   };
 
   const handleSaveSection = async () => {
-    if (editingSection) {
-      
-      if (editingSection.id) {
-        await sectionController.updateSection(editingSection); // Update existing section
-      } else {
-        await sectionController.addSection(editingSection); // Add new section
-      }
-      const updatedSections = await sectionController.fetchSections(); // Refetch sections to update the list
-      setSections(updatedSections || []);
+    if (!editingSection) {
+      alert('No section selected for editing or addition.');
+      return;
     }
-    handleCloseCreateEditModal();
+  
+    const { name, capacity, lecturer_id, course_id } = editingSection;
+  
+    // Validate required fields
+    if (!name || !capacity || !lecturer_id || !course_id) {
+      alert('All fields are required.');
+      return;
+    }
+  
+    // Validate capacity is a positive number and smaller than 100
+    if (isNaN(capacity) || capacity <= 0 || capacity >= 100) {
+      alert('Capacity must be a positive number smaller than 100.');
+      return;
+    }
+  
+    // Additional validations for length and special characters
+    if (name.length > 50) {
+      alert('The section name must be no longer than 50 characters.');
+      return;
+    }
+  
+    const specialCharsPattern = /[.,\-!"#]/;
+    if (specialCharsPattern.test(lecturer_id) || lecturer_id.length < 5 || lecturer_id.length > 25) {
+      alert('Lecturer ID cannot contain special characters, must be between 5 and 25 characters long.');
+      return;
+    }
+  
+    if (specialCharsPattern.test(course_id) || course_id.length < 5 || course_id.length > 25) {
+      alert('Course ID cannot contain special characters, must be between 5 and 25 characters long.');
+      return;
+    }
+  
+    // If all validations pass, proceed with adding or updating the section
+    try {
+      if (editingSection.id) {
+        await sectionController.updateSection(editingSection);
+      } else {
+        await sectionController.addSection(editingSection);
+      }
+      const updatedSections = await sectionController.fetchSections();
+      setSections(updatedSections || []);
+      handleCloseCreateEditModal();
+    } catch (error) {
+      if (error.message) {
+        alert(`Validation Error: ${error.message}`);
+      } else {
+        console.error('Failed to save section:', error);
+        alert('An error occurred while saving the section. Please try again.');
+      }
+    }
   };
+  
+  
+  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingSection((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
+    setEditingSection((prev) => prev ? { ...prev, [name]: value } as Section : null);
   };
 
   return (
