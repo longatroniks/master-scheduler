@@ -82,8 +82,8 @@ export function useNavData() {
             icon: ICONS.booking,
           },
           {
-            title: 'Professors',
-            path: paths.dashboard.professors,
+            title: 'Lecturers',
+            path: paths.dashboard.lecturers,
             icon: ICONS.user,
           },
           {

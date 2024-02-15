@@ -23,7 +23,7 @@ export const paths = {
     two: `${ROOTS.DASHBOARD}/two`,
     classrooms: `${ROOTS.DASHBOARD}/classrooms`,
     lectures: `${ROOTS.DASHBOARD}/lectures`,
-    professors: `${ROOTS.DASHBOARD}/professors`,
+    lecturers: `${ROOTS.DASHBOARD}/lecturers`,
     courses: `${ROOTS.DASHBOARD}/courses`,
     users: `${ROOTS.DASHBOARD}/users`,
     sections: `${ROOTS.DASHBOARD}/sections`,

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Table,
   TableBody,
@@ -38,7 +39,6 @@ const ClassroomTable = () => {
     if (classroom) {
       setEditingClassroom(classroom);
     } else {
-      // Create a new Classroom instance with empty fields for adding a new Classroom
       setEditingClassroom(new Classroom(0, false, ''));
     }
     setOpenCreateEditModal(true);
@@ -60,16 +60,14 @@ const ClassroomTable = () => {
 
       if (!editingClassroom.name.trim()) {
         alert('Please enter a name for the classroom.');
-        return; // Prevent saving if classroom name is empty
+        return;
       }
 
-          // Use Number.isNaN for modern ECMAScript support:
     if (Number.isNaN(Number(editingClassroom.capacity))) {
       alert('Please enter a valid number for capacity.');
-      return; // Prevent saving if capacity is not a number
+      return;
     }
 
-    // Additional validation: capacity must be positive:
     if (editingClassroom.capacity <= 0) {
       alert('Capacity must be a number.');
       return;
