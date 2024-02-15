@@ -70,38 +70,38 @@ const SectionTable = () => {
       alert('No section selected for editing or addition.');
       return;
     }
-  
+
     const { name, capacity, lecturer_id, course_id } = editingSection;
-  
+
     // Validate required fields
     if (!name || !capacity || !lecturer_id || !course_id) {
       alert('All fields are required.');
       return;
     }
-  
+
     // Validate capacity is a positive number and smaller than 100
     if (isNaN(capacity) || capacity <= 0 || capacity >= 100) {
       alert('Capacity must be a positive number smaller than 100.');
       return;
     }
-  
+
     // Additional validations for length and special characters
     if (name.length > 50) {
       alert('The section name must be no longer than 50 characters.');
       return;
     }
-  
+
     const specialCharsPattern = /[.,\-!"#]/;
     if (specialCharsPattern.test(lecturer_id) || lecturer_id.length < 5 || lecturer_id.length > 25) {
       alert('Lecturer ID cannot contain special characters, must be between 5 and 25 characters long.');
       return;
     }
-  
+
     if (specialCharsPattern.test(course_id) || course_id.length < 5 || course_id.length > 25) {
       alert('Course ID cannot contain special characters, must be between 5 and 25 characters long.');
       return;
     }
-  
+
     // If all validations pass, proceed with adding or updating the section
     try {
       if (editingSection.id) {
@@ -120,14 +120,13 @@ const SectionTable = () => {
         alert('An error occurred while saving the section. Please try again.');
       }
     }
-  };
-  
-  
-  
+};
+
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingSection((prev) => prev ? { ...prev, [name]: value } as Section : null);
+    setEditingSection((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
   return (
