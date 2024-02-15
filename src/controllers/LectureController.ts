@@ -28,7 +28,6 @@ export class LectureController {
   }
 
   async updateLecture(lecture: Lecture) {
-    // Updated to take a Lecture object
     try {
       await this.lectureService.updateLecture(lecture);
     } catch (error) {

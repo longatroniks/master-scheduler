@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Lecture } from '../models/Lecture';
@@ -18,7 +19,8 @@ export class LectureService {
         lectureDoc.data().day,
         lectureDoc.data().end_time,
         lectureDoc.data().section_id,
-        lectureDoc.data().start_time
+        lectureDoc.data().start_time,
+        lectureDoc.data().lecture_amount,
       );
     }
     console.log('No such document!');
@@ -35,6 +37,7 @@ export class LectureService {
           document.data().end_time,
           document.data().section_id,
           document.data().start_time,
+          document.data().lecture_amount,
           document.id
         )
     );
