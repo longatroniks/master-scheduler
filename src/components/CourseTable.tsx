@@ -59,7 +59,8 @@ const CourseTable = () => {
   };
 
   const handleSaveCourse = async () => {
-    if (editingCourse) {
+    // Check if editingCourse exists and all required fields are filled
+    if (editingCourse && editingCourse.name && editingCourse.abbreviation && editingCourse.program && editingCourse.year_level) {
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse);
       } else {
@@ -67,10 +68,13 @@ const CourseTable = () => {
       }
       const updatedCourses = await courseController.fetchCourses();
       setCourses(updatedCourses || []);
+      handleCloseCreateEditModal();
+    } else {
+      // If any required field is missing, display an alert or handle the error accordingly
+      alert("Please fill in all fields.");
     }
-    handleCloseCreateEditModal();
   };
-
+  
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
@@ -181,3 +185,4 @@ const CourseTable = () => {
 };
 
 export default CourseTable;
+
