@@ -21,6 +21,7 @@ export class CourseService {
         courseDoc.data().year_level,
         courseDoc.data().credits,
         courseDoc.data().boxes,
+        courseDoc.data().lecture_amount,
         courseDoc.data().requires_lab,
       );
     }
@@ -39,6 +40,7 @@ export class CourseService {
           document.data().year_level,
           document.data().credits,
           document.data().boxes,
+          document.data().lecture_amount,
           document.data().requires_lab,
           document.id
         )

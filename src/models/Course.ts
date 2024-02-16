@@ -8,6 +8,7 @@ export class Course {
     public year_level: number,
     public credits: number,
     public boxes: number,
+    public lecture_amount: number,
     public requires_lab: boolean,
     id?: string
   ) {
@@ -25,6 +26,7 @@ export class Course {
         credits: this.credits,
         boxes: this.boxes,
         requires_lab: this.requires_lab,
+        lecture_amount: this.lecture_amount,
       };
     }
     return {
@@ -34,6 +36,7 @@ export class Course {
       year_level: yearLevelAsNumber,
       credits: this.credits,
       boxes: this.boxes,
+      lecture_amount: this.lecture_amount,
       requires_lab: this.requires_lab,
     };
   }
@@ -46,6 +49,7 @@ export class Course {
       fields.year_level ?? this.year_level,
       fields.credits ?? this.credits,
       fields.boxes ?? this.boxes,
+      fields.lecture_amount ?? this.lecture_amount,
       fields.requires_lab ?? this.requires_lab,
       this.id
     );

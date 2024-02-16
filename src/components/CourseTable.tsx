@@ -25,11 +25,18 @@ const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  // const courseController = new CourseController();
-  const yearLevels = [0, 1, 2, 3, 4];
-  const credits = [0, 3, 4];
-  const boxes = [2, 3, 4, 6];
   const programs = ['WMC', 'IB', 'HT', 'ALL'];
+  const yearLevels = [0, 1, 2, 3, 4];
+  const credits = [0, 3, 4]; // Does not conflict, only matters for prioritizing
+  const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h 
+
+  /**
+   * 2 boxes => only can be 1 lecture (because lecture cannot last below 1 hour)
+   * 3 boxes => only can be 1 lecture (because lecture cannot last below 1 hour)
+   * 4 boxes => can be 1 or 2 lectures (because 4 boxes / 2 lectures = 2 boxes (1h each))
+   * 6 boxes => can be 1, 2, or 3 lectures (because 6 / 2 = 2 (1h 30 min each), 6 / 3 = 2(1h each))
+   */
+  const lectureAmounts = [1,2,3];
 
   const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
 
@@ -47,7 +54,7 @@ const CourseTable = () => {
       setEditingCourse(course);
     } else {
       // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course('', '', '', 0, 0, 0, false));
+      setEditingCourse(new Course('', '', '', 0, 0, 0, 0, false));
     }
     setOpenCreateEditModal(true);
   };
@@ -105,6 +112,7 @@ const CourseTable = () => {
               <TableCell>Year Level</TableCell>
               <TableCell>Credits</TableCell>
               <TableCell>Boxes</TableCell>
+              <TableCell>Lecture Amount</TableCell>
               <TableCell>Requires Lab</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -120,6 +128,7 @@ const CourseTable = () => {
                 <TableCell>{course.year_level}</TableCell>
                 <TableCell>{course.credits}</TableCell>
                 <TableCell>{course.boxes}</TableCell>
+                <TableCell>{course.lecture_amount}</TableCell>
                 <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
@@ -222,6 +231,23 @@ const CourseTable = () => {
             {boxes.map((box) => (
               <MenuItem key={box} value={box}>
                 {box}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            margin="dense"
+            id="lecture_amount"
+            label="Lecture Amount"
+            fullWidth
+            variant="standard"
+            name="lecture_amount"
+            value={editingCourse?.lecture_amount || ''}
+            onChange={handleChange}
+          >
+            {lectureAmounts.map((lectureAmount) => (
+              <MenuItem key={lectureAmount} value={lectureAmount}>
+                {lectureAmount}
               </MenuItem>
             ))}
           </TextField>

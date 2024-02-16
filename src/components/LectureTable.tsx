@@ -94,7 +94,7 @@ const LectureTable = () => {
       setEditingLecture(lecture);
     } else {
       // Create a new Lecture instance with empty fields for adding a new Lecture
-      setEditingLecture(new Lecture('', '', '', '', '', 0));
+      setEditingLecture(new Lecture('', '', '', '', ''));
     }
 
     // Fetch classroom and section names
@@ -174,7 +174,6 @@ const LectureTable = () => {
               <TableCell>End Time</TableCell>
               <TableCell>Classroom ID</TableCell>
               <TableCell>Section ID</TableCell>
-              <TableCell>Lecture Amount</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -188,7 +187,6 @@ const LectureTable = () => {
                   {lecture.classroom_id}
                 </TableCell>
                 <TableCell>{lecture.section_id}</TableCell>
-                <TableCell>{lecture.lecture_amount}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(lecture)}>Edit</Button>
                   <Button onClick={() => handleDeleteLecture(lecture)}>Delete</Button>
@@ -289,17 +287,7 @@ const LectureTable = () => {
               </MenuItem>
             ))}
           </TextField>
-          <TextField
-            margin="dense"
-            id="lecture_amount"
-            label="Lecture Amount"
-            type="number"
-            fullWidth
-            variant="standard"
-            name="lecture_amount"
-            value={editingLecture?.lecture_amount || ''}
-            onChange={handleChange}
-          />
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

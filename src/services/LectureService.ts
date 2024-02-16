@@ -20,7 +20,6 @@ export class LectureService {
         lectureDoc.data().end_time,
         lectureDoc.data().section_id,
         lectureDoc.data().start_time,
-        lectureDoc.data().lecture_amount,
       );
     }
     console.log('No such document!');
@@ -37,7 +36,6 @@ export class LectureService {
           document.data().end_time,
           document.data().section_id,
           document.data().start_time,
-          document.data().lecture_amount,
           document.id
         )
     );
