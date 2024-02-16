@@ -19,6 +19,7 @@ export class LecturerService {
         lecturerDoc.data().firstName,
         lecturerDoc.data().lastName,
         lecturerDoc.data().outsideAffiliate,
+        lecturerDoc.data().availability,
       );
     }
     console.log('No such document!');
@@ -34,6 +35,7 @@ export class LecturerService {
           document.data().firstName,
           document.data().lastName,
           document.data().outsideAffiliate,
+          document.data().availability,
           document.id // Include the document ID
         )
     );

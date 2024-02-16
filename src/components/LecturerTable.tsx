@@ -25,6 +25,36 @@ import { LecturerController } from '../controllers/LecturerController';
 import { SectionController } from '../controllers/SectionController'; // Ensure the path is correct
 import { Lecturer } from '../models/Lecturer';
 import { Section } from '../models/Section';
+import { AvailabilitySlider } from './AvailabilitySlider';
+
+const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const timeSlots = [
+  '08:00',
+  '08:30',
+  '09:00',
+  '09:30',
+  '10:00',
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '13:00',
+  '13:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+  '19:00',
+  '19:30',
+  '20:00',
+];
 
 const LecturerTable = () => {
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
@@ -53,7 +83,15 @@ const LecturerTable = () => {
     if (lecturer) {
       setEditingLecturer(lecturer);
     } else {
-      setEditingLecturer(new Lecturer([], '', '', false));
+      setEditingLecturer(
+        new Lecturer([], '', '', false, {
+          monday: [],
+          tuesday: [],
+          wednesday: [],
+          thursday: [],
+          friday: [],
+        })
+      );
     }
     setOpenCreateEditModal(true);
   };
@@ -117,10 +155,30 @@ const LecturerTable = () => {
         updatedLecturer.outsideAffiliate !== undefined
           ? updatedLecturer.outsideAffiliate
           : prev.outsideAffiliate,
+        updatedLecturer.availability || prev.availability,
         prev.id // Preserve the ID
       );
     });
   };
+  
+  const handleAvailabilityChange = (day: string, startTime: string, endTime: string) => {
+    setEditingLecturer(prev => {
+      if (!prev) return null;
+  
+      const updatedAvailability = {...prev.availability};
+      updatedAvailability[day] = [{ start_time: startTime, end_time: endTime }];
+  
+      return new Lecturer(
+        prev.sections,
+        prev.firstName,
+        prev.lastName,
+        prev.outsideAffiliate,
+        updatedAvailability,
+        prev.id
+      );
+    });
+  };
+  
 
   return (
     <div>
@@ -134,6 +192,7 @@ const LecturerTable = () => {
               <TableCell>Last Name</TableCell>
               <TableCell>Affiliate</TableCell>
               <TableCell>Sections</TableCell>
+              <TableCell>Availability</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -151,6 +210,25 @@ const LecturerTable = () => {
                     )
                     .join(', ')}
                 </TableCell>
+                <TableCell>
+                  {Object.entries(lecturer.availability).map(([day, slots]) => (
+                    <div key={day}>
+                      <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>
+                      {slots.length > 0 ? (
+                        <ul>
+                          {slots.map((slot, index) => (
+                            <li key={index}>
+                              {slot.start_time} - {slot.end_time}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span> No available slots</span>
+                      )}
+                    </div>
+                  ))}
+                </TableCell>
+
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(lecturer)}>Edit</Button>
                   <Button onClick={() => handleDeleteLecturer(lecturer)}>Delete</Button>
@@ -218,7 +296,8 @@ const LecturerTable = () => {
               renderValue={(selected) =>
                 selected
                   .map(
-                    (sectionId) => sections.find((section) => section.id === sectionId)?.name || sectionId
+                    (sectionId) =>
+                      sections.find((section) => section.id === sectionId)?.name || sectionId
                   )
                   .join(', ')
               }
@@ -230,6 +309,16 @@ const LecturerTable = () => {
               ))}
             </Select>
           </FormControl>
+          {days.map((day) => (
+            <AvailabilitySlider
+              key={day}
+              day={day}
+              timeSlots={timeSlots}
+              onChange={(selectedDay, startTime, endTime) =>
+                handleAvailabilityChange(selectedDay, startTime, endTime)
+              }
+            />
+          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
