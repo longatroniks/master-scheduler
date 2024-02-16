@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { Lecturer } from '../models/Lecturer';
+import { db } from '../firebase'; // Ensure this path is correct
+import { Lecturer } from '../models/Lecturer'; // Ensure this path is correct
 
 export class LecturerService {
   private collectionRef = collection(db, 'lecturers');
@@ -20,38 +20,32 @@ export class LecturerService {
         lecturerDoc.data().lastName,
         lecturerDoc.data().outsideAffiliate,
         lecturerDoc.data().availability,
+        lecturerDoc.id // Passing the document ID as the lecturer ID
       );
     }
-    console.log('No such document!');
     return undefined;
   }
 
   async getLecturers(): Promise<Lecturer[]> {
     const snapshot = await getDocs(this.collectionRef);
-    return snapshot.docs.map(
-      (document) =>
-        new Lecturer(
-          document.data().sections,
-          document.data().firstName,
-          document.data().lastName,
-          document.data().outsideAffiliate,
-          document.data().availability,
-          document.id // Include the document ID
-        )
-    );
+    return snapshot.docs.map(document => new Lecturer(
+      document.data().sections,
+      document.data().firstName,
+      document.data().lastName,
+      document.data().outsideAffiliate,
+      document.data().availability,
+      document.id // Include the document ID as the lecturer ID
+    ));
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async updateLecturer(lecturer: Lecturer): Promise<void> {
     if (!lecturer.id) {
       throw new Error('Lecturer ID is missing');
     }
     const lecturerRef = doc(db, 'lecturers', lecturer.id);
-    const updateData = lecturer.toFirestore();
-    await updateDoc(lecturerRef, updateData);
+    await updateDoc(lecturerRef, lecturer.toFirestore());
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async deleteLecturer(lecturerId: string): Promise<void> {
     const lecturerRef = doc(db, 'lecturers', lecturerId);
     await deleteDoc(lecturerRef);

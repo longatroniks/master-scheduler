@@ -16,16 +16,19 @@ import {
   TextField,
   MenuItem,
 } from '@mui/material';
-import { LectureController } from '../controllers/LectureController';
-import { ClassroomController } from '../controllers/ClassroomController';
-import { SectionController } from '../controllers/SectionController';
+
+import { timeSlots } from 'src/assets/data/timeslots';
+import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+
 import { Lecture } from '../models/Lecture';
 import { Classroom } from '../models/Classroom';
 import { Section } from '../models/Section';
-import { CourseController } from '../controllers/CourseController';
 import { Course } from '../models/Course';
-import { timeSlots } from 'src/assets/data/timeslots';
-import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+
+import { LectureController } from '../controllers/LectureController';
+import { ClassroomController } from '../controllers/ClassroomController';
+import { SectionController } from '../controllers/SectionController';
+import { CourseController } from '../controllers/CourseController';
 
 const LectureTable = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
@@ -69,10 +72,6 @@ const LectureTable = () => {
       // Create a new Lecture instance with empty fields for adding a new Lecture
       setEditingLecture(new Lecture('', '', '', '', ''));
     }
-
-    // Fetch classroom and section names
-    const classroomNames = classrooms.map((classroom) => classroom.name);
-    const sectionNames = sections.map((section) => section.name);
 
     setOpenCreateEditModal(true);
   };

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Table,
   TableBody,
@@ -39,7 +40,6 @@ const UserTable = () => {
     if (user) {
       setEditingUser(user);
     } else {
-      // Create a new User instance with empty fields for adding a new user
       setEditingUser(new User('', '', '', '', ''));
     }
     setOpenCreateEditModal(true);

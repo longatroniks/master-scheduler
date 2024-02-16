@@ -20,49 +20,40 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useState, useEffect } from 'react';
-import { LecturerController } from '../controllers/LecturerController';
-import { SectionController } from '../controllers/SectionController'; // Ensure the path is correct
+
+import { timeSlots } from 'src/assets/data/timeslots';
+import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+
 import { Lecturer } from '../models/Lecturer';
 import { Section } from '../models/Section';
 import { AvailabilitySlider } from './AvailabilitySlider';
 
-const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-const timeSlots = [
-  '08:00',
-  '08:30',
-  '09:00',
-  '09:30',
-  '10:00',
-  '10:30',
-  '11:00',
-  '11:30',
-  '12:00',
-  '12:30',
-  '13:00',
-  '13:30',
-  '14:00',
-  '14:30',
-  '15:00',
-  '15:30',
-  '16:00',
-  '16:30',
-  '17:00',
-  '17:30',
-  '18:00',
-  '18:30',
-  '19:00',
-  '19:30',
-  '20:00',
-];
+import { LecturerController } from '../controllers/LecturerController';
+import { SectionController } from '../controllers/SectionController';
+
+const initialAvailability: { [key: string]: { start_time: string; end_time: string }[] } = {
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+};
 
 const LecturerTable = () => {
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
-  const [sections, setSections] = useState<Section[]>([]); // State to hold sections
+  const [sections, setSections] = useState<Section[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingLecturer, setEditingLecturer] = useState<Lecturer | null>(null);
+  const [availability, setAvailability] = useState<{
+    [key: string]: { start_time: string; end_time: string }[];
+  }>(initialAvailability);
+
   const lecturerController = new LecturerController();
-  const sectionController = new SectionController(); // Initialize the section controller
+  const sectionController = new SectionController();
 
   useEffect(() => {
     const fetchLecturers = async () => {
@@ -82,16 +73,25 @@ const LecturerTable = () => {
   const handleOpenCreateEditModal = (lecturer: Lecturer | null) => {
     if (lecturer) {
       setEditingLecturer(lecturer);
+      // Define the type for the accumulator to match the expected structure
+      const lecturerAvailability = daysOfWeek.reduce<{
+        [key: string]: { start_time: string; end_time: string }[];
+      }>((acc, day) => {
+        const slots = lecturer.availability[day];
+        if (slots && slots.length > 0) {
+          // Wrap the times in an object and place them inside an array
+          acc[day] = [{ start_time: slots[0].start_time, end_time: slots[0].end_time }];
+        } else {
+          // Provide a default value in the expected format
+          acc[day] = [{ start_time: '08:00', end_time: '16:00' }];
+        }
+        return acc;
+      }, {}); // TypeScript needs to know the type of this initial value
+
+      setAvailability(lecturerAvailability);
     } else {
-      setEditingLecturer(
-        new Lecturer([], '', '', false, {
-          monday: [],
-          tuesday: [],
-          wednesday: [],
-          thursday: [],
-          friday: [],
-        })
-      );
+      setEditingLecturer(new Lecturer([], '', '', false, {}));
+      setAvailability(initialAvailability);
     }
     setOpenCreateEditModal(true);
   };
@@ -109,20 +109,39 @@ const LecturerTable = () => {
     }
   };
 
+  const timeToIndex = (time: string) => timeSlots.indexOf(time);
+
   const handleSaveLecturer = async () => {
+    // Check if any slot exceeds the 8-hour limit
+    const exceedsTimeLimit = Object.entries(availability).some(([day, slots]) =>
+      slots.some(({ start_time, end_time }) => {
+        const startIndex = timeToIndex(start_time);
+        const endIndex = timeToIndex(end_time);
+        return endIndex - startIndex > 16;
+      })
+    );
+
+    if (exceedsTimeLimit) {
+      alert('One or more time slots exceed the 8-hour limit. Please adjust the time ranges.');
+      return; // Stop the save operation if any slot exceeds the limit
+    }
+
+    // Proceed with saving if all slots are valid
     if (editingLecturer) {
-      if (!editingLecturer.firstName.trim() || !editingLecturer.lastName.trim()) {
-        alert('Please enter first name and last name for the lecturer.');
-        return;
-      }
+      const updatedLecturer = new Lecturer(
+        editingLecturer.sections,
+        editingLecturer.firstName,
+        editingLecturer.lastName,
+        editingLecturer.outsideAffiliate,
+        availability,
+        editingLecturer.id
+      );
 
       if (editingLecturer.id) {
-        await lecturerController.updateLecturer(editingLecturer);
+        await lecturerController.updateLecturer(updatedLecturer);
       } else {
-        await lecturerController.addLecturer(editingLecturer);
+        await lecturerController.addLecturer(updatedLecturer);
       }
-      const updatedLecturers = await lecturerController.fetchLecturers();
-      setLecturers(updatedLecturers || []);
     }
     handleCloseCreateEditModal();
   };
@@ -133,13 +152,12 @@ const LecturerTable = () => {
   ) => {
     const field = event.target.name as keyof Lecturer;
 
-    const isCheckbox = checked !== undefined; // Identifies if the source is a Switch/Checkbox
+    const isCheckbox = checked !== undefined;
     const value: any = isCheckbox ? checked : event.target.value;
 
     setEditingLecturer((prev) => {
       if (!prev) return null;
 
-      // Create a shallow copy to manipulate and update
       const updatedLecturer: Partial<Lecturer> = { ...prev };
 
       if (field === 'sections' && Array.isArray(value)) {
@@ -160,25 +178,6 @@ const LecturerTable = () => {
       );
     });
   };
-  
-  const handleAvailabilityChange = (day: string, startTime: string, endTime: string) => {
-    setEditingLecturer(prev => {
-      if (!prev) return null;
-  
-      const updatedAvailability = {...prev.availability};
-      updatedAvailability[day] = [{ start_time: startTime, end_time: endTime }];
-  
-      return new Lecturer(
-        prev.sections,
-        prev.firstName,
-        prev.lastName,
-        prev.outsideAffiliate,
-        updatedAvailability,
-        prev.id
-      );
-    });
-  };
-  
 
   return (
     <div>
@@ -210,23 +209,34 @@ const LecturerTable = () => {
                     )
                     .join(', ')}
                 </TableCell>
+
                 <TableCell>
-                  {Object.entries(lecturer.availability).map(([day, slots]) => (
-                    <div key={day}>
-                      <strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong>
-                      {slots.length > 0 ? (
-                        <ul>
-                          {slots.map((slot, index) => (
-                            <li key={index}>
-                              {slot.start_time} - {slot.end_time}
-                            </li>
+                  <Tooltip
+                    title={
+                      <Table size="small" sx={{bgcolor: 'background.paper'}}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Day</TableCell>
+                            <TableCell>Start Time</TableCell>
+                            <TableCell>End Time</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {daysOfWeek.map((day) => (
+                            <TableRow key={day}>
+                              <TableCell>{day.charAt(0).toUpperCase() + day.slice(1)}</TableCell>
+                              <TableCell>{availability[day]?.[0]?.start_time || 'N/A'}</TableCell>
+                              <TableCell>{availability[day]?.[0]?.end_time || 'N/A'}</TableCell>
+                            </TableRow>
                           ))}
-                        </ul>
-                      ) : (
-                        <span> No available slots</span>
-                      )}
-                    </div>
-                  ))}
+                        </TableBody>
+                      </Table>
+                    }
+                    placement="right"
+                    arrow 
+                  >
+                    <IconButton><AccessTimeIcon/></IconButton>
+                  </Tooltip>
                 </TableCell>
 
                 <TableCell>
@@ -284,7 +294,7 @@ const LecturerTable = () => {
               multiple
               value={editingLecturer?.sections || []}
               onChange={(event) => {
-                const value = event.target.value;
+                const { value } = event.target;
                 handleChange({
                   target: {
                     name: 'sections',
@@ -309,14 +319,21 @@ const LecturerTable = () => {
               ))}
             </Select>
           </FormControl>
-          {days.map((day) => (
+          {daysOfWeek.map((day) => (
             <AvailabilitySlider
               key={day}
               day={day}
-              timeSlots={timeSlots}
-              onChange={(selectedDay, startTime, endTime) =>
-                handleAvailabilityChange(selectedDay, startTime, endTime)
+              initialValues={
+                availability[day]?.length
+                  ? [availability[day][0].start_time, availability[day][0].end_time]
+                  : ['08:00', '16:00']
               }
+              onChange={(scheduleDay, startTime, endTime) => {
+                setAvailability((prev) => ({
+                  ...prev,
+                  [scheduleDay]: [{ start_time: startTime, end_time: endTime }],
+                }));
+              }}
             />
           ))}
         </DialogContent>
