@@ -27,6 +27,8 @@ const CourseTable = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   // const courseController = new CourseController();
   const yearLevels = [0, 1, 2, 3, 4];
+  const credits = [0, 3, 4];
+  const boxes = [2, 3, 4, 6];
   const programs = ['WMC', 'IB', 'HT', 'ALL'];
 
   const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
@@ -45,7 +47,7 @@ const CourseTable = () => {
       setEditingCourse(course);
     } else {
       // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course('', '', '', 0, 0, false));
+      setEditingCourse(new Course('', '', '', 0, 0, 0, false));
     }
     setOpenCreateEditModal(true);
   };
@@ -102,6 +104,7 @@ const CourseTable = () => {
               <TableCell>Program</TableCell>
               <TableCell>Year Level</TableCell>
               <TableCell>Credits</TableCell>
+              <TableCell>Boxes</TableCell>
               <TableCell>Requires Lab</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -116,6 +119,7 @@ const CourseTable = () => {
                 <TableCell>{course.program}</TableCell>
                 <TableCell>{course.year_level}</TableCell>
                 <TableCell>{course.credits}</TableCell>
+                <TableCell>{course.boxes}</TableCell>
                 <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
@@ -188,16 +192,39 @@ const CourseTable = () => {
             ))}
           </TextField>
           <TextField
+            select
             margin="dense"
             id="credits"
             label="Credits"
-            type="number"
             fullWidth
             variant="standard"
             name="credits"
             value={editingCourse?.credits || ''}
             onChange={handleChange}
-          />
+          >
+            {credits.map((credit) => (
+              <MenuItem key={credit} value={credit}>
+                {credit}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            margin="dense"
+            id="boxes"
+            label="Boxes"
+            fullWidth
+            variant="standard"
+            name="boxes"
+            value={editingCourse?.boxes || ''}
+            onChange={handleChange}
+          >
+            {boxes.map((box) => (
+              <MenuItem key={box} value={box}>
+                {box}
+              </MenuItem>
+            ))}
+          </TextField>
           <FormControlLabel
             control={
               <Checkbox
