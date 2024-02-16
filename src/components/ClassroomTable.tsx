@@ -25,6 +25,10 @@ const ClassroomTable = () => {
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const classroomController = new ClassroomController();
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+
   useEffect(() => {
     const fetchClassrooms = async () => {
       const fetchedClassrooms = await classroomController.fetchClassrooms();
@@ -55,23 +59,36 @@ const ClassroomTable = () => {
     }
   };
 
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
   const handleSaveClassroom = async () => {
     if (editingClassroom) {
 
       if (!editingClassroom.name.trim()) {
-        alert('Please enter a name for the classroom.');
+        setModalMessage('Please enter a name for the classroom.');
+        setModalOpen(true);
         return; // Prevent saving if classroom name is empty
       }
 
           // Use Number.isNaN for modern ECMAScript support:
     if (Number.isNaN(Number(editingClassroom.capacity))) {
-      alert('Please enter a valid number for capacity.');
+      setModalMessage('Please enter a valid number for capacity.');
+      setModalOpen(true);
       return; // Prevent saving if capacity is not a number
     }
 
     // Additional validation: capacity must be positive:
     if (editingClassroom.capacity <= 0) {
-      alert('Capacity must be a number.');
+      setModalMessage('Capacity must be a number.');
+      setModalOpen(true);
+      return;
+    }
+
+    if (editingClassroom.capacity > 50) {
+      setModalMessage('Capacity cannot exceed 50.');
+      setModalOpen(true);
       return;
     }
 
@@ -125,6 +142,18 @@ const ClassroomTable = () => {
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
         <DialogTitle>{editingClassroom ? 'Edit Classroom' : 'Add Classroom'}</DialogTitle>
+
+        <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+        
         <DialogContent>
           <TextField
             autoFocus
@@ -163,6 +192,7 @@ const ClassroomTable = () => {
             name="capacity"
             value={editingClassroom?.capacity || ''}
             onChange={handleChange}
+            inputProps={{ min: 0, max: 50 }}
           />
         </DialogContent>
         <DialogActions>
