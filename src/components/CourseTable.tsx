@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Table,
   TableBody,
@@ -13,6 +14,8 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import React, { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
 import { CourseController } from '../controllers/CourseController';
@@ -42,7 +45,7 @@ const CourseTable = () => {
       setEditingCourse(course);
     } else {
       // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course('', '', '', 0));
+      setEditingCourse(new Course('', '', '', 0, 0, false));
     }
     setOpenCreateEditModal(true);
   };
@@ -60,7 +63,13 @@ const CourseTable = () => {
 
   const handleSaveCourse = async () => {
     // Check if editingCourse exists and all required fields are filled
-    if (editingCourse && editingCourse.name && editingCourse.abbreviation && editingCourse.program && editingCourse.year_level) {
+    if (
+      editingCourse &&
+      editingCourse.name &&
+      editingCourse.abbreviation &&
+      editingCourse.program &&
+      editingCourse.year_level
+    ) {
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse);
       } else {
@@ -71,10 +80,10 @@ const CourseTable = () => {
       handleCloseCreateEditModal();
     } else {
       // If any required field is missing, display an alert or handle the error accordingly
-      alert("Please fill in all fields.");
+      alert('Please fill in all fields.');
     }
   };
-  
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
@@ -92,6 +101,8 @@ const CourseTable = () => {
               <TableCell>Abbreviation</TableCell>
               <TableCell>Program</TableCell>
               <TableCell>Year Level</TableCell>
+              <TableCell>Credits</TableCell>
+              <TableCell>Requires Lab</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -104,6 +115,8 @@ const CourseTable = () => {
                 <TableCell>{course.abbreviation}</TableCell>
                 <TableCell>{course.program}</TableCell>
                 <TableCell>{course.year_level}</TableCell>
+                <TableCell>{course.credits}</TableCell>
+                <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
                   <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
@@ -174,6 +187,31 @@ const CourseTable = () => {
               </MenuItem>
             ))}
           </TextField>
+          <TextField
+            margin="dense"
+            id="credits"
+            label="Credits"
+            type="number"
+            fullWidth
+            variant="standard"
+            name="credits"
+            value={editingCourse?.credits || ''}
+            onChange={handleChange}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingCourse?.requires_lab || false}
+                onChange={(e) =>
+                  setEditingCourse((prev) =>
+                    prev ? prev.updateFields({ requires_lab: e.target.checked }) : null
+                  )
+                }
+                name="requires_lab"
+              />
+            }
+            label="Requires Lab"
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
@@ -185,4 +223,3 @@ const CourseTable = () => {
 };
 
 export default CourseTable;
-

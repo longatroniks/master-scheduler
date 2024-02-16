@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Classroom } from '../models/Classroom';

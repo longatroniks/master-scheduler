@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, ChangeEvent, useMemo } from 'react';
 import {
   Table,
@@ -93,7 +94,7 @@ const LectureTable = () => {
       setEditingLecture(lecture);
     } else {
       // Create a new Lecture instance with empty fields for adding a new Lecture
-      setEditingLecture(new Lecture('', '', '', '', ''));
+      setEditingLecture(new Lecture('', '', '', '', '', 0));
     }
 
     // Fetch classroom and section names
@@ -109,7 +110,7 @@ const LectureTable = () => {
 
   const handleDeleteLecture = async (lecture: Lecture) => {
     if (window.confirm(`Are you sure you want to delete ${lecture.id}?`)) {
-      await lectureController.removeLecture(lecture.id as string); // Use the Lecture's ID for deletion
+      await lectureController.removeLecture(lecture.id as string);
       setLectures(lectures.filter((u) => u.id !== lecture.id));
     }
   };
@@ -132,25 +133,26 @@ const LectureTable = () => {
       alert('Please fill in all fields to save the lecture.');
     }
   };
-  
-  const isLectureValid = (lecture: Lecture) => {
-    return lecture.day.trim() !== '' &&
-           lecture.start_time.trim() !== '' &&
-           lecture.end_time.trim() !== '' &&
-           lecture.classroom_id.trim() !== '' &&
-           lecture.section_id.trim() !== '';
-  };
-  
+
+  const isLectureValid = (lecture: Lecture) =>
+    lecture.day.trim() !== '' &&
+    lecture.start_time.trim() !== '' &&
+    lecture.end_time.trim() !== '' &&
+    lecture.classroom_id.trim() !== '' &&
+    lecture.section_id.trim() !== '';
+
   const isEndTimeValid = (lecture: Lecture) => {
     const startTime = new Date(`01/01/2000 ${lecture.start_time}`);
     const endTime = new Date(`01/01/2000 ${lecture.end_time}`);
     return endTime > startTime;
   };
-  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingLecture((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
+    // Parse the value to the correct type based on the field being updated
+    const updatedValue = name === 'lecture_amount' ? parseInt(value, 10) : value;
+
+    setEditingLecture((prev) => (prev ? prev.updateFields({ [name]: updatedValue }) : null));
   };
 
   const courseAbbreviationMap = useMemo(() => {
@@ -172,6 +174,7 @@ const LectureTable = () => {
               <TableCell>End Time</TableCell>
               <TableCell>Classroom ID</TableCell>
               <TableCell>Section ID</TableCell>
+              <TableCell>Lecture Amount</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -185,6 +188,7 @@ const LectureTable = () => {
                   {lecture.classroom_id}
                 </TableCell>
                 <TableCell>{lecture.section_id}</TableCell>
+                <TableCell>{lecture.lecture_amount}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(lecture)}>Edit</Button>
                   <Button onClick={() => handleDeleteLecture(lecture)}>Delete</Button>
@@ -285,6 +289,17 @@ const LectureTable = () => {
               </MenuItem>
             ))}
           </TextField>
+          <TextField
+            margin="dense"
+            id="lecture_amount"
+            label="Lecture Amount"
+            type="number"
+            fullWidth
+            variant="standard"
+            name="lecture_amount"
+            value={editingLecture?.lecture_amount || ''}
+            onChange={handleChange}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

@@ -11,7 +11,7 @@ const IndexPage = lazy(() => import('src/pages/dashboard/one'));
 const PageTwo = lazy(() => import('src/pages/dashboard/two'));
 const ClassroomsPage = lazy(() => import('src/pages/dashboard/classrooms'));
 const LecturesPage = lazy(() => import('src/pages/dashboard/lectures'));
-const ProfessorsPage = lazy(() => import('src/pages/dashboard/professors'));
+const LecturersPage = lazy(() => import('src/pages/dashboard/lecturers'));
 const CoursesPage = lazy(() => import('src/pages/dashboard/courses'));
 const UsersPage = lazy(() => import('src/pages/dashboard/users'));
 const SectionsPage = lazy(() => import('src/pages/dashboard/sections'));
@@ -33,7 +33,7 @@ export const dashboardRoutes = [
       { path: 'two', element: <PageTwo /> },
       { path: 'classrooms', element: <ClassroomsPage /> },
       { path: 'lectures', element: <LecturesPage /> },
-      { path: 'professors', element: <ProfessorsPage /> },
+      { path: 'lecturers', element: <LecturersPage /> },
       { path: 'courses', element: <CoursesPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'sections', element: <SectionsPage /> },
