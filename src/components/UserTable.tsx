@@ -23,6 +23,8 @@ const UserTable = () => {
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const userController = new UserController();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -53,27 +55,40 @@ const UserTable = () => {
       setUsers(users.filter((u) => u.id !== user.id));
     }
   };
+
+ 
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
   
   const disallowedChars = /[!#$%&/()=?*+'.,;:-_]/;
   const handleSaveUser = async () => {
     if (editingUser) {
       if (!editingUser.first_name || !editingUser.last_name || !editingUser.email || !editingUser.role) {
-        alert('Please fill in all required fields!');
+        setModalMessage('Please fill in all required fields!');
+        setModalOpen(true);
         return;
       }
 
       if (disallowedChars.test(editingUser.first_name) || disallowedChars.test(editingUser.last_name)) {
-        alert('Names cannot contain characters like "!", "&", "#", etc.');
-        return; // Prevent saving
+        setModalMessage('Names cannot contain characters like "!", "&", "#", etc.');
+        setModalOpen(true);
+        return;
       }
 
+      if (/\d/.test(editingUser.first_name) || /\d/.test(editingUser.last_name)) {
+        setModalMessage('Names cannot contain numbers.');
+        setModalOpen(true);
+        return;
+      }
 
-      
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(editingUser.email)) {
-      alert('Please enter a valid email address (containing "@").');
-      return;
-    }
+        setModalMessage('Please enter a valid email address.');
+        setModalOpen(true);
+        return;
+      }
 
       if (editingUser.id) {
         await userController.updateUser(editingUser); // Update existing user
@@ -133,6 +148,17 @@ const UserTable = () => {
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
         <DialogTitle>{editingUser ? 'Edit User' : 'Add User'}</DialogTitle>
+
+        <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
         <DialogContent>
           <TextField
             required
@@ -188,7 +214,7 @@ const UserTable = () => {
             >
               <MenuItem value="admin">Admin</MenuItem>
               <MenuItem value="editor">Editor</MenuItem>
-              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="guest">Guest</MenuItem>
               
 
             </TextField>
