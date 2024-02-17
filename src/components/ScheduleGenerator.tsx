@@ -20,6 +20,20 @@ interface ScheduleData {
   sections: Section[];
 }
 
+interface ScheduleItem {
+  classroomId: string;
+  classroomName: string;
+  courseId: string;
+  courseName: string;
+  sectionId: string;
+  sectionName: string;
+  lecturerId: string;
+  lecturerName: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
 const ScheduleGenerator: React.FC = () => {
   const [data, setData] = useState<ScheduleData>({
     classrooms: [],
@@ -28,6 +42,8 @@ const ScheduleGenerator: React.FC = () => {
     lecturers: [],
     sections: [],
   });
+
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +70,6 @@ const ScheduleGenerator: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Once all data is fetched, call the scheduling algorithm
     if (
       data.classrooms.length &&
       data.courses.length &&
@@ -62,15 +77,43 @@ const ScheduleGenerator: React.FC = () => {
       data.sections.length
     ) {
       generateSchedule(data.courses, data.sections, data.lecturers, data.classrooms)
-        .then((schedule: any) => {
-          console.log('Generated Schedule:', schedule); // Log the resulting schedule
+        .then((generatedSchedule: ScheduleItem[]) => {
+          console.log('Generated Schedule:', generatedSchedule); // Log the resulting schedule
+          setSchedule(generatedSchedule); // Set the schedule state
         })
         .catch(console.error);
     }
   }, [data]); // This useEffect is dependent on the 'data' state
 
-  // Placeholder for the schedule generation component's UI
-  return <div>Schedule Generator Component</div>;
+  return (
+    <div>
+      <h2>Schedule</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Course</th>
+            <th>Section</th>
+            <th>Classroom</th>
+            <th>Lecturer</th>
+          </tr>
+        </thead>
+        <tbody>
+          {schedule.map((item, index) => (
+            <tr key={index}>
+              <td>{item.day}</td>
+              <td>{`${item.startTime} - ${item.endTime}`}</td>
+              <td>{item.courseName}</td>
+              <td>{item.sectionName}</td>
+              <td>{item.classroomName}</td>
+              <td>{item.lecturerName}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 export default ScheduleGenerator;

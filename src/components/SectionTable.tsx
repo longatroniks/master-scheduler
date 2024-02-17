@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, ChangeEvent } from 'react';
 import {
   Table,
@@ -16,25 +17,34 @@ import {
   MenuItem,
 } from '@mui/material';
 import { SectionController } from '../controllers/SectionController';
-import { CourseController } from '../controllers/CourseController'; // Import CourseController
+import { CourseController } from '../controllers/CourseController';
+import { LecturerController } from '../controllers/LecturerController';
+
 import { Section } from '../models/Section';
-import { Course } from '../models/Course'; // Import Course model
+import { Course } from '../models/Course';
+import { Lecturer } from '../models/Lecturer';
 
 const SectionTable = () => {
-  const [sections, setSections] = useState<Section[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingSection, setEditingSection] = useState<Section | null>(null);
-  const sectionController = new SectionController();
 
+  const [sections, setSections] = useState<Section[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [lecturers, setLecturers] = useState<Lecturer[]>([]);
+
   const courseController = new CourseController();
+  const sectionController = new SectionController();
+  const lecturerController = new LecturerController();
 
   useEffect(() => {
     const fetchData = async () => {
       const fetchedSections = await sectionController.fetchSections();
       const fetchedCourses = await courseController.fetchCourses();
+      const fetchedLecturers = await lecturerController.fetchLecturers();
+
       setSections(fetchedSections || []);
       setCourses(fetchedCourses || []);
+      setLecturers(fetchedLecturers || []);
     };
 
     fetchData();
@@ -44,7 +54,6 @@ const SectionTable = () => {
     if (section) {
       setEditingSection(section);
     } else {
-      // Create a new Section instance with empty fields for adding a new section
       setEditingSection(new Section(0, '', '', ''));
     }
     setOpenCreateEditModal(true);
@@ -60,7 +69,7 @@ const SectionTable = () => {
         `Are you sure you want to delete section ${section.name} from ${section.course_id}?`
       )
     ) {
-      await sectionController.removeSection(section.id as string); // Use the section's ID for deletion
+      await sectionController.removeSection(section.id as string);
       setSections(sections.filter((u) => u.id !== section.id));
     }
   };
@@ -71,43 +80,59 @@ const SectionTable = () => {
       return;
     }
 
-    const { name, capacity, lecturer_id, course_id } = editingSection;
+    const { capacity, lecturer_id, course_id } = editingSection;
 
-    // Validate required fields
-    if (!name || !capacity || !lecturer_id || !course_id) {
+    if (!capacity || !lecturer_id || !course_id) {
       alert('All fields are required.');
       return;
     }
 
-    // Validate capacity is a positive number and smaller than 100
-    if (isNaN(capacity) || capacity <= 0 || capacity >= 100) {
+    if (Number.isNaN(capacity) || capacity <= 0 || capacity >= 100) {
       alert('Capacity must be a positive number smaller than 100.');
       return;
     }
 
-    // Additional validations for length and special characters
-    if (name.length > 50) {
-      alert('The section name must be no longer than 50 characters.');
-      return;
-    }
-
     const specialCharsPattern = /[.,\-!"#]/;
-    if (specialCharsPattern.test(lecturer_id) || lecturer_id.length < 5 || lecturer_id.length > 25) {
-      alert('Lecturer ID cannot contain special characters, must be between 5 and 25 characters long.');
+    if (
+      specialCharsPattern.test(lecturer_id) ||
+      lecturer_id.length < 5 ||
+      lecturer_id.length > 25
+    ) {
+      alert(
+        'Lecturer ID cannot contain special characters, must be between 5 and 25 characters long.'
+      );
       return;
     }
 
     if (specialCharsPattern.test(course_id) || course_id.length < 5 || course_id.length > 25) {
-      alert('Course ID cannot contain special characters, must be between 5 and 25 characters long.');
+      alert(
+        'Course ID cannot contain special characters, must be between 5 and 25 characters long.'
+      );
       return;
     }
 
-    // If all validations pass, proceed with adding or updating the section
+    const existingSections = sections.filter((section) => section.course_id === course_id);
+    const sectionNumbers = existingSections.map((section) => parseInt(section.name, 10));
+    let newName = '800'; // Default section name
+    for (let i = 800; i <= 802; i += 1) {
+      if (!sectionNumbers.includes(i)) {
+        newName = i.toString();
+        break;
+      }
+    }
+
+    const updatedSection = editingSection.updateFields({
+      name: newName,
+      course_id,
+      lecturer_id,
+      capacity,
+    });
+
     try {
       if (editingSection.id) {
-        await sectionController.updateSection(editingSection);
+        await sectionController.updateSection(updatedSection);
       } else {
-        await sectionController.addSection(editingSection);
+        await sectionController.addSection(updatedSection);
       }
       const updatedSections = await sectionController.fetchSections();
       setSections(updatedSections || []);
@@ -120,13 +145,29 @@ const SectionTable = () => {
         alert('An error occurred while saving the section. Please try again.');
       }
     }
-};
-
-
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditingSection((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
+  
+    if (name === 'course_id') {
+      const existingSectionsCount = sections.filter((section) => section.course_id === value).length;
+  
+      if (existingSectionsCount >= 3) {
+        alert('Maximum number of sections for this course already reached.');
+        if (editingSection) {
+          setEditingSection(editingSection.updateFields({ course_id: '' }));
+        }
+        return;
+      }
+    }
+  
+    setEditingSection((prev) => {
+      if (prev) {
+        return prev.updateFields({ [name]: value });
+      }
+      return null;
+    });
   };
 
   return (
@@ -139,28 +180,36 @@ const SectionTable = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Capacity</TableCell>
-              <TableCell>Lecturer ID</TableCell>
-              <TableCell>Course ID</TableCell>
+              <TableCell>Lecturer</TableCell>
+              <TableCell>Course</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {sections.map((section) => (
-              <TableRow key={section.id}>
-                {' '}
-                {/* Use ID for key */}
-                <TableCell component="th" scope="row">
-                  {section.name}
-                </TableCell>
-                <TableCell>{section.capacity}</TableCell>
-                <TableCell>{section.lecturer_id}</TableCell>
-                <TableCell>{section.course_id}</TableCell>
-                <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
-                  <Button onClick={() => handleDeleteSection(section)}>Delete</Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {sections.map((section) => {
+              const courseName =
+                courses.find((course) => course.id === section.course_id)?.name || 'Unknown Course';
+
+              const lecturer = lecturers.find((lect) => lect.id === section.lecturer_id);
+              const lecturerFullName = lecturer
+                ? `${lecturer.firstName} ${lecturer.lastName}`
+                : 'Unknown Lecturer';
+
+              return (
+                <TableRow key={section.id}>
+                  <TableCell component="th" scope="row">
+                    {section.name}
+                  </TableCell>
+                  <TableCell>{section.capacity}</TableCell>
+                  <TableCell>{lecturerFullName}</TableCell>
+                  <TableCell>{courseName}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
+                    <Button onClick={() => handleDeleteSection(section)}>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -198,17 +247,23 @@ const SectionTable = () => {
             ))}
           </TextField>
           <TextField
+            select
             margin="dense"
             id="lecturer_id"
-            label="Lecturer ID"
-            type="text"
+            label="Lecturer"
             fullWidth
             variant="standard"
             name="lecturer_id"
             value={editingSection?.lecturer_id || ''}
             onChange={handleChange}
-          />
-          <TextField
+          >
+            {lecturers.map((lecturer) => (
+              <MenuItem key={lecturer.id} value={lecturer.id}>
+                {`${lecturer.firstName} ${lecturer.lastName}`}
+              </MenuItem>
+            ))}
+          </TextField>
+          {/* <TextField
             margin="dense"
             id="name"
             label="Name"
@@ -218,7 +273,7 @@ const SectionTable = () => {
             name="name"
             value={editingSection?.name || ''}
             onChange={handleChange}
-          />
+          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
