@@ -71,26 +71,10 @@ const LecturerTable = () => {
   }, []);
 
   const handleOpenCreateEditModal = (lecturer: Lecturer | null) => {
+    setEditingLecturer(lecturer);
     if (lecturer) {
-      setEditingLecturer(lecturer);
-      // Define the type for the accumulator to match the expected structure
-      const lecturerAvailability = daysOfWeek.reduce<{
-        [key: string]: { start_time: string; end_time: string }[];
-      }>((acc, day) => {
-        const slots = lecturer.availability[day];
-        if (slots && slots.length > 0) {
-          // Wrap the times in an object and place them inside an array
-          acc[day] = [{ start_time: slots[0].start_time, end_time: slots[0].end_time }];
-        } else {
-          // Provide a default value in the expected format
-          acc[day] = [{ start_time: '08:00', end_time: '16:00' }];
-        }
-        return acc;
-      }, {}); // TypeScript needs to know the type of this initial value
-
-      setAvailability(lecturerAvailability);
+      setAvailability(prepareAvailabilityForLecturer(lecturer.availability));
     } else {
-      setEditingLecturer(new Lecturer([], '', '', false, {}));
       setAvailability(initialAvailability);
     }
     setOpenCreateEditModal(true);
@@ -98,6 +82,18 @@ const LecturerTable = () => {
 
   const handleCloseCreateEditModal = () => {
     setOpenCreateEditModal(false);
+  };
+
+  const prepareAvailabilityForLecturer = (availabilityData: {
+    [key: string]: { start_time: string; end_time: string }[];
+  }) => {
+    const preparedAvailability = daysOfWeek.reduce<{
+      [key: string]: { start_time: string; end_time: string }[];
+    }>((acc, day) => {
+      acc[day] = availabilityData[day] || [{ start_time: '08:00', end_time: '16:00' }];
+      return acc;
+    }, {});
+    return preparedAvailability;
   };
 
   const handleDeleteLecturer = async (lecturer: Lecturer) => {
@@ -112,7 +108,6 @@ const LecturerTable = () => {
   const timeToIndex = (time: string) => timeSlots.indexOf(time);
 
   const handleSaveLecturer = async () => {
-    // Check if any slot exceeds the 8-hour limit
     const exceedsTimeLimit = Object.entries(availability).some(([day, slots]) =>
       slots.some(({ start_time, end_time }) => {
         const startIndex = timeToIndex(start_time);
@@ -123,10 +118,9 @@ const LecturerTable = () => {
 
     if (exceedsTimeLimit) {
       alert('One or more time slots exceed the 8-hour limit. Please adjust the time ranges.');
-      return; // Stop the save operation if any slot exceeds the limit
+      return;
     }
 
-    // Proceed with saving if all slots are valid
     if (editingLecturer) {
       const updatedLecturer = new Lecturer(
         editingLecturer.sections,
@@ -174,7 +168,7 @@ const LecturerTable = () => {
           ? updatedLecturer.outsideAffiliate
           : prev.outsideAffiliate,
         updatedLecturer.availability || prev.availability,
-        prev.id // Preserve the ID
+        prev.id
       );
     });
   };
@@ -213,7 +207,7 @@ const LecturerTable = () => {
                 <TableCell>
                   <Tooltip
                     title={
-                      <Table size="small" sx={{bgcolor: 'background.paper'}}>
+                      <Table size="small" sx={{ bgcolor: 'background.paper' }}>
                         <TableHead>
                           <TableRow>
                             <TableCell>Day</TableCell>
@@ -222,20 +216,34 @@ const LecturerTable = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {daysOfWeek.map((day) => (
-                            <TableRow key={day}>
-                              <TableCell>{day.charAt(0).toUpperCase() + day.slice(1)}</TableCell>
-                              <TableCell>{availability[day]?.[0]?.start_time || 'N/A'}</TableCell>
-                              <TableCell>{availability[day]?.[0]?.end_time || 'N/A'}</TableCell>
-                            </TableRow>
-                          ))}
+                          {daysOfWeek.map((day) => {
+                            // Accessing each lecturer's availability directly
+                            const dayAvailability = lecturer.availability[day];
+                            return (
+                              <TableRow key={day}>
+                                <TableCell>{day.charAt(0).toUpperCase() + day.slice(1)}</TableCell>
+                                <TableCell>
+                                  {dayAvailability && dayAvailability.length > 0
+                                    ? dayAvailability[0].start_time
+                                    : 'N/A'}
+                                </TableCell>
+                                <TableCell>
+                                  {dayAvailability && dayAvailability.length > 0
+                                    ? dayAvailability[0].end_time
+                                    : 'N/A'}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     }
                     placement="right"
-                    arrow 
+                    arrow
                   >
-                    <IconButton><AccessTimeIcon/></IconButton>
+                    <IconButton>
+                      <AccessTimeIcon />
+                    </IconButton>
                   </Tooltip>
                 </TableCell>
 
