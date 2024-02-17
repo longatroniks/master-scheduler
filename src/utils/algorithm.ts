@@ -37,6 +37,23 @@ function isClassroomAvailable(
   return !isBooked; // Classroom is available if it's not already booked
 }
 
+function isLecturerAvailable(
+  lecturerId: string,
+  day: string,
+  startTime: string,
+  endTime: string,
+  schedule: ScheduleItem[]
+): boolean {
+  const isBooked = schedule.some(
+    (item) =>
+      item.lecturerId === lecturerId &&
+      item.day === day &&
+      ((item.startTime <= startTime && item.endTime > startTime) ||
+        (item.startTime < endTime && item.endTime >= endTime))
+  );
+  return !isBooked; // Lecturer is available if they are not already booked
+}
+
 // Function to add a certain number of minutes to a time string
 function addMinutesToTime(startTime: string, minutes: number): string {
   let [hours, mins] = startTime.split(':').map(Number);
@@ -120,6 +137,13 @@ export async function generateSchedule(
               if (
                 isClassroomAvailable(
                   classroom,
+                  day,
+                  timeSlot.start_time,
+                  addMinutesToTime(timeSlot.start_time, lectureLengthMinutes),
+                  schedule
+                ) &&
+                isLecturerAvailable(
+                  sectionLecturer.id!,
                   day,
                   timeSlot.start_time,
                   addMinutesToTime(timeSlot.start_time, lectureLengthMinutes),
