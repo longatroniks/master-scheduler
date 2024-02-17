@@ -5,6 +5,7 @@ import { CourseController } from 'src/controllers/CourseController';
 import { LectureController } from 'src/controllers/LectureController';
 import { LecturerController } from 'src/controllers/LecturerController';
 import { SectionController } from 'src/controllers/SectionController';
+import { generateSchedule } from 'src/utils/algorithm';
 import { Classroom } from 'src/models/Classroom';
 import { Course } from 'src/models/Course';
 import { Lecture } from 'src/models/Lecture';
@@ -38,15 +39,10 @@ const ScheduleGenerator: React.FC = () => {
 
       try {
         const classrooms = await classroomController.fetchClassrooms();
-        console.log('Classrooms:', classrooms); // Log classrooms data
         const courses = await courseController.fetchCourses();
-        console.log('Courses:', courses); // Log courses data
         const lectures = await lectureController.fetchLectures();
-        console.log('Lectures:', lectures); // Log lectures data
         const lecturers = await lecturerController.fetchLecturers();
-        console.log('Lecturers:', lecturers); // Log lecturers data
         const sections = await sectionController.fetchSections();
-        console.log('Sections:', sections); // Log sections data
 
         setData({ classrooms, courses, lectures, lecturers, sections });
       } catch (error) {
@@ -56,6 +52,22 @@ const ScheduleGenerator: React.FC = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    // Once all data is fetched, call the scheduling algorithm
+    if (
+      data.classrooms.length &&
+      data.courses.length &&
+      data.lecturers.length &&
+      data.sections.length
+    ) {
+      generateSchedule(data.courses, data.sections, data.lecturers, data.classrooms)
+        .then((schedule: any) => {
+          console.log('Generated Schedule:', schedule); // Log the resulting schedule
+        })
+        .catch(console.error);
+    }
+  }, [data]); // This useEffect is dependent on the 'data' state
 
   // Placeholder for the schedule generation component's UI
   return <div>Schedule Generator Component</div>;

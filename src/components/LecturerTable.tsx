@@ -58,6 +58,7 @@ const LecturerTable = () => {
   const fetchLecturers = async () => {
     const fetchedLecturers = await lecturerController.fetchLecturers();
     setLecturers(fetchedLecturers || []);
+    console.log(fetchedLecturers);
   };
 
   const fetchSections = async () => {
@@ -71,12 +72,11 @@ const LecturerTable = () => {
   }, []);
 
   const handleOpenCreateEditModal = (lecturer: Lecturer | null) => {
-    setEditingLecturer(lecturer);
-    if (lecturer) {
-      setAvailability(prepareAvailabilityForLecturer(lecturer.availability));
-    } else {
-      setAvailability(initialAvailability);
-    }
+    const newLecturer = new Lecturer([], '', '', false, initialAvailability); // Initialize with default values
+    setEditingLecturer(lecturer || newLecturer); // Use existing lecturer or new one if adding
+    setAvailability(
+      lecturer ? prepareAvailabilityForLecturer(lecturer.availability) : initialAvailability
+    );
     setOpenCreateEditModal(true);
   };
 
