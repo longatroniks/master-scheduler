@@ -113,7 +113,7 @@ const SectionTable = () => {
 
     const existingSections = sections.filter((section) => section.course_id === course_id);
     const sectionNumbers = existingSections.map((section) => parseInt(section.name, 10));
-    let newName = '800'; // Default section name
+    let newName = '800';
     for (let i = 800; i <= 802; i += 1) {
       if (!sectionNumbers.includes(i)) {
         newName = i.toString();
@@ -263,17 +263,6 @@ const SectionTable = () => {
               </MenuItem>
             ))}
           </TextField>
-          {/* <TextField
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            name="name"
-            value={editingSection?.name || ''}
-            onChange={handleChange}
-          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

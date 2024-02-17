@@ -18,8 +18,13 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import React, { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
-import { CourseController } from '../controllers/CourseController';
 import { Course } from '../models/Course';
+import { Section } from '../models/Section';
+import { Lecturer } from '../models/Lecturer';
+
+import { CourseController } from '../controllers/CourseController';
+import { SectionController } from '../controllers/SectionController';
+import { LecturerController } from '../controllers/LecturerController';
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -28,7 +33,7 @@ const CourseTable = () => {
   const programs = ['WMC', 'IB', 'HT', 'ALL'];
   const yearLevels = [0, 1, 2, 3, 4];
   const credits = [0, 3, 4]; // Does not conflict, only matters for prioritizing
-  const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h 
+  const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h
 
   /**
    * 2 boxes => only can be 1 lecture (because lecture cannot last below 1 hour)
@@ -36,7 +41,7 @@ const CourseTable = () => {
    * 4 boxes => can be 1 or 2 lectures (because 4 boxes / 2 lectures = 2 boxes (1h each))
    * 6 boxes => can be 1, 2, or 3 lectures (because 6 / 2 = 2 (1h 30 min each), 6 / 3 = 2(1h each))
    */
-  const lectureAmounts = [1,2,3];
+  const lectureAmounts = [1, 2, 3];
 
   const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
 
@@ -45,6 +50,20 @@ const CourseTable = () => {
     setCourses(fetchedCourses || []);
   }, [courseController]);
 
+  const fetchAndSetEligibleLecturers = useCallback(async (courseId: string) => {
+    const sectionController = new SectionController();
+    const sections = await sectionController.fetchSectionsByCourseId(courseId);
+    const lecturerIds = sections.map((section) => section.lecturer_id);
+    const uniqueLecturerIds = Array.from(new Set(lecturerIds));
+
+    setEditingCourse((prev) => {
+      if (prev) {
+        return prev.updateFields({ eligible_lecturers: uniqueLecturerIds });
+      }
+      return null;
+    });
+  }, []);
+
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -52,9 +71,9 @@ const CourseTable = () => {
   const handleOpenCreateEditModal = (course: Course | null) => {
     if (course) {
       setEditingCourse(course);
+      fetchAndSetEligibleLecturers(course.id ? course.id : '');
     } else {
-      // Create a new Course instance with empty fields for adding a new Course
-      setEditingCourse(new Course('', '', '', 0, 0, 0, 0, false));
+      setEditingCourse(new Course('', '', '', 0, 0, 0, 0, false, []));
     }
     setOpenCreateEditModal(true);
   };
@@ -65,19 +84,22 @@ const CourseTable = () => {
 
   const handleDeleteCourse = async (course: Course) => {
     if (window.confirm(`Are you sure you want to delete Course ${course.name}?`)) {
-      await courseController.removeCourse(course.id as string); // Use the Course's ID for deletion
+      await courseController.removeCourse(course.id as string);
       setCourses(courses.filter((u) => u.id !== course.id));
     }
   };
 
   const handleSaveCourse = async () => {
-    // Check if editingCourse exists and all required fields are filled
     if (
       editingCourse &&
       editingCourse.name &&
       editingCourse.abbreviation &&
       editingCourse.program &&
-      editingCourse.year_level
+      editingCourse.year_level !== null &&
+      editingCourse.year_level !== undefined &&
+      editingCourse.credits !== null &&
+      editingCourse.credits !== undefined &&
+      editingCourse.eligible_lecturers
     ) {
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse);
@@ -88,7 +110,6 @@ const CourseTable = () => {
       setCourses(updatedCourses || []);
       handleCloseCreateEditModal();
     } else {
-      // If any required field is missing, display an alert or handle the error accordingly
       alert('Please fill in all fields.');
     }
   };
@@ -114,6 +135,7 @@ const CourseTable = () => {
               <TableCell>Boxes</TableCell>
               <TableCell>Lecture Amount</TableCell>
               <TableCell>Requires Lab</TableCell>
+              <TableCell>Eligible Lecturers</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -130,6 +152,7 @@ const CourseTable = () => {
                 <TableCell>{course.boxes}</TableCell>
                 <TableCell>{course.lecture_amount}</TableCell>
                 <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
+                <TableCell>{course.eligible_lecturers ? course.eligible_lecturers : 'No sections created yet'}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
                   <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
@@ -191,7 +214,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="year_level"
-            value={editingCourse?.year_level || ''}
+            value={editingCourse?.year_level !== undefined ? editingCourse.year_level : ''}
             onChange={handleChange}
           >
             {yearLevels.map((yearLevel) => (
@@ -200,6 +223,7 @@ const CourseTable = () => {
               </MenuItem>
             ))}
           </TextField>
+
           <TextField
             select
             margin="dense"
@@ -208,7 +232,7 @@ const CourseTable = () => {
             fullWidth
             variant="standard"
             name="credits"
-            value={editingCourse?.credits || ''}
+            value={editingCourse?.credits !== undefined ? editingCourse.credits : ''}
             onChange={handleChange}
           >
             {credits.map((credit) => (
@@ -217,6 +241,7 @@ const CourseTable = () => {
               </MenuItem>
             ))}
           </TextField>
+
           <TextField
             select
             margin="dense"
@@ -251,6 +276,9 @@ const CourseTable = () => {
               </MenuItem>
             ))}
           </TextField>
+
+
+
           <FormControlLabel
             control={
               <Checkbox

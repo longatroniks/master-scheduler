@@ -15,7 +15,6 @@ export class LecturerService {
     const lecturerDoc = await getDoc(lecturerRef);
     if (lecturerDoc.exists()) {
       return new Lecturer(
-        lecturerDoc.data().sections,
         lecturerDoc.data().firstName,
         lecturerDoc.data().lastName,
         lecturerDoc.data().outsideAffiliate,
@@ -29,7 +28,6 @@ export class LecturerService {
   async getLecturers(): Promise<Lecturer[]> {
     const snapshot = await getDocs(this.collectionRef);
     return snapshot.docs.map(document => new Lecturer(
-      document.data().sections,
       document.data().firstName,
       document.data().lastName,
       document.data().outsideAffiliate,

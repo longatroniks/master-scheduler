@@ -55,4 +55,16 @@ export class SectionController {
       throw error;
     }
   }
+
+  async fetchSectionsByCourseId(courseId: string) {
+    try {
+      const allSections = await this.fetchSections();
+      const filteredSections = allSections.filter(section => section.course_id === courseId);
+      return filteredSections;
+    } catch (error) {
+      console.error('Error fetching Sections by course ID: ', error);
+      throw error;
+    }
+  }
+  
 }

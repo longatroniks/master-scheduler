@@ -28,7 +28,6 @@ export class CourseController {
   }
 
   async updateCourse(course: Course) {
-    // Updated to take a Course object
     try {
       await this.courseService.updateCourse(course);
     } catch (error) {

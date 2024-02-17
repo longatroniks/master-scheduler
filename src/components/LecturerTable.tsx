@@ -13,10 +13,6 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   FormControlLabel,
   Switch,
 } from '@mui/material';
@@ -29,11 +25,9 @@ import { timeSlots } from 'src/assets/data/timeslots';
 import { daysOfWeek } from 'src/assets/data/daysOfWeek';
 
 import { Lecturer } from '../models/Lecturer';
-import { Section } from '../models/Section';
 import { AvailabilitySlider } from './AvailabilitySlider';
 
 import { LecturerController } from '../controllers/LecturerController';
-import { SectionController } from '../controllers/SectionController';
 
 const initialAvailability: { [key: string]: { start_time: string; end_time: string }[] } = {
   monday: [],
@@ -45,7 +39,6 @@ const initialAvailability: { [key: string]: { start_time: string; end_time: stri
 
 const LecturerTable = () => {
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingLecturer, setEditingLecturer] = useState<Lecturer | null>(null);
   const [availability, setAvailability] = useState<{
@@ -53,7 +46,6 @@ const LecturerTable = () => {
   }>(initialAvailability);
 
   const lecturerController = new LecturerController();
-  const sectionController = new SectionController();
 
   const fetchLecturers = async () => {
     const fetchedLecturers = await lecturerController.fetchLecturers();
@@ -61,18 +53,12 @@ const LecturerTable = () => {
     console.log(fetchedLecturers);
   };
 
-  const fetchSections = async () => {
-    const fetchedSections = await sectionController.fetchSections();
-    setSections(fetchedSections || []);
-  };
-
   useEffect(() => {
     fetchLecturers();
-    fetchSections();
   }, []);
 
   const handleOpenCreateEditModal = (lecturer: Lecturer | null) => {
-    const newLecturer = new Lecturer([], '', '', false, initialAvailability); // Initialize with default values
+    const newLecturer = new Lecturer('', '', false, initialAvailability); // Initialize with default values
     setEditingLecturer(lecturer || newLecturer); // Use existing lecturer or new one if adding
     setAvailability(
       lecturer ? prepareAvailabilityForLecturer(lecturer.availability) : initialAvailability
@@ -123,7 +109,6 @@ const LecturerTable = () => {
 
     if (editingLecturer) {
       const updatedLecturer = new Lecturer(
-        editingLecturer.sections,
         editingLecturer.firstName,
         editingLecturer.lastName,
         editingLecturer.outsideAffiliate,
@@ -141,7 +126,6 @@ const LecturerTable = () => {
         } else {
           await lecturerController.addLecturer(updatedLecturer);
           fetchLecturers();
-          fetchSections();
         }
       } catch (error) {
         console.error('Error saving lecturer:', error);
@@ -156,23 +140,16 @@ const LecturerTable = () => {
     checked?: boolean
   ) => {
     const field = event.target.name as keyof Lecturer;
-
+  
     const isCheckbox = checked !== undefined;
     const value: any = isCheckbox ? checked : event.target.value;
-
+  
     setEditingLecturer((prev) => {
       if (!prev) return null;
-
-      const updatedLecturer: Partial<Lecturer> = { ...prev };
-
-      if (field === 'sections' && Array.isArray(value)) {
-        updatedLecturer[field] = value.map(String);
-      } else {
-        updatedLecturer[field] = value;
-      }
-
+  
+      const updatedLecturer: Partial<Lecturer> = { ...prev, [field]: value };
+  
       return new Lecturer(
-        updatedLecturer.sections || prev.sections,
         updatedLecturer.firstName || prev.firstName,
         updatedLecturer.lastName || prev.lastName,
         updatedLecturer.outsideAffiliate !== undefined
@@ -183,6 +160,7 @@ const LecturerTable = () => {
       );
     });
   };
+  
 
   return (
     <div>
@@ -195,7 +173,6 @@ const LecturerTable = () => {
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
               <TableCell>Affiliate</TableCell>
-              <TableCell>Sections</TableCell>
               <TableCell>Availability</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -206,14 +183,7 @@ const LecturerTable = () => {
                 <TableCell>{lecturer.firstName}</TableCell>
                 <TableCell>{lecturer.lastName}</TableCell>
                 <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
-                <TableCell>
-                  {lecturer.sections
-                    .map(
-                      (sectionId) =>
-                        sections.find((section) => section.id === sectionId)?.name || 'Unknown'
-                    )
-                    .join(', ')}
-                </TableCell>
+ 
 
                 <TableCell>
                   <Tooltip
@@ -305,39 +275,6 @@ const LecturerTable = () => {
             label="Is Outside Affiliate"
           />
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="sections-label">Sections</InputLabel>
-            <Select
-              labelId="sections-label"
-              id="sections"
-              multiple
-              value={editingLecturer?.sections || []}
-              onChange={(event) => {
-                const { value } = event.target;
-                handleChange({
-                  target: {
-                    name: 'sections',
-                    value: typeof value === 'string' ? value.split(',') : value,
-                  },
-                } as React.ChangeEvent<{ name?: string; value: unknown }>);
-              }}
-              name="sections"
-              renderValue={(selected) =>
-                selected
-                  .map(
-                    (sectionId) =>
-                      sections.find((section) => section.id === sectionId)?.name || sectionId
-                  )
-                  .join(', ')
-              }
-            >
-              {sections.map((section) => (
-                <MenuItem key={section.id} value={section.id}>
-                  {section.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           {daysOfWeek.map((day) => (
             <AvailabilitySlider
               key={day}
