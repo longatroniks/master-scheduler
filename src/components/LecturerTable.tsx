@@ -55,17 +55,17 @@ const LecturerTable = () => {
   const lecturerController = new LecturerController();
   const sectionController = new SectionController();
 
+  const fetchLecturers = async () => {
+    const fetchedLecturers = await lecturerController.fetchLecturers();
+    setLecturers(fetchedLecturers || []);
+  };
+
+  const fetchSections = async () => {
+    const fetchedSections = await sectionController.fetchSections();
+    setSections(fetchedSections || []);
+  };
+
   useEffect(() => {
-    const fetchLecturers = async () => {
-      const fetchedLecturers = await lecturerController.fetchLecturers();
-      setLecturers(fetchedLecturers || []);
-    };
-
-    const fetchSections = async () => {
-      const fetchedSections = await sectionController.fetchSections();
-      setSections(fetchedSections || []);
-    };
-
     fetchLecturers();
     fetchSections();
   }, []);
@@ -131,12 +131,23 @@ const LecturerTable = () => {
         editingLecturer.id
       );
 
-      if (editingLecturer.id) {
-        await lecturerController.updateLecturer(updatedLecturer);
-      } else {
-        await lecturerController.addLecturer(updatedLecturer);
+      try {
+        if (editingLecturer.id) {
+          await lecturerController.updateLecturer(updatedLecturer);
+          const updatedLecturers = lecturers.map((l) =>
+            l.id === editingLecturer.id ? updatedLecturer : l
+          );
+          setLecturers(updatedLecturers);
+        } else {
+          await lecturerController.addLecturer(updatedLecturer);
+          fetchLecturers();
+          fetchSections();
+        }
+      } catch (error) {
+        console.error('Error saving lecturer:', error);
       }
     }
+
     handleCloseCreateEditModal();
   };
 
