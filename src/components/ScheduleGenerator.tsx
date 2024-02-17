@@ -94,6 +94,8 @@ const ScheduleGenerator: React.FC = () => {
       data.sections.length
     ) {
       setLoading(true);
+      console.log(data);
+
       generateSchedule(data.courses, data.sections, data.lecturers, data.classrooms)
         .then((generatedSchedule: ScheduleItem[]) => {
           console.log('Generated Schedule:', generatedSchedule); // Log the resulting schedule
