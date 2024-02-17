@@ -1,4 +1,3 @@
-// ScheduleGenerator.jsx
 import React, { useEffect, useState } from 'react';
 import { ClassroomController } from 'src/controllers/ClassroomController';
 import { CourseController } from 'src/controllers/CourseController';
@@ -11,6 +10,9 @@ import { Course } from 'src/models/Course';
 import { Lecture } from 'src/models/Lecture';
 import { Lecturer } from 'src/models/Lecturer';
 import { Section } from 'src/models/Section';
+import { timeSlots } from 'src/assets/data/timeslots'; // Ensure this is correctly imported
+import ScheduleTable from './schedule-table/ScheduleTable'; // Adjust the import path as necessary
+import ProgressBar from './progress-bar/progress-bar';
 
 interface ScheduleData {
   classrooms: Classroom[];
@@ -34,6 +36,18 @@ interface ScheduleItem {
   endTime: string;
 }
 
+interface TransformedScheduleItem extends Omit<ScheduleItem, 'startTime' | 'endTime'> {
+  durationSlots: number;
+}
+
+interface TransformedScheduleDay {
+  [classroomId: string]: (TransformedScheduleItem | null)[];
+}
+
+interface TransformedSchedule {
+  [day: string]: TransformedScheduleDay;
+}
+
 const ScheduleGenerator: React.FC = () => {
   const [data, setData] = useState<ScheduleData>({
     classrooms: [],
@@ -44,9 +58,12 @@ const ScheduleGenerator: React.FC = () => {
   });
 
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [transformedSchedule, setTransformedSchedule] = useState<TransformedSchedule>({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const classroomController = new ClassroomController();
       const courseController = new CourseController();
       const lectureController = new LectureController();
@@ -76,42 +93,58 @@ const ScheduleGenerator: React.FC = () => {
       data.lecturers.length &&
       data.sections.length
     ) {
+      setLoading(true);
       generateSchedule(data.courses, data.sections, data.lecturers, data.classrooms)
         .then((generatedSchedule: ScheduleItem[]) => {
           console.log('Generated Schedule:', generatedSchedule); // Log the resulting schedule
           setSchedule(generatedSchedule); // Set the schedule state
+          setLoading(false);
         })
         .catch(console.error);
+      setLoading(false);
     }
   }, [data]); // This useEffect is dependent on the 'data' state
+
+  useEffect(() => {
+    const transformSchedule = (generatedSchedule: ScheduleItem[]): TransformedSchedule => {
+      const transformed: TransformedSchedule = {};
+
+      generatedSchedule.forEach((item) => {
+        if (!transformed[item.day]) {
+          transformed[item.day] = {};
+        }
+
+        if (!transformed[item.day][item.classroomId]) {
+          transformed[item.day][item.classroomId] = Array(timeSlots.length).fill(null);
+        }
+
+        const startIndex = timeSlots.indexOf(item.startTime);
+        const endIndex = timeSlots.indexOf(item.endTime);
+        const durationSlots = endIndex - startIndex;
+
+        // Ensure that the item is placed only once for its duration
+        if (transformed[item.day][item.classroomId][startIndex] === null) {
+          transformed[item.day][item.classroomId][startIndex] = {
+            ...item,
+            durationSlots,
+          };
+        }
+      });
+
+      return transformed;
+    };
+
+    if (schedule.length > 0) {
+      const newTransformedSchedule = transformSchedule(schedule);
+      setTransformedSchedule(newTransformedSchedule);
+    }
+  }, [schedule]); // Transform the schedule whenever it changes
 
   return (
     <div>
       <h2>Schedule</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Time</th>
-            <th>Course</th>
-            <th>Section</th>
-            <th>Classroom</th>
-            <th>Lecturer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {schedule.map((item, index) => (
-            <tr key={index}>
-              <td>{item.day}</td>
-              <td>{`${item.startTime} - ${item.endTime}`}</td>
-              <td>{item.courseName}</td>
-              <td>{item.sectionName}</td>
-              <td>{item.classroomName}</td>
-              <td>{item.lecturerName}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {loading && <ProgressBar />}
+      {!loading && <ScheduleTable schedule={transformedSchedule} />}
     </div>
   );
 };
