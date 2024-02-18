@@ -34,4 +34,40 @@ const timeSlots = [
 ];
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-export { lectureAmounts, programs, yearLevels, credits, boxes, timeSlots, daysOfWeek };
+const niceColors = [
+  '#FFB6C1', // LightPink
+  '#FFD700', // Gold
+  '#FFA07A', // LightSalmon
+  '#20B2AA', // LightSeaGreen
+  '#87CEFA', // LightSkyBlue
+  '#9370DB', // MediumPurple
+  '#FF6347', // Tomato
+  '#40E0D0', // Turquoise
+  '#EE82EE', // Violet
+  '#F08080', // LightCoral
+  '#DAA520', // GoldenRod
+  '#C71585', // MediumVioletRed
+  '#FF4500', // OrangeRed
+  '#DA70D6', // Orchid
+  '#98FB98', // PaleGreen
+];
+
+const yearLevelColors = {
+  0: 'lightGray',
+  1: 'yellow',
+  2: 'green',
+  3: 'blue',
+  4: 'orange',
+};
+
+export {
+  lectureAmounts,
+  programs,
+  yearLevels,
+  credits,
+  boxes,
+  timeSlots,
+  daysOfWeek,
+  niceColors,
+  yearLevelColors,
+};

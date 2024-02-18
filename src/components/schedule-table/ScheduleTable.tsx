@@ -9,7 +9,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { timeSlots, daysOfWeek } from 'src/assets/data';
+import { timeSlots, daysOfWeek, niceColors } from 'src/assets/data';
 
 interface ScheduleItem {
   durationSlots?: number;
@@ -33,25 +33,6 @@ interface ScheduleTableProps {
 
 const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
   const [courseColorMap] = useState<{ [key: string]: string }>({});
-
-  // Define a list of nice colors
-  const niceColors = [
-    '#FFB6C1', // LightPink
-    '#FFD700', // Gold
-    '#FFA07A', // LightSalmon
-    '#20B2AA', // LightSeaGreen
-    '#87CEFA', // LightSkyBlue
-    '#9370DB', // MediumPurple
-    '#FF6347', // Tomato
-    '#40E0D0', // Turquoise
-    '#EE82EE', // Violet
-    '#F08080', // LightCoral
-    '#DAA520', // GoldenRod
-    '#C71585', // MediumVioletRed
-    '#FF4500', // OrangeRed
-    '#DA70D6', // Orchid
-    '#98FB98', // PaleGreen
-  ];
 
   // Function to get or assign a color to a course based on its ID
   const getBackgroundColor = (courseId: string): string => {
