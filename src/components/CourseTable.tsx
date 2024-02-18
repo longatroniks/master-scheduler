@@ -18,16 +18,12 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
+import { lectureAmounts, boxes, programs, yearLevels, credits } from 'src/assets/data';
+
 import { Course } from '../models/Course';
 
 import { CourseController } from '../controllers/CourseController';
 import { SectionController } from '../controllers/SectionController';
-
-const lectureAmounts = [1, 2, 3];
-const programs = ['WMC', 'IB', 'HT', 'ALL'];
-const yearLevels = [0, 1, 2, 3, 4];
-const credits = [0, 3, 4]; // Does not conflict, only matters for prioritizing
-const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);

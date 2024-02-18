@@ -10,7 +10,7 @@ import { Course } from 'src/models/Course';
 import { Lecture } from 'src/models/Lecture';
 import { Lecturer } from 'src/models/Lecturer';
 import { Section } from 'src/models/Section';
-import { timeSlots } from 'src/assets/data/timeslots'; // Ensure this is correctly imported
+import { timeSlots } from 'src/assets/data';
 import ScheduleTable from './schedule-table/ScheduleTable'; // Adjust the import path as necessary
 import ProgressBar from './progress-bar/progress-bar';
 

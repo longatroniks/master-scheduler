@@ -9,8 +9,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { timeSlots } from 'src/assets/data/timeslots';
-import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+import { timeSlots, daysOfWeek } from 'src/assets/data';
 
 interface ScheduleItem {
   durationSlots?: number;

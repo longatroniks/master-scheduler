@@ -21,8 +21,7 @@ import IconButton from '@mui/material/IconButton';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useState, useEffect } from 'react';
 
-import { timeSlots } from 'src/assets/data/timeslots';
-import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+import { timeSlots, daysOfWeek } from 'src/assets/data';
 
 import { Lecturer } from '../models/Lecturer';
 import { AvailabilitySlider } from './AvailabilitySlider';

@@ -1,5 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+} from '@mui/material';
+import { timeSlots } from 'src/assets/data';
+
 import { Lecture } from '../models/Lecture';
 import { Classroom } from '../models/Classroom';
 import { LectureController } from '../controllers/LectureController';
@@ -8,12 +19,6 @@ import { SectionController } from '../controllers/SectionController';
 import { CourseController } from '../controllers/CourseController';
 import { Section } from '../models/Section';
 import { Course } from '../models/Course';
-
-const timeSlots = [
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-  '18:00', '18:30', '19:00', '19:30', '20:00',
-];
 
 // Assuming the structure for the item in the schedule map
 interface ScheduleItem {
@@ -61,7 +66,7 @@ export const MasterSchedule = () => {
   }, []);
 
   const schedule: any = {};
-  
+
   lectures.forEach((lecture) => {
     const durationSlots = calculateDurationInSlots(lecture.start_time, lecture.end_time);
     if (!schedule[lecture.day]) {
@@ -123,35 +128,37 @@ export const MasterSchedule = () => {
                   <TableRow key={classroom.id}>
                     <TableCell style={{ backgroundColor: '#f0f0f0' }}>{classroom.name}</TableCell>
                     {classroom.id && schedule[day][classroom.id]
-                      ? schedule[day][classroom.id].map((item: ScheduleItem | null, index: number) => {
-                          if (item && item.lecture) {
-                            if (index === timeSlots.indexOf(item.lecture.start_time)) {
-                              const backgroundColor = item.lecture.section_id
-                                ? getBackgroundColor(item.lecture.section_id)
-                                : 'lightGray';
-                              return (
-                                <TableCell
-                                  key={`${classroom.id}-${index}`}
-                                  colSpan={calculateDurationInSlots(
-                                    item.lecture.start_time,
-                                    item.lecture.end_time
-                                  )}
-                                  style={{ backgroundColor }}
-                                >
-                                  {`${item.courseName} - ${item.sectionName}`}{' '}
-                                </TableCell>
-                              );
+                      ? schedule[day][classroom.id].map(
+                          (item: ScheduleItem | null, index: number) => {
+                            if (item && item.lecture) {
+                              if (index === timeSlots.indexOf(item.lecture.start_time)) {
+                                const backgroundColor = item.lecture.section_id
+                                  ? getBackgroundColor(item.lecture.section_id)
+                                  : 'lightGray';
+                                return (
+                                  <TableCell
+                                    key={`${classroom.id}-${index}`}
+                                    colSpan={calculateDurationInSlots(
+                                      item.lecture.start_time,
+                                      item.lecture.end_time
+                                    )}
+                                    style={{ backgroundColor }}
+                                  >
+                                    {`${item.courseName} - ${item.sectionName}`}{' '}
+                                  </TableCell>
+                                );
+                              }
+                              if (
+                                classroom.id &&
+                                schedule[day][classroom.id][index - 1] &&
+                                schedule[day][classroom.id][index - 1]?.lecture === item.lecture
+                              ) {
+                                return null;
+                              }
                             }
-                            if (
-                              classroom.id && 
-                              schedule[day][classroom.id][index - 1] &&
-                              schedule[day][classroom.id][index - 1]?.lecture === item.lecture
-                            ) {
-                              return null;
-                            }
+                            return <TableCell key={`${classroom.id}-${index}`} />;
                           }
-                          return <TableCell key={`${classroom.id}-${index}`} />;
-                        })
+                        )
                       : timeSlots.map((_, index) => <TableCell key={`${classroom.id}-${index}`} />)}
                   </TableRow>
                 ))}
