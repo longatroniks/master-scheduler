@@ -9,8 +9,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { timeSlots } from 'src/assets/data/timeslots';
-import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+import { timeSlots, daysOfWeek, niceColors } from 'src/assets/data';
 
 interface ScheduleItem {
   durationSlots?: number;
@@ -39,25 +38,6 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
     console.log(schedule);
   }, [schedule]);
 
-  // Define a list of nice colors
-  const niceColors = [
-    '#FFB6C1', // LightPink
-    '#FFD700', // Gold
-    '#FFA07A', // LightSalmon
-    '#20B2AA', // LightSeaGreen
-    '#87CEFA', // LightSkyBlue
-    '#9370DB', // MediumPurple
-    '#FF6347', // Tomato
-    '#40E0D0', // Turquoise
-    '#EE82EE', // Violet
-    '#F08080', // LightCoral
-    '#DAA520', // GoldenRod
-    '#C71585', // MediumVioletRed
-    '#FF4500', // OrangeRed
-    '#DA70D6', // Orchid
-    '#98FB98', // PaleGreen
-  ];
-
   // Function to get or assign a color to a course based on its ID
   const getBackgroundColor = (courseId: string): string => {
     if (!courseColorMap[courseId]) {
@@ -81,9 +61,11 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Classroom / Time</TableCell>
+                    <TableCell align="left">Classroom / Time</TableCell>
                     {timeSlots.map((time) => (
-                      <TableCell key={time}>{time}</TableCell>
+                      <TableCell key={time} sx={{ paddingLeft: 0 }}>
+                        {time}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -131,7 +113,10 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
                   ))} */}
                   {Object.keys(schedule[day]).map((classroomId) => (
                     <TableRow key={classroomId}>
-                      <TableCell>{/* Classroom Name or ID */}</TableCell>
+                      <TableCell>
+                        {schedule[day][classroomId].find((item) => item !== null)?.classroomName ||
+                          'Unknown Classroom'}
+                      </TableCell>
                       {schedule[day][classroomId].map((item, index) => {
                         if (item === 'spanned') return null; // Skip rendering for 'spanned' slots
                         return (
@@ -142,6 +127,8 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
                               backgroundColor: item
                                 ? getBackgroundColor(item.sectionId)
                                 : undefined,
+                              border: '1px solid',
+                              borderColor: '#d3d3d3',
                             }}
                           >
                             {item ? `${item.courseName} - ${item.sectionName}` : ''}

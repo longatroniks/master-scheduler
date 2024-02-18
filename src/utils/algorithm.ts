@@ -104,20 +104,20 @@ function tryScheduleLecture(
       sectionName: section.name,
       lecturerId: sectionLecturer.id,
       lecturerName: `${sectionLecturer.firstName} ${sectionLecturer.lastName}`,
-      day: day,
+      day,
       startTime: currentTime,
       endTime: currentEndTime,
     });
     console.log(
-      `Lecture scheduled for section ${section.name} in classroom ${availableClassroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
+      `Lecture scheduled for section ${`${course.abbreviation} - ${  section.name}`} in classroom ${availableClassroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
     );
     return true; // Successfully scheduled
-  } else {
+  } 
     console.log(
       `No available classroom found for section ${section.name} on ${day} from ${currentTime} to ${currentEndTime}`
     );
     return false; // Not scheduled
-  }
+  
 }
 
 export async function generateSchedule(

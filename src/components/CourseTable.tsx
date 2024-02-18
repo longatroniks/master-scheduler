@@ -17,23 +17,19 @@ import {
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
-import React, { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
+import { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
+import { lectureAmounts, boxes, programs, yearLevels, credits } from 'src/assets/data';
+
 import { Course } from '../models/Course';
-import { Section } from '../models/Section';
-import { Lecturer } from '../models/Lecturer';
 
 import { CourseController } from '../controllers/CourseController';
 import { SectionController } from '../controllers/SectionController';
-import { LecturerController } from '../controllers/LecturerController';
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const programs = ['WMC', 'IB', 'HT', 'ALL'];
-  const yearLevels = [0, 1, 2, 3, 4];
-  const credits = [0, 3, 4]; // Does not conflict, only matters for prioritizing
-  const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h
+  const [filteredLectureAmounts, setFilteredLectureAmounts] = useState(lectureAmounts);
 
   /**
    * 2 boxes => only can be 1 lecture (because lecture cannot last below 1 hour)
@@ -41,9 +37,20 @@ const CourseTable = () => {
    * 4 boxes => can be 1 or 2 lectures (because 4 boxes / 2 lectures = 2 boxes (1h each))
    * 6 boxes => can be 1, 2, or 3 lectures (because 6 / 2 = 2 (1h 30 min each), 6 / 3 = 2(1h each))
    */
-  const lectureAmounts = [1, 2, 3];
 
   const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    if (editingCourse && editingCourse.boxes) {
+      updateFilteredLectureAmounts(editingCourse.boxes);
+    } else {
+      setFilteredLectureAmounts(lectureAmounts); // Reset to default when dialog is opened
+    }
+  }, [editingCourse]);
 
   const fetchCourses = useCallback(async () => {
     const fetchedCourses = await courseController.fetchCourses();
@@ -62,10 +69,6 @@ const CourseTable = () => {
       }
       return null;
     });
-  }, []);
-
-  useEffect(() => {
-    fetchCourses();
   }, []);
 
   const handleOpenCreateEditModal = (course: Course | null) => {
@@ -114,8 +117,30 @@ const CourseTable = () => {
     }
   };
 
+  // Function to update filtered lecture amounts based on selected boxes
+  const updateFilteredLectureAmounts = (selectedBoxes: number) => {
+    switch (selectedBoxes) {
+      case 2:
+      case 3:
+        setFilteredLectureAmounts([1]); // Only 1 lecture is possible
+        break;
+      case 4:
+        setFilteredLectureAmounts([1, 2]); // 1 or 2 lectures are possible
+        break;
+      case 6:
+        setFilteredLectureAmounts([1, 2, 3]); // 1, 2, or 3 lectures are possible
+        break;
+      default:
+        setFilteredLectureAmounts(lectureAmounts); // Reset to all possible values if none matches
+    }
+  };
+
+  // Modify handleChange to update filtered lecture amounts when boxes change
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name === 'boxes') {
+      updateFilteredLectureAmounts(Number(value));
+    }
     setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
@@ -152,7 +177,11 @@ const CourseTable = () => {
                 <TableCell>{course.boxes}</TableCell>
                 <TableCell>{course.lecture_amount}</TableCell>
                 <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
-                <TableCell>{course.eligible_lecturers ? course.eligible_lecturers : 'No sections created yet'}</TableCell>
+                <TableCell>
+                  {course.eligible_lecturers
+                    ? course.eligible_lecturers
+                    : 'No sections created yet'}
+                </TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
                   <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
@@ -270,14 +299,12 @@ const CourseTable = () => {
             value={editingCourse?.lecture_amount || ''}
             onChange={handleChange}
           >
-            {lectureAmounts.map((lectureAmount) => (
+            {filteredLectureAmounts.map((lectureAmount) => (
               <MenuItem key={lectureAmount} value={lectureAmount}>
                 {lectureAmount}
               </MenuItem>
             ))}
           </TextField>
-
-
 
           <FormControlLabel
             control={

@@ -30,6 +30,7 @@ import { LecturerController } from 'src/controllers/LecturerController';
 import { SectionController } from 'src/controllers/SectionController';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import { useRouter } from 'src/routes/hooks';
 
 import { generateSchedule } from 'src/utils/algorithm';
 import { Classroom } from 'src/models/Classroom';
@@ -37,10 +38,8 @@ import { Course } from 'src/models/Course';
 import { Lecture } from 'src/models/Lecture';
 import { Lecturer } from 'src/models/Lecturer';
 import { Section } from 'src/models/Section';
-import { timeSlots } from 'src/assets/data/timeslots';
-
-import { useRouter } from 'src/routes/hooks';
-import ScheduleTable from './schedule-table/ScheduleTable';
+import { timeSlots } from 'src/assets/data'; // Ensure this is correctly imported
+import ScheduleTable from './schedule-table/ScheduleTable'; // Adjust the import path as necessary
 
 interface ScheduleData {
   classrooms: Classroom[];
@@ -363,39 +362,37 @@ const ScheduleGenerator: React.FC = () => {
     <div>
       <h2>Schedule Generator</h2>
 
-      <>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleGenerateSchedule}
-          startIcon={<AutoFixHighIcon />}
-          disabled={dataLoading} // Disable button while data is loading
-          sx={{ mr: 3 }}
-        >
-          Generate Schedule
-        </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleGenerateSchedule}
+        startIcon={<AutoFixHighIcon />}
+        disabled={dataLoading} // Disable button while data is loading
+        sx={{ mr: 3 }}
+      >
+        Generate Schedule
+      </Button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleOpenModal}
-          startIcon={<OpenInFullIcon />}
-          disabled={!setScheduleDone}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleOpenModal}
+        startIcon={<OpenInFullIcon />}
+        disabled={!setScheduleDone}
+      >
+        View as modal
+      </Button>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
         >
-          View as modal
-        </Button>
-        <Accordion>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Review Schedule Data</Typography>
-          </AccordionSummary>
-          <AccordionDetails>{renderFetchedData()}</AccordionDetails>
-        </Accordion>
-        <ScheduleTable schedule={transformedSchedule} />
-      </>
+          <Typography>Review Schedule Data</Typography>
+        </AccordionSummary>
+        <AccordionDetails>{renderFetchedData()}</AccordionDetails>
+      </Accordion>
+      <ScheduleTable schedule={transformedSchedule} />
 
       <Modal
         open={openModal}

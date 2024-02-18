@@ -17,8 +17,7 @@ import {
   MenuItem,
 } from '@mui/material';
 
-import { timeSlots } from 'src/assets/data/timeslots';
-import { daysOfWeek } from 'src/assets/data/daysOfWeek';
+import { timeSlots, daysOfWeek } from 'src/assets/data';
 
 import { Lecture } from '../models/Lecture';
 import { Classroom } from '../models/Classroom';

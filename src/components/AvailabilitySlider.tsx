@@ -1,6 +1,6 @@
 import { Slider, Typography } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { timeSlots } from 'src/assets/data/timeslots';
+import { timeSlots } from 'src/assets/data';
 
 interface AvailabilitySliderProps {
   day: string;
