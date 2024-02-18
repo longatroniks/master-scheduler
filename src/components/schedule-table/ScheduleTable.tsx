@@ -77,9 +77,13 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Classroom / Time</TableCell>
+                    <TableCell align="left">
+                      Classroom / Time
+                    </TableCell>
                     {timeSlots.map((time) => (
-                      <TableCell key={time}>{time}</TableCell>
+                      <TableCell key={time} sx={{ paddingLeft: 0}}>
+                        {time}
+                      </TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -95,6 +99,8 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
                           colSpan={item ? item.durationSlots || 1 : 1}
                           style={{
                             backgroundColor: item ? getBackgroundColor(item.sectionId) : undefined,
+                            border: '1px solid',
+                            borderColor: '#d3d3d3'
                           }}
                         >
                           {item ? `${item.courseName} - ${item.sectionName}` : ''}
