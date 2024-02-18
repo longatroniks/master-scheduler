@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -34,6 +34,10 @@ interface ScheduleTableProps {
 
 const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
   const [courseColorMap] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    console.log(schedule);
+  }, [schedule]);
 
   // Define a list of nice colors
   const niceColors = [
@@ -84,22 +88,66 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.keys(schedule[day]).map((classroomId) => (
+                  {/* {Object.keys(schedule[day]).map((classroomId) => (
                     <TableRow key={classroomId}>
                       <TableCell style={{ backgroundColor: '#f0f0f0' }}>
-                        {schedule[day][classroomId][0]?.classroomName || 'Unknown Classroom'}
+                        {
+                          // Find the first non-null item and use its classroomName
+                          schedule[day][classroomId].find((item) => item !== null)?.classroomName ||
+                            'Unknown Classroom'
+                        }
                       </TableCell>
-                      {schedule[day][classroomId].map((item, index) => (
-                        <TableCell
-                          key={index}
-                          colSpan={item ? item.durationSlots || 1 : 1}
-                          style={{
-                            backgroundColor: item ? getBackgroundColor(item.sectionId) : undefined,
-                          }}
-                        >
-                          {item ? `${item.courseName} - ${item.sectionName}` : ''}
-                        </TableCell>
-                      ))}
+                      {schedule[day][classroomId].map((item, index) => {
+                        // Determine the correct colSpan for null values by finding the next non-null item or the end of the array
+                        let colSpan = 1;
+                        if (!item) {
+                          let nextItemIndex = index + 1;
+                          while (
+                            nextItemIndex < schedule[day][classroomId].length &&
+                            !schedule[day][classroomId][nextItemIndex]
+                          ) {
+                            colSpan++;
+                            nextItemIndex++;
+                          }
+                        } else {
+                          colSpan = item.durationSlots || 1;
+                        }
+
+                        return (
+                          <TableCell
+                            key={index}
+                            colSpan={colSpan}
+                            style={{
+                              backgroundColor: item
+                                ? getBackgroundColor(item.sectionId)
+                                : undefined,
+                            }}
+                          >
+                            {item ? `${item.courseName} - ${item.sectionName}` : ''}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))} */}
+                  {Object.keys(schedule[day]).map((classroomId) => (
+                    <TableRow key={classroomId}>
+                      <TableCell>{/* Classroom Name or ID */}</TableCell>
+                      {schedule[day][classroomId].map((item, index) => {
+                        if (item === 'spanned') return null; // Skip rendering for 'spanned' slots
+                        return (
+                          <TableCell
+                            key={index}
+                            colSpan={item ? item.durationSlots || 1 : 1}
+                            style={{
+                              backgroundColor: item
+                                ? getBackgroundColor(item.sectionId)
+                                : undefined,
+                            }}
+                          >
+                            {item ? `${item.courseName} - ${item.sectionName}` : ''}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>

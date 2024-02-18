@@ -88,36 +88,38 @@ function tryScheduleLecture(
 ) {
   const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
 
-  const availableClassroom = classrooms.find(
-    (classroom) =>
-      isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule) &&
-      isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
-  );
+  if (sectionLecturer && sectionLecturer.id) {
+    const lecturerId: string = sectionLecturer.id;
+    const availableClassroom = classrooms.find(
+      (classroom) =>
+        isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule) &&
+        isLecturerAvailable(lecturerId, day, currentTime, currentEndTime, schedule) // This call is now safe.
+    );
 
-  if (availableClassroom) {
-    schedule.push({
-      classroomId: availableClassroom.id,
-      classroomName: availableClassroom.name,
-      courseId: course.id,
-      courseName: course.name,
-      sectionId: section.id,
-      sectionName: section.name,
-      lecturerId: sectionLecturer.id,
-      lecturerName: `${sectionLecturer.firstName} ${sectionLecturer.lastName}`,
-      day: day,
-      startTime: currentTime,
-      endTime: currentEndTime,
-    });
-    console.log(
-      `Lecture scheduled for section ${section.name} in classroom ${availableClassroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
-    );
-    return true; // Successfully scheduled
+    if (availableClassroom) {
+      schedule.push({
+        classroomId: availableClassroom.id ?? 'unknown',
+        classroomName: availableClassroom.name,
+        courseId: course.id ?? 'unknown',
+        courseName: course.name,
+        sectionId: section.id ?? 'unknown',
+        sectionName: section.name,
+        lecturerId: sectionLecturer.id, // This is now guaranteed to be defined.
+        lecturerName: `${sectionLecturer.firstName} ${sectionLecturer.lastName}`,
+        day,
+        startTime: currentTime,
+        endTime: currentEndTime,
+      });
+      console.log(
+        `Lecture scheduled for section ${section.name} in classroom ${availableClassroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
+      );
+      return true; // Successfully scheduled
+    }
   } else {
-    console.log(
-      `No available classroom found for section ${section.name} on ${day} from ${currentTime} to ${currentEndTime}`
-    );
-    return false; // Not scheduled
+    // Handle the scenario where sectionLecturer or sectionLecturer.id is undefined.
+    console.error('Lecturer or Lecturer ID is undefined, cannot schedule lecture.');
   }
+  return false; // Not scheduled
 }
 
 export async function generateSchedule(
@@ -138,6 +140,11 @@ export async function generateSchedule(
     courseSections.forEach((section) => {
       const lectureLengthMinutes = (course.boxes / course.lecture_amount) * 30;
       const sectionLecturer = lecturers.find((lecturer) => lecturer.id === section.lecturer_id);
+      if (!sectionLecturer) {
+        console.error('Lecturer not found for section, cannot schedule lecture.');
+        return; // Skip further processing for this section
+      }
+
       let lecturesScheduledForSection = 0; // Counter for the number of lectures scheduled for this section
 
       Object.entries(sectionLecturer.availability).forEach(([day, timeSlots]) => {

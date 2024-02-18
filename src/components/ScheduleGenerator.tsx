@@ -112,6 +112,11 @@ const ScheduleGenerator: React.FC = () => {
       const sections = await sectionController.fetchSections();
 
       setData({ classrooms, courses, lectures, lecturers, sections });
+      console.log('Fetched Classrooms:', classrooms);
+      console.log('Fetched Courses:', courses);
+      console.log('Fetched Lectures:', lectures);
+      console.log('Fetched Lecturers:', lecturers);
+      console.log('Fetched Sections:', sections);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -162,20 +167,25 @@ const ScheduleGenerator: React.FC = () => {
   useEffect(() => {
     const transformSchedule = (generatedSchedule: ScheduleItem[]): TransformedSchedule => {
       const transformed: TransformedSchedule = {};
+      const timeSlotsMap = timeSlots.reduce((acc, time, index) => ({ ...acc, [time]: index }), {});
+
       generatedSchedule.forEach((item) => {
-        if (!transformed[item.day]) {
-          transformed[item.day] = {};
+        const daySchedule = transformed[item.day] || {};
+        const classroomSchedule =
+          daySchedule[item.classroomId] || Array(timeSlots.length).fill(null);
+
+        const startIndex = timeSlotsMap[item.startTime];
+        const endIndex = timeSlotsMap[item.endTime];
+        const durationSlots = item.durationSlots || endIndex - startIndex;
+
+        for (let i = startIndex; i < startIndex + durationSlots; i += 1) {
+          classroomSchedule[i] = i === startIndex ? { ...item, durationSlots } : 'spanned';
         }
-        if (!transformed[item.day][item.classroomId]) {
-          transformed[item.day][item.classroomId] = Array(timeSlots.length).fill(null);
-        }
-        const startIndex = timeSlots.indexOf(item.startTime);
-        const endIndex = timeSlots.indexOf(item.endTime);
-        const durationSlots = endIndex - startIndex;
-        if (transformed[item.day][item.classroomId][startIndex] === null) {
-          transformed[item.day][item.classroomId][startIndex] = { ...item, durationSlots };
-        }
+
+        daySchedule[item.classroomId] = classroomSchedule;
+        transformed[item.day] = daySchedule;
       });
+
       return transformed;
     };
 
