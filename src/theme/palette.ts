@@ -111,6 +111,24 @@ const COMMON = {
   },
 };
 
+export const SCHEDULE_COLORS_LIGHT = [
+  '#E57373', // Red
+  '#BA68C8', // Purple
+  '#64B5F6', // Blue
+  '#81C784', // Green
+  '#FFD54F', // Yellow
+  // Add more colors as needed
+];
+
+export const SCHEDULE_COLORS_DARK = [
+  '#C2185B', // Vibrant Pink
+  '#7B1FA2', // Vibrant Purple
+  '#0288D1', // Vibrant Blue
+  '#388E3C', // Vibrant Green
+  '#F57C00', // Vibrant Orange
+  // Add more vibrant colors as needed
+];
+
 export function palette(mode: 'light' | 'dark') {
   const light = {
     ...COMMON,

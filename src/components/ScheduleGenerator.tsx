@@ -3,13 +3,11 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
   Grid,
   IconButton,
   List,
   ListItem,
-  Modal,
   Paper,
   Table,
   TableBody,
@@ -19,107 +17,43 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-import { ClassroomController } from 'src/controllers/ClassroomController';
-
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import { CourseController } from 'src/controllers/CourseController';
-import { LectureController } from 'src/controllers/LectureController';
-import { LecturerController } from 'src/controllers/LecturerController';
-import { SectionController } from 'src/controllers/SectionController';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { useRouter } from 'src/routes/hooks';
-
-import { generateSchedule } from 'src/utils/algorithm';
-import { Classroom } from 'src/models/Classroom';
-import { Course } from 'src/models/Course';
-import { Lecture } from 'src/models/Lecture';
-import { Lecturer } from 'src/models/Lecturer';
+import { ScheduleItem, TransformedSchedule, TransformedScheduleDay } from 'src/types/types';
+import { useScheduleData } from 'src/hooks/use-schedule-data';
+import { generateSchedule } from 'src/utils/algo2';
 import { Section } from 'src/models/Section';
-import { timeSlots } from 'src/assets/data'; // Ensure this is correctly imported
-import ScheduleTable from './schedule-table/ScheduleTable'; // Adjust the import path as necessary
-
-interface ScheduleData {
-  classrooms: Classroom[];
-  courses: Course[];
-  lectures: Lecture[];
-  lecturers: Lecturer[];
-  sections: Section[];
-}
-
-interface ScheduleItem {
-  classroomId: string;
-  classroomName: string;
-  courseId: string;
-  courseName: string;
-  sectionId: string;
-  sectionName: string;
-  lecturerId: string;
-  lecturerName: string;
-  day: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface TransformedScheduleItem extends Omit<ScheduleItem, 'startTime' | 'endTime'> {
-  durationSlots: number;
-}
-
-interface TransformedScheduleDay {
-  [classroomId: string]: (TransformedScheduleItem | null)[];
-}
-
-interface TransformedSchedule {
-  [day: string]: TransformedScheduleDay;
-}
+import { timeSlots } from 'src/assets/data';
+import { paths } from 'src/routes/paths';
+import ScheduleTable from './schedule-table/ScheduleTable';
+import ScheduleModal from './schedule-table/ScheduleModal';
 
 const ScheduleGenerator: React.FC = () => {
-  const [data, setData] = useState<ScheduleData>({
-    classrooms: [],
-    courses: [],
-    lectures: [],
-    lecturers: [],
-    sections: [],
-  });
-
+  const { data, dataLoading, setData } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [transformedSchedule, setTransformedSchedule] = useState<TransformedSchedule>({});
-
   const [openModal, setOpenModal] = useState(false);
-  const [dataLoading, setDataLoading] = useState(true);
   const router = useRouter();
-
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const [setScheduleDone, setSetScheduleDone] = useState(false);
 
-  const fetchData = async () => {
-    const classroomController = new ClassroomController();
-    const courseController = new CourseController();
-    const lectureController = new LectureController();
-    const lecturerController = new LecturerController();
-    const sectionController = new SectionController();
+  const db = getFirestore();
 
+  const saveScheduleToFirebase = async (savedSchedule: any) => {
     try {
-      setDataLoading(true);
-      const classrooms = await classroomController.fetchClassrooms();
-      const courses = await courseController.fetchCourses();
-      const lectures = await lectureController.fetchLectures();
-      const lecturers = await lecturerController.fetchLecturers();
-      const sections = await sectionController.fetchSections();
-
-      setData({ classrooms, courses, lectures, lecturers, sections });
-      console.log('Fetched Classrooms:', classrooms);
-      console.log('Fetched Courses:', courses);
-      console.log('Fetched Lectures:', lectures);
-      console.log('Fetched Lecturers:', lecturers);
-      console.log('Fetched Sections:', sections);
+      // Use the new modular syntax for Firestore
+      const docRef = await addDoc(collection(db, 'schedules'), {
+        schedule: savedSchedule,
+        createdAt: new Date(),
+      });
+      console.log('Schedule saved with ID: ', docRef.id);
     } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setDataLoading(false); // Set data loading to false once all data has been fetched
+      console.error('Error saving schedule: ', error);
     }
   };
 
@@ -150,10 +84,6 @@ const ScheduleGenerator: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const getLecturerNameById = (lecturerId: string) => {
     const lecturer = data.lecturers.find((l) => l.id === lecturerId);
     return lecturer ? `${lecturer.firstName} ${lecturer.lastName}` : 'Unknown';
@@ -166,10 +96,20 @@ const ScheduleGenerator: React.FC = () => {
   useEffect(() => {
     const transformSchedule = (generatedSchedule: ScheduleItem[]): TransformedSchedule => {
       const transformed: TransformedSchedule = {};
-      const timeSlotsMap = timeSlots.reduce((acc, time, index) => ({ ...acc, [time]: index }), {});
+      const timeSlotsMap: { [key: string]: number } = timeSlots.reduce(
+        (acc, time, index) => ({ ...acc, [time]: index }),
+        {}
+      );
 
       generatedSchedule.forEach((item) => {
-        const daySchedule = transformed[item.day] || {};
+        if (!transformed[item.day]) {
+          transformed[item.day] = {};
+        }
+        if (!transformed[item.day][item.classroomId]) {
+          transformed[item.day][item.classroomId] = Array(timeSlots.length).fill(null);
+        }
+
+        const daySchedule: TransformedScheduleDay = transformed[item.day];
         const classroomSchedule =
           daySchedule[item.classroomId] || Array(timeSlots.length).fill(null);
 
@@ -182,7 +122,6 @@ const ScheduleGenerator: React.FC = () => {
         }
 
         daySchedule[item.classroomId] = classroomSchedule;
-        transformed[item.day] = daySchedule;
       });
 
       return transformed;
@@ -239,7 +178,7 @@ const ScheduleGenerator: React.FC = () => {
         variant="contained"
         color="primary"
         sx={{ position: 'absolute', top: 8, right: 8 }}
-        onClick={() => router.push('/dashboard/lecturers')}
+        onClick={() => router.push(paths.dashboard.lecturers)}
       >
         View All
       </Button>
@@ -265,7 +204,7 @@ const ScheduleGenerator: React.FC = () => {
         variant="contained"
         color="primary"
         sx={{ position: 'absolute', top: 8, right: 8 }}
-        onClick={() => router.push('/dashboard/classrooms')}
+        onClick={() => router.push(paths.dashboard.classrooms)}
       >
         View All
       </Button>
@@ -291,7 +230,7 @@ const ScheduleGenerator: React.FC = () => {
         variant="contained"
         color="primary"
         sx={{ position: 'absolute', top: 8, right: 8 }}
-        onClick={() => router.push('/dashboard/courses')}
+        onClick={() => router.push(paths.dashboard.courses)}
       >
         View All
       </Button>
@@ -344,7 +283,7 @@ const ScheduleGenerator: React.FC = () => {
               variant="contained"
               color="primary"
               sx={{ position: 'absolute', top: 8, right: 8 }}
-              onClick={() => router.push('/dashboard/sections')}
+              onClick={() => router.push(paths.dashboard.sections)}
             >
               View All
             </Button>
@@ -367,7 +306,7 @@ const ScheduleGenerator: React.FC = () => {
         color="primary"
         onClick={handleGenerateSchedule}
         startIcon={<AutoFixHighIcon />}
-        disabled={dataLoading} // Disable button while data is loading
+        disabled={dataLoading}
         sx={{ mr: 3 }}
       >
         Generate Schedule
@@ -394,33 +333,15 @@ const ScheduleGenerator: React.FC = () => {
       </Accordion>
       <ScheduleTable schedule={transformedSchedule} />
 
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+      <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => saveScheduleToFirebase(transformedSchedule)}
+        disabled={!setScheduleDone || dataLoading}
       >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '90%',
-            bgcolor: 'background.paper',
-            border: '2px solid #ff9612',
-            boxShadow: 24,
-            p: 4,
-            overflow: 'auto',
-            maxHeight: '90%',
-          }}
-        >
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Generated Schedule
-          </Typography>
-          <ScheduleTable schedule={transformedSchedule} />
-        </Box>
-      </Modal>
+        Save Schedule
+      </Button>
     </div>
   );
 };
