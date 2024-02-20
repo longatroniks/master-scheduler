@@ -96,6 +96,11 @@ export function useNavData() {
             path: paths.dashboard.sections,
             icon: ICONS.user,
           },
+          {
+            title: 'Schedules',
+            path: paths.dashboard.schedules,
+            icon: ICONS.user,
+          },
         ],
       },
     ],

@@ -334,6 +334,7 @@ const ScheduleGenerator: React.FC = () => {
       <ScheduleTable schedule={transformedSchedule} />
 
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
+
       <Button
         variant="contained"
         color="primary"
