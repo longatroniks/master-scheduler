@@ -30,10 +30,13 @@ const SchedulesList = () => {
       const schedulesRef = collection(db, 'schedules');
       const schedulesQuery = query(schedulesRef);
       const querySnapshot = await getDocs(schedulesQuery);
-      const fetchedSchedules = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const fetchedSchedules = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        schedule: doc.data().schedule, // Assuming 'schedule' is a field in your document
+        createdAt: doc.data().createdAt, // Include other necessary fields similarly
+      }));
       setSchedules(fetchedSchedules);
     };
-
     fetchSchedules();
   }, []);
 
@@ -74,7 +77,7 @@ const SchedulesList = () => {
         </Table>
       </TableContainer>
 
-      <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} />
+      {/* <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} /> */}
     </div>
   );
 };

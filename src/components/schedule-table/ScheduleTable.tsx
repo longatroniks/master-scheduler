@@ -66,7 +66,7 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
   }, [schedule, isDarkMode]);
 
   const getBackgroundColor = (courseName: string): string => {
-    let color = courseColorMap[courseName] || '#FFFFFF';
+    const color = courseColorMap[courseName] || '#FFFFFF';
     return color;
   };
 

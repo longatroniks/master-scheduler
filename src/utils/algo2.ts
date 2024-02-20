@@ -77,16 +77,20 @@ function tryScheduleLecture(
   const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
 
   // Filter classrooms based on the course's lab requirement
-  const suitableClassrooms = classrooms.filter(classroom => course.requires_lab ? classroom.lab : true);
+  const suitableClassrooms = classrooms.filter((classroom) =>
+    course.requires_lab ? classroom.lab : true
+  );
 
   let preferredClassroom: Classroom | undefined;
   // Check for back-to-back scheduling preference
-  schedule.forEach(item => {
+  schedule.forEach((item) => {
     if (item.courseId === course.id && item.lecturerId === sectionLecturer.id && item.day === day) {
       const itemEndTime = item.endTime;
       if (addMinutesToTime(itemEndTime, 0) === currentTime) {
         // Ensure the preferred classroom also meets the lab requirement
-        preferredClassroom = suitableClassrooms.find(classroom => classroom.id === item.classroomId);
+        preferredClassroom = suitableClassrooms.find(
+          (classroom) => classroom.id === item.classroomId
+        );
       }
     }
   });
@@ -106,19 +110,32 @@ function tryScheduleLecture(
       startTime: currentTime,
       endTime: currentEndTime,
     });
-    console.log(`Lecture scheduled for section ${course.abbreviation} - ${section.name} in classroom ${classroom.name} on ${day} from ${currentTime} to ${currentEndTime}`);
+    console.log(
+      `Lecture scheduled for section ${course.abbreviation} - ${section.name} in classroom ${classroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
+    );
   };
 
+  if (!sectionLecturer.id) {
+    console.log('Lecturer id not defined');
+    return false;
+  }
+
   // Attempt to schedule in the preferred classroom first, if it exists and is available
-  if (preferredClassroom && isClassroomAvailable(preferredClassroom, day, currentTime, currentEndTime, schedule) && isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)) {
+  if (
+    preferredClassroom &&
+    isClassroomAvailable(preferredClassroom, day, currentTime, currentEndTime, schedule) &&
+    isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
+  ) {
     scheduleInClassroom(preferredClassroom);
     return true;
   }
 
   // If no preferred classroom or it's unavailable, find any suitable available classroom
-  const availableClassroom = suitableClassrooms.find(classroom =>
-    isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule) &&
-    isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
+  const availableClassroom = suitableClassrooms.find(
+    (classroom) =>
+      sectionLecturer.id &&
+      isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule) &&
+      isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
   );
 
   if (availableClassroom) {
