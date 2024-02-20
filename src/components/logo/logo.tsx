@@ -21,11 +21,11 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
     const PRIMARY_DARK = theme.palette.primary.dark;
 
     // OR using local (public folder)
-    // -------------------------------------------------------
+    // // -------------------------------------------------------
     // const logo = (
     //   <Box
     //     component="img"
-    //     src="/path/to/your/image.png" // Set the path to your PNG image
+    //     src="public/favicon/images.png" // Set the path to your PNG image
     //     sx={{ width: 40, height: 40, cursor: 'pointer', ...sx }}
     //   />
     // );
@@ -43,7 +43,7 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
         {...other}
       >
         <img
-          src="https://res.cloudinary.com/dghfld6av/image/upload/v1706002489/f117e04ab6395e479b805058f73695f61cd38580_yngdvm.png" // Set the path to your PNG image
+          src="/Users/shmungula/SENIOR/master-scheduler/public/favicon/logo_single2.png" // Set the path to your PNG image// Set the path to your PNG image
           alt="Logo"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

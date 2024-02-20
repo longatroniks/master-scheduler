@@ -15,6 +15,7 @@ const LecturersPage = lazy(() => import('src/pages/dashboard/lecturers'));
 const CoursesPage = lazy(() => import('src/pages/dashboard/courses'));
 const UsersPage = lazy(() => import('src/pages/dashboard/users'));
 const SectionsPage = lazy(() => import('src/pages/dashboard/sections'));
+const SchedulePage = lazy(() => import('src/pages/dashboard/schedules'));
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ export const dashboardRoutes = [
       { path: 'courses', element: <CoursesPage /> },
       { path: 'users', element: <UsersPage /> },
       { path: 'sections', element: <SectionsPage /> },
+      { path: 'schedules', element: <SchedulePage /> },
     ],
   },
 ];

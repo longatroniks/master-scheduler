@@ -27,5 +27,6 @@ export const paths = {
     courses: `${ROOTS.DASHBOARD}/courses`,
     users: `${ROOTS.DASHBOARD}/users`,
     sections: `${ROOTS.DASHBOARD}/sections`,
+    schedules: `${ROOTS.DASHBOARD}/schedules`,
   },
 };
