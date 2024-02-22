@@ -228,8 +228,12 @@ const LecturerTable = () => {
                 </TableCell>
 
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(lecturer)}>Edit</Button>
-                  <Button onClick={() => handleDeleteLecturer(lecturer)}>Delete</Button>
+                  <Button
+                  color="primary"
+                  onClick={() => handleOpenCreateEditModal(lecturer)}>Edit</Button>
+                  <Button
+                  color="primary"
+                  onClick={() => handleDeleteLecturer(lecturer)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}

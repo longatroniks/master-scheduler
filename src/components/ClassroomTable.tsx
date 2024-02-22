@@ -129,8 +129,12 @@ const ClassroomTable = () => {
                 <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>{' '}
                 <TableCell>{classroom.capacity}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(classroom)}>Edit</Button>
-                  <Button onClick={() => handleDeleteClassroom(classroom)}>Delete</Button>
+                  <Button
+                  color="primary"
+                  onClick={() => handleOpenCreateEditModal(classroom)}>Edit</Button>
+                  <Button
+                  color="primary"
+                  onClick={() => handleDeleteClassroom(classroom)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}

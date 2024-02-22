@@ -204,8 +204,12 @@ const SectionTable = () => {
                   <TableCell>{lecturerFullName}</TableCell>
                   <TableCell>{courseName}</TableCell>
                   <TableCell>
-                    <Button onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
-                    <Button onClick={() => handleDeleteSection(section)}>Delete</Button>
+                    <Button
+                    color="primary"
+                    onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
+                    <Button
+                    color="primary"
+                    onClick={() => handleDeleteSection(section)}>Delete</Button>
                   </TableCell>
                 </TableRow>
               );
