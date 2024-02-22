@@ -19,13 +19,24 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { UserController } from '../controllers/UserController';
 import { User } from '../models/User';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const userController = new UserController();
-  const [modalOpen, setModalOpen] = useState(false);
+
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // State for selected sClassroomection
   const [modalMessage, setModalMessage] = useState('');
+
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -49,11 +60,37 @@ const UserTable = () => {
     setOpenCreateEditModal(false);
   };
 
-  const handleDeleteUser = async (user: User) => {
-    if (window.confirm(`Are you sure you want to delete ${user.first_name} ${user.last_name}?`)) {
-      await userController.removeUser(user.id as string); // Use the user's ID for deletion
-      setUsers(users.filter((u) => u.id !== user.id));
+ 
+
+  const handleDeleteUser = (user: User) => {
+    
+    setSelectedUser(user); // Ensure course is set before opening modal
+    setDeleteConfirmationModalOpen(true); // Update state immediately
+    
+  };
+
+  const handleConfirmDeleteCourse = async () => {
+    if (selectedUser) {
+      await userController.removeUser(selectedUser.id as string); // Use the user's ID for deletion
+      setUsers(users.filter((u) => u.id !== selectedUser.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
     }
+  };
+
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
   };
 
  
@@ -99,6 +136,7 @@ const UserTable = () => {
       setUsers(updatedUsers || []);
     }
     handleCloseCreateEditModal();
+    handleOpenSnackbarCreate();
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +150,20 @@ const UserTable = () => {
 
   return (
     <div>
+
+<DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message={`Are you sure you want to delete user ${selectedUser?.first_name} ${selectedUser?.last_name}?`}
+  onConfirm={handleConfirmDeleteCourse}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
+
       <h1>Users</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add User</Button>
       <TableContainer component={Paper}>

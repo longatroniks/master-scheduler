@@ -20,16 +20,26 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { ClassroomController } from '../controllers/ClassroomController';
 import { Classroom } from '../models/Classroom';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
-  const classroomController = new ClassroomController();
+  
 
-  const [modalOpen, setModalOpen] = useState(false);
+
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null); // State for selected sClassroomection
   const [modalMessage, setModalMessage] = useState('');
 
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const classroomController = new ClassroomController();
   useEffect(() => {
     const fetchClassrooms = async () => {
       const fetchedClassrooms = await classroomController.fetchClassrooms();
@@ -52,15 +62,40 @@ const ClassroomTable = () => {
     setOpenCreateEditModal(false);
   };
 
-  const handleDeleteClassroom = async (classroom: Classroom) => {
-    if (window.confirm(`Are you sure you want to delete ${classroom.name}?`)) {
-      await classroomController.removeClassroom(classroom.id as string);
-      setClassrooms(classrooms.filter((u) => u.id !== classroom.id));
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+
+  const handleDeleteClassroom = (classroom: Classroom) => {
+    
+    setSelectedClassroom(classroom); // Ensure classroom is set before opening modal
+    setDeleteConfirmationModalOpen(true); // Update state immediately
+    
+  };
+
+  const handleConfirmDeleteClassroom = async () => {
+    if (selectedClassroom) {
+      await classroomController.removeClassroom(selectedClassroom.id as string);
+      setClassrooms(classrooms.filter((u) => u.id !== selectedClassroom.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
     }
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
   };
 
   const handleSaveClassroom = async () => {
@@ -99,6 +134,7 @@ const ClassroomTable = () => {
       setClassrooms(updatedClassrooms || []);
     }
     handleCloseCreateEditModal();
+    handleOpenSnackbarCreate();
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +144,18 @@ const ClassroomTable = () => {
 
   return (
     <div>
+              <DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message={`Are you sure you want to delete section ${selectedClassroom?.name} ?`}
+  onConfirm={handleConfirmDeleteClassroom}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
       <h1>Classrooms</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Classroom</Button>
       <TableContainer component={Paper}>
@@ -197,6 +245,9 @@ const ClassroomTable = () => {
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
           <Button onClick={handleSaveClassroom}>Save</Button>
         </DialogActions>
+
+
+
       </Dialog>
     </div>
   );

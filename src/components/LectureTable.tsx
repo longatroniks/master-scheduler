@@ -29,6 +29,9 @@ import { ClassroomController } from '../controllers/ClassroomController';
 import { SectionController } from '../controllers/SectionController';
 import { CourseController } from '../controllers/CourseController';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const LectureTable = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
@@ -41,6 +44,14 @@ const LectureTable = () => {
   const sectionController = new SectionController();
   const lectureController = new LectureController();
   const courseController = new CourseController();
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedLecture, setSelectedLecture] = useState<Lecture | null>(null); // State for selected sClassroomection
+  const [modalMessage, setModalMessage] = useState('');
+
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
   useEffect(() => {
     const fetchLectures = async () => {
@@ -79,11 +90,39 @@ const LectureTable = () => {
     setOpenCreateEditModal(false);
   };
 
-  const handleDeleteLecture = async (lecture: Lecture) => {
-    if (window.confirm(`Are you sure you want to delete ${lecture.id}?`)) {
-      await lectureController.removeLecture(lecture.id as string);
-      setLectures(lectures.filter((u) => u.id !== lecture.id));
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleDeleteLecture = (lecture: Lecture) => {
+    
+    setSelectedLecture(lecture); // Ensure course is set before opening modal
+    setDeleteConfirmationModalOpen(true); // Update state immediately
+    
+  };
+
+  const handleConfirmDeleteLecture = async () => {
+    if (selectedLecture) {
+      await lectureController.removeLecture(selectedLecture.id as string);
+      setLectures(lectures.filter((u) => u.id !== selectedLecture.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
     }
+  };
+
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
   };
 
   const handleSaveLecture = async () => {
@@ -97,11 +136,16 @@ const LectureTable = () => {
         const updatedLectures = await lectureController.fetchLectures(); // Refetch Lectures to update the list
         setLectures(updatedLectures || []);
         handleCloseCreateEditModal();
+        handleOpenSnackbarCreate();
       } else {
-        alert('End time cannot be before start time.');
+        setModalMessage('End time cannot be before start time.');
+        setModalOpen(true);
+        
       }
     } else {
-      alert('Please fill in all fields to save the lecture.');
+      setModalMessage('Please fill in all fields to save the lecture.');
+      setModalOpen(true);
+      
     }
   };
 
@@ -134,6 +178,19 @@ const LectureTable = () => {
 
   return (
     <div>
+    <DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message='Are you sure you want to delete this lecture?'
+  onConfirm={handleConfirmDeleteLecture}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
+
       <h1>Lectures</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Lecture</Button>
       <TableContainer component={Paper}>
@@ -167,6 +224,16 @@ const LectureTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
         <DialogTitle>{editingLecture ? 'Edit Lecture' : 'Add Lecture'}</DialogTitle>

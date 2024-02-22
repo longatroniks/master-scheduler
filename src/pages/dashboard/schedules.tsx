@@ -77,7 +77,7 @@ const SchedulesList = () => {
         </Table>
       </TableContainer>
 
-      <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} />
+     {/* <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} /> */}
     </div>
   );
 };

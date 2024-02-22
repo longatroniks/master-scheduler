@@ -28,6 +28,9 @@ import { AvailabilitySlider } from './AvailabilitySlider';
 
 import { LecturerController } from '../controllers/LecturerController';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const initialAvailability: { [key: string]: { start_time: string; end_time: string }[] } = {
   monday: [],
   tuesday: [],
@@ -43,6 +46,15 @@ const LecturerTable = () => {
   const [availability, setAvailability] = useState<{
     [key: string]: { start_time: string; end_time: string }[];
   }>(initialAvailability);
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedLecturer, setSelectedLecturer] = useState<Lecturer | null>(null); // State for selected Lecturer
+  const [modalMessage, setModalMessage] = useState('');
+
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
 
   const lecturerController = new LecturerController();
 
@@ -65,6 +77,26 @@ const LecturerTable = () => {
     setOpenCreateEditModal(true);
   };
 
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleDeleteLecturer = (lecturer: Lecturer) => {
+    
+    setSelectedLecturer(lecturer); // Ensure course is set before opening modal
+    setDeleteConfirmationModalOpen(true); // Update state immediately
+    
+  };
+
+  const handleConfirmDeleteLecturer = async () => {
+    if (selectedLecturer) {
+      await lecturerController.removeLecturer(selectedLecturer.id as string);
+      setLecturers(lecturers.filter((l) => l.id !== selectedLecturer.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
+    }
+  };
+
   const handleCloseCreateEditModal = () => {
     setOpenCreateEditModal(false);
   };
@@ -81,16 +113,25 @@ const LecturerTable = () => {
     return preparedAvailability;
   };
 
-  const handleDeleteLecturer = async (lecturer: Lecturer) => {
-    if (
-      window.confirm(`Are you sure you want to delete ${lecturer.firstName} ${lecturer.lastName}?`)
-    ) {
-      await lecturerController.removeLecturer(lecturer.id as string);
-      setLecturers(lecturers.filter((l) => l.id !== lecturer.id));
-    }
-  };
 
   const timeToIndex = (time: string) => timeSlots.indexOf(time);
+
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
+  };
+
 
   const handleSaveLecturer = async () => {
     const exceedsTimeLimit = Object.entries(availability).some(([day, slots]) =>
@@ -132,7 +173,10 @@ const LecturerTable = () => {
     }
 
     handleCloseCreateEditModal();
+    handleOpenSnackbarCreate();
   };
+
+  
 
   const handleChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>,
@@ -163,6 +207,19 @@ const LecturerTable = () => {
 
   return (
     <div>
+        <DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message= ' Are you sure you want to delete this lecturer '
+  onConfirm={handleConfirmDeleteLecturer}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
+
       <h1>Lecturers</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Lecturer</Button>
       <TableContainer component={Paper}>
@@ -292,6 +349,17 @@ const LecturerTable = () => {
             />
           ))}
         </DialogContent>
+
+        <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
           <Button onClick={handleSaveLecturer}>Save</Button>
