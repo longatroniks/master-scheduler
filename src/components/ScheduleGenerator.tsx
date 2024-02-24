@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Grid, List, ListItem, Paper, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button } from '@mui/material';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { useRouter } from 'src/routes/hooks';
-import { ScheduleItem, TransformedSchedule, TransformedScheduleDay } from 'src/types/types';
+import { ScheduleItem } from 'src/types/types';
 import { useScheduleData } from 'src/hooks/use-schedule-data';
 import { generateSchedule } from 'src/utils/algo2';
-import { timeSlots } from 'src/assets/data';
+import { useTransformedSchedule } from 'src/hooks/use-transform-schedule';
 import { paths } from 'src/routes/paths';
 import ScheduleTable from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
@@ -16,19 +16,18 @@ import RenderFetchedData from './render-data/RenderFetchedData';
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading, setData } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
-  const [transformedSchedule, setTransformedSchedule] = useState<TransformedSchedule>({});
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const [setScheduleDone, setSetScheduleDone] = useState(false);
-
   const [openDataModal, setOpenDataModal] = useState(false);
   const handleOpenDataModal = () => setOpenDataModal(true);
   const handleCloseDataModal = () => setOpenDataModal(false);
+  const transformedSchedule = useTransformedSchedule(schedule);
 
   const db = getFirestore();
-
+  // TODO: CREATE new schedule model, serivces
   const saveScheduleToFirebase = async (savedSchedule: any) => {
     try {
       // Use the new modular syntax for Firestore
@@ -79,71 +78,42 @@ const ScheduleGenerator: React.FC = () => {
     return course ? course.name : 'Unknown';
   };
 
-  useEffect(() => {
-    const transformSchedule = (generatedSchedule: ScheduleItem[]): TransformedSchedule => {
-      const transformed: TransformedSchedule = {};
-      const timeSlotsMap: { [key: string]: number } = timeSlots.reduce(
-        (acc, time, index) => ({ ...acc, [time]: index }),
-        {}
-      );
-
-      generatedSchedule.forEach((item) => {
-        if (!transformed[item.day]) {
-          transformed[item.day] = {};
-        }
-        if (!transformed[item.day][item.classroomId]) {
-          transformed[item.day][item.classroomId] = Array(timeSlots.length).fill(null);
-        }
-
-        const daySchedule: TransformedScheduleDay = transformed[item.day];
-        const classroomSchedule =
-          daySchedule[item.classroomId] || Array(timeSlots.length).fill(null);
-
-        const startIndex = timeSlotsMap[item.startTime];
-        const endIndex = timeSlotsMap[item.endTime];
-        const durationSlots = item.durationSlots || endIndex - startIndex;
-
-        for (let i = startIndex; i < startIndex + durationSlots; i += 1) {
-          classroomSchedule[i] = i === startIndex ? { ...item, durationSlots } : 'spanned';
-        }
-
-        daySchedule[item.classroomId] = classroomSchedule;
-      });
-
-      return transformed;
-    };
-
-    if (schedule.length > 0) {
-      const newTransformedSchedule = transformSchedule(schedule);
-      setTransformedSchedule(newTransformedSchedule);
-    }
-  }, [schedule]);
-
   return (
     <div>
       <h2>Schedule Generator</h2>
+      <Box display="flex" justifyContent="" mb={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleGenerateSchedule}
+          startIcon={<AutoFixHighIcon />}
+          disabled={dataLoading}
+          sx={{ mr: 3 }}
+        >
+          Generate Schedule
+        </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleGenerateSchedule}
-        startIcon={<AutoFixHighIcon />}
-        disabled={dataLoading}
-        sx={{ mr: 3 }}
-      >
-        Generate Schedule
-      </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenDataModal}
+          startIcon={<OpenInFullIcon />}
+          disabled={dataLoading}
+        >
+          Review Data
+        </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpenDataModal}
-        startIcon={<OpenInFullIcon />}
-        disabled={dataLoading}
-      >
-        Review Data
-      </Button>
-
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenModal}
+          startIcon={<OpenInFullIcon />}
+          disabled={!setScheduleDone || dataLoading}
+          sx={{ marginLeft: 3 }}
+        >
+          View Schedule
+        </Button>
+      </Box>
       <RenderFetchedData
         data={data}
         getLecturerNameById={getLecturerNameById}
