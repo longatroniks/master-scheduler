@@ -9,12 +9,11 @@ import {
   Paper,
   Typography,
   useTheme,
-  alpha,
 } from '@mui/material';
 import { timeSlots, daysOfWeek } from 'src/assets/data';
 import { SCHEDULE_COLORS_LIGHT, SCHEDULE_COLORS_DARK } from 'src/theme/palette';
 
-interface TransScheduleItem {
+export interface TransScheduleItem {
   durationSlots?: number;
   sectionId: string;
   courseName: string;
@@ -34,6 +33,8 @@ interface Schedule {
 
 interface ScheduleTableProps {
   schedule: Schedule;
+  isEditMode?: boolean; // Indicates if the table is in edit mode
+  onLectureSelect?: (lecture: TransScheduleItem) => void; // Function to call when a lecture is selected
 }
 
 // Type guard to check if the slot is a TransScheduleItem
@@ -41,14 +42,14 @@ function isTransScheduleItem(slot: ScheduleSlot): slot is TransScheduleItem {
   return slot !== null && slot !== 'spanned';
 }
 
-const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
+const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule, isEditMode, onLectureSelect }) => {
   const [courseColorMap, setCourseColorMap] = useState<{ [key: string]: string }>({});
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
   useEffect(() => {
     const scheduleColors = isDarkMode ? SCHEDULE_COLORS_DARK : SCHEDULE_COLORS_LIGHT;
-    const updatedMap: { [courseName: string]: string } = {}; // Explicitly type the temporary map
+    const updatedMap: { [courseName: string]: string } = {};
     let colorIndex = 0;
 
     Object.values(schedule).forEach((day) => {
@@ -68,6 +69,12 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
   const getBackgroundColor = (courseName: string): string => {
     const color = courseColorMap[courseName] || '#FFFFFF';
     return color;
+  };
+
+  const handleLectureClick = (lecture: TransScheduleItem) => {
+    if (isEditMode && onLectureSelect) {
+      onLectureSelect(lecture);
+    }
   };
 
   return (
@@ -112,7 +119,9 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule }) => {
                           <TableCell
                             key={index}
                             colSpan={item.durationSlots || 1}
+                            onClick={() => handleLectureClick(item)}
                             style={{
+                              cursor: isEditMode ? 'pointer' : 'default',
                               backgroundColor: getBackgroundColor(item.courseName),
                               border: '1px solid',
                               borderColor: '#d3d3d3',

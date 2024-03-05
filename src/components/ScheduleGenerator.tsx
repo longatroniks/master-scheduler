@@ -9,7 +9,7 @@ import { useScheduleData } from 'src/hooks/use-schedule-data';
 import { generateSchedule } from 'src/utils/algo2';
 import { useTransformedSchedule } from 'src/hooks/use-transform-schedule';
 import { paths } from 'src/routes/paths';
-import ScheduleTable from './schedule-table/ScheduleTable';
+import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
 
@@ -25,6 +25,7 @@ const ScheduleGenerator: React.FC = () => {
   const handleOpenDataModal = () => setOpenDataModal(true);
   const handleCloseDataModal = () => setOpenDataModal(false);
   const transformedSchedule = useTransformedSchedule(schedule);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const db = getFirestore();
   // TODO: CREATE new schedule model, serivces
@@ -66,6 +67,14 @@ const ScheduleGenerator: React.FC = () => {
     } else {
       console.log('Data not ready for schedule generation'); // Log if data isn't ready
     }
+  };
+  // Toggle function
+  const toggleEditMode = () => setIsEditMode(!isEditMode);
+
+  const handleLectureSelect = (lecture: TransScheduleItem) => {
+    // Logic to handle lecture selection for editing
+    console.log('Selected lecture for editing:', lecture);
+    // You might want to set this lecture in the component's state
   };
 
   const getLecturerNameById = (lecturerId: string) => {
@@ -113,6 +122,7 @@ const ScheduleGenerator: React.FC = () => {
         >
           View Schedule
         </Button>
+        <Button onClick={toggleEditMode}>{isEditMode ? 'Finish Editing' : 'Edit Schedule'}</Button>
       </Box>
       <RenderFetchedData
         data={data}
@@ -124,7 +134,11 @@ const ScheduleGenerator: React.FC = () => {
         onClose={handleCloseDataModal}
       />
 
-      <ScheduleTable schedule={transformedSchedule} />
+      <ScheduleTable
+        schedule={transformedSchedule}
+        isEditMode={isEditMode}
+        onLectureSelect={handleLectureSelect}
+      />
 
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
 
