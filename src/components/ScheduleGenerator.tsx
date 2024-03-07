@@ -12,6 +12,7 @@ import { paths } from 'src/routes/paths';
 import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
+import { findAlternativeTimeslots } from 'src/utils/checker';
 
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading, setData } = useScheduleData();
@@ -71,10 +72,26 @@ const ScheduleGenerator: React.FC = () => {
   // Toggle function
   const toggleEditMode = () => setIsEditMode(!isEditMode);
 
-  const handleLectureSelect = (lecture: TransScheduleItem) => {
-    // Logic to handle lecture selection for editing
-    console.log('Selected lecture for editing:', lecture);
-    // You might want to set this lecture in the component's state
+  // const handleLectureSelect = (lecture: TransScheduleItem) => {
+  //   // Logic to handle lecture selection for editing
+  //   console.log('Selected lecture for editing:', lecture);
+  //   // You might want to set this lecture in the component's state
+  // };
+
+  const handleLectureSelect = (lecture: ScheduleItem) => {
+    // Assuming 'data' is an object containing courses, sections, lecturers, and classrooms arrays
+    const alternatives = findAlternativeTimeslots(
+      lecture,
+      data.courses,
+      data.sections,
+      data.lecturers,
+      data.classrooms,
+      schedule
+    );
+
+    // Process the alternatives as needed, e.g., store them in state or display them in the UI
+    console.log('Alternative timeslots:', alternatives);
+    // You might want to set these alternatives in the component's state to display them in the UI
   };
 
   const getLecturerNameById = (lecturerId: string) => {
@@ -137,7 +154,9 @@ const ScheduleGenerator: React.FC = () => {
       <ScheduleTable
         schedule={transformedSchedule}
         isEditMode={isEditMode}
-        onLectureSelect={handleLectureSelect}
+        onLectureSelect={(lecture: TransScheduleItem) =>
+          handleLectureSelect(lecture as ScheduleItem)
+        }
       />
 
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
