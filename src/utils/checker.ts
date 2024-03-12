@@ -57,7 +57,7 @@ export function findAlternativeTimeslots(
       currentTime = addMinutesToTime(currentTime, timeIncrement);
     }
   });
-
+  console.log('Calculated alternative timeslots:', alternatives);
   // Deduplicate entries
   return alternatives.filter(
     (alt, index, self) =>
@@ -72,13 +72,17 @@ function isClassroomAvailable(
   endTime: string,
   schedule: ScheduleItem[]
 ): boolean {
-  return !schedule.some(
-    (item) =>
+  // Log the items being checked for the specified classroom and day
+
+  return !schedule.some((item) => {
+    const overlaps =
       item.classroomId === classroomId &&
       item.day === day &&
       item.startTime < endTime &&
-      item.endTime > startTime
-  );
+      item.endTime > startTime;
+
+    return overlaps;
+  });
 }
 
 function isLecturerAvailable(

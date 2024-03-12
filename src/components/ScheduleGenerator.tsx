@@ -14,6 +14,14 @@ import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
 import { findAlternativeTimeslots } from 'src/utils/checker';
 
+interface AvailableSlots {
+  [day: string]: {
+    [time: string]: {
+      [classroomId: string]: boolean;
+    };
+  };
+}
+
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading, setData } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -27,6 +35,7 @@ const ScheduleGenerator: React.FC = () => {
   const handleCloseDataModal = () => setOpenDataModal(false);
   const transformedSchedule = useTransformedSchedule(schedule);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<AvailableSlots>({});
 
   const db = getFirestore();
   // TODO: CREATE new schedule model, serivces
@@ -69,17 +78,16 @@ const ScheduleGenerator: React.FC = () => {
       console.log('Data not ready for schedule generation'); // Log if data isn't ready
     }
   };
-  // Toggle function
-  const toggleEditMode = () => setIsEditMode(!isEditMode);
-
-  // const handleLectureSelect = (lecture: TransScheduleItem) => {
-  //   // Logic to handle lecture selection for editing
-  //   console.log('Selected lecture for editing:', lecture);
-  //   // You might want to set this lecture in the component's state
-  // };
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    if (isEditMode) {
+      // Clear available slots when exiting edit mode
+      setAvailableSlots({});
+    }
+  };
 
   const handleLectureSelect = (lecture: ScheduleItem) => {
-    // Assuming 'data' is an object containing courses, sections, lecturers, and classrooms arrays
+    console.log('Lecture selected:', lecture);
     const alternatives = findAlternativeTimeslots(
       lecture,
       data.courses,
@@ -89,9 +97,17 @@ const ScheduleGenerator: React.FC = () => {
       schedule
     );
 
-    // Process the alternatives as needed, e.g., store them in state or display them in the UI
-    console.log('Alternative timeslots:', alternatives);
-    // You might want to set these alternatives in the component's state to display them in the UI
+    // Correctly format alternatives to match the AvailableSlots type
+    const formattedAlternatives = alternatives.reduce((acc: AvailableSlots, curr) => {
+      const { day, startTime, classroomId } = curr; // Assuming curr contains a classroomId
+      if (!acc[day]) acc[day] = {};
+      if (!acc[day][startTime]) acc[day][startTime] = {};
+      acc[day][startTime][classroomId] = true; // Mark the slot as available for this specific classroom
+      return acc;
+    }, {});
+
+    setAvailableSlots(formattedAlternatives);
+    console.log(formattedAlternatives);
   };
 
   const getLecturerNameById = (lecturerId: string) => {
@@ -139,7 +155,17 @@ const ScheduleGenerator: React.FC = () => {
         >
           View Schedule
         </Button>
-        <Button onClick={toggleEditMode}>{isEditMode ? 'Finish Editing' : 'Edit Schedule'}</Button>
+        {setScheduleDone && ( // This line ensures the button is only rendered when a schedule is generated
+          <Button
+            variant={isEditMode ? 'contained' : 'outlined'} // Changes appearance based on editing mode
+            color="primary"
+            onClick={toggleEditMode}
+            startIcon={<AutoFixHighIcon />}
+            sx={{ ml: 3 }} // Adjust spacing as needed
+          >
+            {isEditMode ? 'Finish Editing' : 'Edit Schedule'}
+          </Button>
+        )}
       </Box>
       <RenderFetchedData
         data={data}
@@ -150,13 +176,11 @@ const ScheduleGenerator: React.FC = () => {
         open={openDataModal}
         onClose={handleCloseDataModal}
       />
-
       <ScheduleTable
         schedule={transformedSchedule}
         isEditMode={isEditMode}
-        onLectureSelect={(lecture: TransScheduleItem) =>
-          handleLectureSelect(lecture as ScheduleItem)
-        }
+        onLectureSelect={handleLectureSelect as unknown as (lecture: TransScheduleItem) => void}
+        availableSlots={availableSlots}
       />
 
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
