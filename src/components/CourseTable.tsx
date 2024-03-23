@@ -25,6 +25,9 @@ import { Course } from '../models/Course';
 import { CourseController } from '../controllers/CourseController';
 import { SectionController } from '../controllers/SectionController';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
@@ -39,6 +42,14 @@ const CourseTable = () => {
    */
 
   const courseController = useMemo(() => new CourseController(), []); // Wrap in useMemo
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null); // State for selected sClassroomection
+  const [modalMessage, setModalMessage] = useState('');
+
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
   useEffect(() => {
     fetchCourses();
@@ -85,11 +96,39 @@ const CourseTable = () => {
     setOpenCreateEditModal(false);
   };
 
-  const handleDeleteCourse = async (course: Course) => {
-    if (window.confirm(`Are you sure you want to delete Course ${course.name}?`)) {
-      await courseController.removeCourse(course.id as string);
-      setCourses(courses.filter((u) => u.id !== course.id));
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleDeleteCourse = (course: Course) => {
+    
+    setSelectedCourse(course); // Ensure course is set before opening modal
+    setDeleteConfirmationModalOpen(true); // Update state immediately
+    
+  };
+
+  const handleConfirmDeleteCourse = async () => {
+    if (selectedCourse) {
+      await courseController.removeCourse(selectedCourse.id as string);
+      setCourses(courses.filter((u) => u.id !== selectedCourse.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
     }
+  };
+
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
   };
 
   const handleSaveCourse = async () => {
@@ -112,8 +151,10 @@ const CourseTable = () => {
       const updatedCourses = await courseController.fetchCourses();
       setCourses(updatedCourses || []);
       handleCloseCreateEditModal();
+      handleOpenSnackbarCreate();
     } else {
-      alert('Please fill in all fields.');
+      setModalMessage('Please fill in all fields.');
+      setModalOpen(true);
     }
   };
 
@@ -146,6 +187,19 @@ const CourseTable = () => {
 
   return (
     <div>
+                   <DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message={`Are you sure you want to delete section ${selectedCourse?.name} ?`}
+  onConfirm={handleConfirmDeleteCourse}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
+
       <h1>Courses</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Course</Button>
       <TableContainer component={Paper}>
@@ -191,6 +245,16 @@ const CourseTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
         <DialogTitle>{editingCourse ? 'Edit Course' : 'Add Course'}</DialogTitle>

@@ -24,6 +24,9 @@ import { Section } from '../models/Section';
 import { Course } from '../models/Course';
 import { Lecturer } from '../models/Lecturer';
 
+import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
+import CreateDialog from './confirmation/ConfirmationCreateDialog';
+
 const SectionTable = () => {
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingSection, setEditingSection] = useState<Section | null>(null);
@@ -31,6 +34,14 @@ const SectionTable = () => {
   const [sections, setSections] = useState<Section[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
+
+  const [modalOpen, setModalOpen] = useState(false); // State for modal
+  const [selectedSection, setSelectedSection] = useState<Section | null>(null); // State for selected section
+  const [modalMessage, setModalMessage] = useState('');
+
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
   const courseController = new CourseController();
   const sectionController = new SectionController();
@@ -63,32 +74,60 @@ const SectionTable = () => {
     setOpenCreateEditModal(false);
   };
 
-  const handleDeleteSection = async (section: Section) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete section ${section.name} from ${section.course_id}?`
-      )
-    ) {
-      await sectionController.removeSection(section.id as string);
-      setSections(sections.filter((u) => u.id !== section.id));
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+
+  const handleDeleteSection = (section: Section) => {
+    setSelectedSection(section); 
+    setDeleteConfirmationModalOpen(true); 
+  };
+  
+  
+  const handleConfirmDeleteSection = async () => {
+    if (selectedSection) {
+      await sectionController.removeSection(selectedSection.id as string);
+      setSections(sections.filter((u) => u.id !== selectedSection.id));
+      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
     }
   };
 
+  const handleOpenSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(true);
+    setTimeout(() => {
+      setCreateConfirmationModalOpen(false);
+    }, 3000);
+  };
+  
+  const handleCloseSnackbarCreate = () => {
+    setCreateConfirmationModalOpen(false);
+  };
+  
+  
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false); 
+  };
+
   const handleSaveSection = async () => {
+    
     if (!editingSection) {
-      alert('No section selected for editing or addition.');
+      setModalMessage('No section selected for editing or addition.');
+      setModalOpen(true);
       return;
     }
 
     const { capacity, lecturer_id, course_id } = editingSection;
 
     if (!capacity || !lecturer_id || !course_id) {
-      alert('All fields are required.');
+      setModalMessage('All fields are required.');
+      setModalOpen(true);
       return;
     }
 
     if (Number.isNaN(capacity) || capacity <= 0 || capacity >= 100) {
-      alert('Capacity must be a positive number smaller than 100.');
+      setModalMessage('Capacity must be a positive number smaller than 100.');
+      setModalOpen(true);
       return;
     }
 
@@ -98,16 +137,18 @@ const SectionTable = () => {
       lecturer_id.length < 5 ||
       lecturer_id.length > 25
     ) {
-      alert(
+      setModalMessage(
         'Lecturer ID cannot contain special characters, must be between 5 and 25 characters long.'
       );
+      setModalOpen(true);
       return;
     }
 
     if (specialCharsPattern.test(course_id) || course_id.length < 5 || course_id.length > 25) {
-      alert(
+      setModalMessage(
         'Course ID cannot contain special characters, must be between 5 and 25 characters long.'
       );
+      setModalOpen(true);
       return;
     }
 
@@ -137,6 +178,7 @@ const SectionTable = () => {
       const updatedSections = await sectionController.fetchSections();
       setSections(updatedSections || []);
       handleCloseCreateEditModal();
+      handleOpenSnackbarCreate();
     } catch (error) {
       if (error.message) {
         alert(`Validation Error: ${error.message}`);
@@ -154,7 +196,8 @@ const SectionTable = () => {
       const existingSectionsCount = sections.filter((section) => section.course_id === value).length;
   
       if (existingSectionsCount >= 3) {
-        alert('Maximum number of sections for this course already reached.');
+        setModalMessage('Maximum number of sections for this course already reached.');
+        setModalOpen(true);
         if (editingSection) {
           setEditingSection(editingSection.updateFields({ course_id: '' }));
         }
@@ -168,10 +211,12 @@ const SectionTable = () => {
       }
       return null;
     });
+    
   };
 
   return (
     <div>
+      
       <h1>Sections</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Section</Button>
       <TableContainer component={Paper}>
@@ -216,6 +261,17 @@ const SectionTable = () => {
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
         <DialogTitle>{editingSection ? 'Edit Section' : 'Add Section'}</DialogTitle>
+
+        <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <p>{modalMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
         <DialogContent>
           <TextField
             autoFocus
@@ -268,7 +324,24 @@ const SectionTable = () => {
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
           <Button onClick={handleSaveSection}>Save</Button>
         </DialogActions>
+
+
       </Dialog>
+
+      <DeleteDialog
+  open={deleteConfirmationModalOpen}
+  onClose={handleCancelDeleteSection}
+  message={`Are you sure you want to delete section ${selectedSection?.name} from ${selectedSection?.course_id}?`}
+  onConfirm={handleConfirmDeleteSection}
+      />
+
+      <CreateDialog
+        open={createConfirmationModalOpen}
+        onClose={handleCloseSnackbarCreate}
+        action={null}
+      />
+
+
     </div>
   );
 };
