@@ -14,7 +14,7 @@ import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
 
 const ScheduleGenerator: React.FC = () => {
-  const { data, dataLoading, setData } = useScheduleData();
+  const { data, dataLoading } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();

@@ -15,6 +15,8 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { SectionController } from '../controllers/SectionController';
 import { CourseController } from '../controllers/CourseController';
@@ -65,7 +67,7 @@ const SectionTable = () => {
     if (section) {
       setEditingSection(section);
     } else {
-      setEditingSection(new Section(0, '', '', ''));
+      setEditingSection(new Section(0, '', '', '', false));
     }
     setOpenCreateEditModal(true);
   };
@@ -78,13 +80,11 @@ const SectionTable = () => {
     setModalOpen(false);
   };
 
-
   const handleDeleteSection = (section: Section) => {
-    setSelectedSection(section); 
-    setDeleteConfirmationModalOpen(true); 
+    setSelectedSection(section);
+    setDeleteConfirmationModalOpen(true);
   };
-  
-  
+
   const handleConfirmDeleteSection = async () => {
     if (selectedSection) {
       await sectionController.removeSection(selectedSection.id as string);
@@ -99,18 +99,16 @@ const SectionTable = () => {
       setCreateConfirmationModalOpen(false);
     }, 3000);
   };
-  
+
   const handleCloseSnackbarCreate = () => {
     setCreateConfirmationModalOpen(false);
   };
-  
-  
+
   const handleCancelDeleteSection = () => {
-    setDeleteConfirmationModalOpen(false); 
+    setDeleteConfirmationModalOpen(false);
   };
 
   const handleSaveSection = async () => {
-    
     if (!editingSection) {
       setModalMessage('No section selected for editing or addition.');
       setModalOpen(true);
@@ -191,10 +189,12 @@ const SectionTable = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
+
     if (name === 'course_id') {
-      const existingSectionsCount = sections.filter((section) => section.course_id === value).length;
-  
+      const existingSectionsCount = sections.filter(
+        (section) => section.course_id === value
+      ).length;
+
       if (existingSectionsCount >= 3) {
         setModalMessage('Maximum number of sections for this course already reached.');
         setModalOpen(true);
@@ -204,19 +204,17 @@ const SectionTable = () => {
         return;
       }
     }
-  
+
     setEditingSection((prev) => {
       if (prev) {
         return prev.updateFields({ [name]: value });
       }
       return null;
     });
-    
   };
 
   return (
     <div>
-      
       <h1>Sections</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Section</Button>
       <TableContainer component={Paper}>
@@ -227,6 +225,7 @@ const SectionTable = () => {
               <TableCell>Capacity</TableCell>
               <TableCell>Lecturer</TableCell>
               <TableCell>Course</TableCell>
+              <TableCell>Type</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -248,13 +247,14 @@ const SectionTable = () => {
                   <TableCell>{section.capacity}</TableCell>
                   <TableCell>{lecturerFullName}</TableCell>
                   <TableCell>{courseName}</TableCell>
+                  <TableCell>{section.isOnline ? "ONLINE" : "IN PERSON"}</TableCell>
                   <TableCell>
-                    <Button
-                    color="primary"
-                    onClick={() => handleOpenCreateEditModal(section)}>Edit</Button>
-                    <Button
-                    color="primary"
-                    onClick={() => handleDeleteSection(section)}>Delete</Button>
+                    <Button color="primary" onClick={() => handleOpenCreateEditModal(section)}>
+                      Edit
+                    </Button>
+                    <Button color="primary" onClick={() => handleDeleteSection(section)}>
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
@@ -267,14 +267,14 @@ const SectionTable = () => {
         <DialogTitle>{editingSection ? 'Edit Section' : 'Add Section'}</DialogTitle>
 
         <Dialog open={modalOpen} onClose={handleCloseModal}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <p>{modalMessage}</p>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Close</Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>Error</DialogTitle>
+          <DialogContent>
+            <p>{modalMessage}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Close</Button>
+          </DialogActions>
+        </Dialog>
 
         <DialogContent>
           <TextField
@@ -323,20 +323,33 @@ const SectionTable = () => {
               </MenuItem>
             ))}
           </TextField>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={editingSection?.isOnline}
+                onChange={(e) =>
+                  setEditingSection((prev) => {
+                    if (!prev) return null;
+                    return prev.updateFields({ isOnline: e.target.checked });
+                  })
+                }
+                name="online"
+              />
+            }
+            label="Held Online"
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
           <Button onClick={handleSaveSection}>Save</Button>
         </DialogActions>
-
-
       </Dialog>
 
       <DeleteDialog
-  open={deleteConfirmationModalOpen}
-  onClose={handleCancelDeleteSection}
-  message={`Are you sure you want to delete section ${selectedSection?.name} from ${selectedSection?.course_id}?`}
-  onConfirm={handleConfirmDeleteSection}
+        open={deleteConfirmationModalOpen}
+        onClose={handleCancelDeleteSection}
+        message={`Are you sure you want to delete section ${selectedSection?.name} from ${selectedSection?.course_id}?`}
+        onConfirm={handleConfirmDeleteSection}
       />
 
       <CreateDialog
@@ -344,8 +357,6 @@ const SectionTable = () => {
         onClose={handleCloseSnackbarCreate}
         action={null}
       />
-
-
     </div>
   );
 };

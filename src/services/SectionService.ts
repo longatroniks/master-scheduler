@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { collection, addDoc, getDocs, getDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Section } from '../models/Section';
@@ -18,7 +19,8 @@ export class SectionService {
         sectionDoc.data().capacity,
         sectionDoc.data().course_id,
         sectionDoc.data().lecturer_id,
-        sectionDoc.data().name
+        sectionDoc.data().name,
+        sectionDoc.data().isOnline,
       );
     }
     console.log('No such document!');
@@ -35,6 +37,7 @@ export class SectionService {
           document.data().course_id,
           document.data().lecturer_id,
           document.data().name,
+          document.data().isOnline,
           document.id // Include the document ID
         )
     );

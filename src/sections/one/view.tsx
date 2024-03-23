@@ -32,8 +32,8 @@ export default function OneView() {
             }
           />
         </Grid>
-        <Box width={'100%'} textAlign={'center'}>
-          <Typography variant="h4" textAlign={'center'} m={2}>
+        <Box width='100%' textAlign='center'>
+          <Typography variant="h4" textAlign='center' m={2}>
             Data Managment
           </Typography>
         </Box>
