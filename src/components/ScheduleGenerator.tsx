@@ -70,6 +70,53 @@ const ScheduleGenerator: React.FC = () => {
     }
   };
 
+  const exportScheduleToCSV = (schedule: any) => {
+    const csvRows = [
+      // CSV Header
+      [
+        'Day',
+        'Start Time',
+        'End Time',
+        'Course Name',
+        'Section Name',
+        'Lecturer Name',
+        'Classroom Name',
+      ],
+      // Data
+      ...schedule.map(
+        (item: {
+          day: any;
+          startTime: any;
+          endTime: any;
+          courseName: any;
+          sectionName: any;
+          lecturerName: any;
+          classroomName: any;
+        }) => [
+          item.day,
+          item.startTime,
+          item.endTime,
+          `"${item.courseName}"`, // Quotes for strings to handle commas within text
+          item.sectionName,
+          `"${item.lecturerName}"`,
+          item.classroomName,
+        ]
+      ),
+    ]
+      .map((e) => e.join(','))
+      .join('\n');
+
+    const blob = new Blob([csvRows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'schedule.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleGenerateSchedule = async () => {
     if (
       data.classrooms.length &&
@@ -385,6 +432,16 @@ const ScheduleGenerator: React.FC = () => {
         disabled={!setScheduleDone || dataLoading}
       >
         Save Schedule
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => exportScheduleToCSV(schedule)}
+        disabled={!setScheduleDone || dataLoading || !Array.isArray(schedule)}
+        sx={{ ml: 2 }} // Adjust the margin as needed
+      >
+        Export Schedule
       </Button>
       {timeslotSelectionDialog}
     </div>
