@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -32,13 +32,6 @@ interface AvailableSlots {
   };
 }
 
-interface AvailableTimeslot {
-  day: string;
-  startTime: string;
-  endTime: string;
-  classroomId: string;
-}
-
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading, setData } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -60,7 +53,7 @@ const ScheduleGenerator: React.FC = () => {
   );
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [timeslotSelectionOpen, setTimeslotSelectionOpen] = useState(false);
-  const [selectedTimeslotIndex, setSelectedTimeslotIndex] = useState<number>(-1);
+  const [selectedTimeslotIndex, setSelectedTimeslotIndex] = useState<number>(0);
 
   const db = getFirestore();
   // TODO: CREATE new schedule model, serivces
@@ -75,36 +68,6 @@ const ScheduleGenerator: React.FC = () => {
     } catch (error) {
       console.error('Error saving schedule: ', error);
     }
-  };
-
-  const handleEditLecture = (
-    lecture: ScheduleItem,
-    newTimeslot: { startTime: string; endTime: string }
-  ) => {
-    setEditLecture(lecture);
-    setEditTimeslot(newTimeslot);
-    setConfirmDialogOpen(true);
-  };
-
-  const handleConfirmTimeslotChange = () => {
-    if (!editLecture || !editTimeslot) return;
-
-    const updatedSchedule = schedule.map((item) => {
-      if (item === editLecture) {
-        return { ...item, ...editTimeslot };
-      }
-      return item;
-    });
-
-    setSchedule(updatedSchedule);
-    closeConfirmDialog();
-  };
-
-  // Function to close the confirmation dialog
-  const closeConfirmDialog = () => {
-    setConfirmDialogOpen(false);
-    setEditLecture(null);
-    setEditTimeslot(null);
   };
 
   const handleGenerateSchedule = async () => {
@@ -206,22 +169,51 @@ const ScheduleGenerator: React.FC = () => {
     });
     return list;
   };
-
   const handleTimeslotSelectionConfirm = () => {
-    const timeslotList = transformAvailableSlotsToList(availableSlots);
-    if (selectedTimeslotIndex < 0 || !editLecture || selectedTimeslotIndex >= timeslotList.length)
+    // Ensure a valid timeslot and lecture are selected
+    if (!editLecture) {
+      console.error('No lecture selected for updating.');
       return;
+    }
 
-    const { startTime, day, classroomId } = timeslotList[selectedTimeslotIndex];
-    const endTime = calculateEndTimeBasedOnDuration(startTime, editLecture.durationSlots);
+    const timeslotList = transformAvailableSlotsToList(availableSlots);
+    if (selectedTimeslotIndex < 0 || selectedTimeslotIndex >= timeslotList.length) {
+      console.error('Selected timeslot index is out of bounds.');
+      return;
+    }
 
-    const updatedSchedule = schedule.map((lecture) =>
-      lecture.id === editLecture.id ? { ...lecture, day, startTime, endTime, classroomId } : lecture
+    const selectedTimeslot = timeslotList[selectedTimeslotIndex];
+    const newEndTime = calculateEndTimeBasedOnDuration(
+      selectedTimeslot.startTime,
+      editLecture.durationSlots
     );
 
-    setSchedule(updatedSchedule);
+    // Create a new updated schedule
+    const updatedSchedule = schedule.map((lecture) => {
+      if (
+        lecture.classroomId === editLecture.classroomId &&
+        lecture.courseId === editLecture.courseId &&
+        lecture.sectionId === editLecture.sectionId &&
+        lecture.day === editLecture.day &&
+        lecture.startTime === editLecture.startTime
+      ) {
+        // Found the lecture to update
+        return {
+          ...lecture,
+          day: selectedTimeslot.day,
+          startTime: selectedTimeslot.startTime,
+          endTime: newEndTime,
+          classroomId: selectedTimeslot.classroomId,
+        };
+      }
+      return lecture;
+    });
+
+    setSchedule(updatedSchedule); // Update the schedule state
+    console.log('Schedule successfully updated with new timeslot.');
+    // Close any open dialogs or reset any states as necessary
     setTimeslotSelectionOpen(false);
-    setSelectedTimeslotIndex(-1); // Reset selection
+    setSelectedTimeslotIndex(0); // Reset selection
   };
 
   const getLecturerNameById = (lecturerId: string) => {
@@ -330,14 +322,14 @@ const ScheduleGenerator: React.FC = () => {
           Review Data
         </Button>
 
-        <Button
+        {/* <Button
           variant="contained"
           color="secondary"
           onClick={handleRandomizeLecture}
           sx={{ ml: 2 }}
         >
           Randomize Lecture Timeslot
-        </Button>
+        </Button> */}
 
         <Button
           variant="contained"
@@ -345,7 +337,7 @@ const ScheduleGenerator: React.FC = () => {
           onClick={() => setTimeslotSelectionOpen(true)} // This line is updated
           disabled={!editLecture} // Disable button if no lecture is selected
         >
-          Simulate Edit Lecture Timeslot
+          Move selected Lecture
         </Button>
 
         <Button

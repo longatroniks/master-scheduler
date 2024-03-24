@@ -65,6 +65,8 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
     const scheduleColors = isDarkMode ? SCHEDULE_COLORS_DARK : SCHEDULE_COLORS_LIGHT;
     const updatedMap: { [courseName: string]: string } = {};
     console.log('Available slots:', availableSlots);
+    console.log('table scheduel', schedule);
+
     let colorIndex = 0;
 
     Object.values(schedule).forEach((day) => {
@@ -122,6 +124,7 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const handleLectureClick = (lecture: TransScheduleItem) => {
     if (isEditMode && onLectureSelect) {
       onLectureSelect(lecture);
+      console.log('selceeted lecture', lecture);
     }
   };
 
