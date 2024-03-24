@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Box, Button } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  MenuItem,
+  Select,
+} from '@mui/material';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
@@ -22,6 +32,13 @@ interface AvailableSlots {
   };
 }
 
+interface AvailableTimeslot {
+  day: string;
+  startTime: string;
+  endTime: string;
+  classroomId: string;
+}
+
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading, setData } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -37,6 +54,14 @@ const ScheduleGenerator: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<AvailableSlots>({});
 
+  const [editLecture, setEditLecture] = useState<ScheduleItem | null>(null);
+  const [editTimeslot, setEditTimeslot] = useState<{ startTime: string; endTime: string } | null>(
+    null
+  );
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [timeslotSelectionOpen, setTimeslotSelectionOpen] = useState(false);
+  const [selectedTimeslotIndex, setSelectedTimeslotIndex] = useState<number>(-1);
+
   const db = getFirestore();
   // TODO: CREATE new schedule model, serivces
   const saveScheduleToFirebase = async (savedSchedule: any) => {
@@ -50,6 +75,36 @@ const ScheduleGenerator: React.FC = () => {
     } catch (error) {
       console.error('Error saving schedule: ', error);
     }
+  };
+
+  const handleEditLecture = (
+    lecture: ScheduleItem,
+    newTimeslot: { startTime: string; endTime: string }
+  ) => {
+    setEditLecture(lecture);
+    setEditTimeslot(newTimeslot);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmTimeslotChange = () => {
+    if (!editLecture || !editTimeslot) return;
+
+    const updatedSchedule = schedule.map((item) => {
+      if (item === editLecture) {
+        return { ...item, ...editTimeslot };
+      }
+      return item;
+    });
+
+    setSchedule(updatedSchedule);
+    closeConfirmDialog();
+  };
+
+  // Function to close the confirmation dialog
+  const closeConfirmDialog = () => {
+    setConfirmDialogOpen(false);
+    setEditLecture(null);
+    setEditTimeslot(null);
   };
 
   const handleGenerateSchedule = async () => {
@@ -86,8 +141,8 @@ const ScheduleGenerator: React.FC = () => {
     }
   };
 
+  // Example function adjustment to setAvailableSlots
   const handleLectureSelect = (lecture: ScheduleItem) => {
-    console.log('Lecture selected:', lecture);
     const alternatives = findAlternativeTimeslots(
       lecture,
       data.courses,
@@ -97,17 +152,76 @@ const ScheduleGenerator: React.FC = () => {
       schedule
     );
 
-    // Correctly format alternatives to match the AvailableSlots type
-    const formattedAlternatives = alternatives.reduce((acc: AvailableSlots, curr) => {
-      const { day, startTime, classroomId } = curr; // Assuming curr contains a classroomId
-      if (!acc[day]) acc[day] = {};
-      if (!acc[day][startTime]) acc[day][startTime] = {};
-      acc[day][startTime][classroomId] = true; // Mark the slot as available for this specific classroom
+    // Here, you'll need to convert alternatives (ScheduleItem[]) to match AvailableSlots structure
+    // This is a simplistic approach; you'll need to adjust it based on how you define AvailableSlots
+    const formattedAlternatives: AvailableSlots = alternatives.reduce((acc, curr) => {
+      const key = `${curr.day}-${curr.startTime}`;
+      if (!acc[curr.day]) acc[curr.day] = {};
+      if (!acc[curr.day][curr.startTime]) acc[curr.day][curr.startTime] = {};
+      acc[curr.day][curr.startTime][curr.classroomId] = true;
       return acc;
-    }, {});
+    }, {} as AvailableSlots);
 
     setAvailableSlots(formattedAlternatives);
-    console.log(formattedAlternatives);
+    console.log('formated', formattedAlternatives);
+
+    setEditLecture(lecture);
+    // Assuming you have a state to manage opening the dialog that lists alternatives
+  };
+  const calculateEndTimeBasedOnDuration = (
+    startTime: string,
+    durationSlots: number | undefined
+  ): string => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes + (durationSlots || 0) * 30;
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+  };
+
+  interface Timeslot {
+    day: string;
+    startTime: string;
+    classroomId: string;
+    label: string;
+  }
+
+  interface AvailableSlots {
+    [day: string]: {
+      [time: string]: {
+        [classroomId: string]: boolean;
+      };
+    };
+  }
+
+  const transformAvailableSlotsToList = (availableSlots: AvailableSlots): Timeslot[] => {
+    let list: Timeslot[] = [];
+    Object.entries(availableSlots).forEach(([day, times]) => {
+      Object.entries(times).forEach(([time, classrooms]) => {
+        Object.keys(classrooms).forEach((classroomId) => {
+          const label = `${day} ${time}`;
+          list.push({ day, startTime: time, classroomId, label });
+        });
+      });
+    });
+    return list;
+  };
+
+  const handleTimeslotSelectionConfirm = () => {
+    const timeslotList = transformAvailableSlotsToList(availableSlots);
+    if (selectedTimeslotIndex < 0 || !editLecture || selectedTimeslotIndex >= timeslotList.length)
+      return;
+
+    const { startTime, day, classroomId } = timeslotList[selectedTimeslotIndex];
+    const endTime = calculateEndTimeBasedOnDuration(startTime, editLecture.durationSlots);
+
+    const updatedSchedule = schedule.map((lecture) =>
+      lecture.id === editLecture.id ? { ...lecture, day, startTime, endTime, classroomId } : lecture
+    );
+
+    setSchedule(updatedSchedule);
+    setTimeslotSelectionOpen(false);
+    setSelectedTimeslotIndex(-1); // Reset selection
   };
 
   const getLecturerNameById = (lecturerId: string) => {
@@ -119,6 +233,77 @@ const ScheduleGenerator: React.FC = () => {
     const course = data.courses.find((c) => c.id === courseId);
     return course ? course.name : 'Unknown';
   };
+
+  const handleRandomizeLecture = () => {
+    if (schedule.length === 0) {
+      console.log('No lectures to randomize');
+      return;
+    }
+
+    // Simple list of example timeslots (start time and end time)
+    const exampleTimeslots = [
+      { startTime: '09:00', endTime: '10:30' },
+      { startTime: '11:00', endTime: '12:30' },
+      { startTime: '13:00', endTime: '14:30' },
+      { startTime: '15:00', endTime: '16:30' },
+    ];
+
+    // Select a random lecture from the schedule
+    const randomLectureIndex = Math.floor(Math.random() * schedule.length);
+    const randomLecture = schedule[randomLectureIndex];
+
+    // Select a random new timeslot
+    const newTimeslot = exampleTimeslots[Math.floor(Math.random() * exampleTimeslots.length)];
+
+    // Update the lecture with the new timeslot
+    const updatedLecture = {
+      ...randomLecture,
+      startTime: newTimeslot.startTime,
+      endTime: newTimeslot.endTime,
+    };
+
+    // Create a new schedule array with the updated lecture
+    const newSchedule = [
+      ...schedule.slice(0, randomLectureIndex),
+      updatedLecture,
+      ...schedule.slice(randomLectureIndex + 1),
+    ];
+
+    // Update the state with the new schedule
+    setSchedule(newSchedule);
+
+    console.log('Lecture randomized:', updatedLecture);
+  };
+
+  // Dialog for timeslot selection
+  const timeslotSelectionDialog = (
+    <Dialog open={timeslotSelectionOpen} onClose={() => setTimeslotSelectionOpen(false)}>
+      <DialogTitle>Select New Timeslot</DialogTitle>
+      <DialogContent>
+        <Select
+          fullWidth
+          value={selectedTimeslotIndex}
+          onChange={(event) => setSelectedTimeslotIndex(Number(event.target.value))}
+          displayEmpty
+        >
+          <MenuItem value="" disabled>
+            Select a timeslot
+          </MenuItem>
+          {transformAvailableSlotsToList(availableSlots).map((option, index) => (
+            <MenuItem key={index} value={index}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setTimeslotSelectionOpen(false)}>Cancel</Button>
+        <Button onClick={handleTimeslotSelectionConfirm} color="primary">
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <div>
@@ -143,6 +328,24 @@ const ScheduleGenerator: React.FC = () => {
           disabled={dataLoading}
         >
           Review Data
+        </Button>
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleRandomizeLecture}
+          sx={{ ml: 2 }}
+        >
+          Randomize Lecture Timeslot
+        </Button>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setTimeslotSelectionOpen(true)} // This line is updated
+          disabled={!editLecture} // Disable button if no lecture is selected
+        >
+          Simulate Edit Lecture Timeslot
         </Button>
 
         <Button
@@ -182,9 +385,7 @@ const ScheduleGenerator: React.FC = () => {
         onLectureSelect={handleLectureSelect as unknown as (lecture: TransScheduleItem) => void}
         availableSlots={availableSlots}
       />
-
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
-
       <Button
         variant="contained"
         color="primary"
@@ -193,6 +394,7 @@ const ScheduleGenerator: React.FC = () => {
       >
         Save Schedule
       </Button>
+      {timeslotSelectionDialog}
     </div>
   );
 };

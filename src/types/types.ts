@@ -14,6 +14,7 @@ export interface ScheduleData {
 }
 
 export interface ScheduleItem {
+  id?: string;
   durationSlots?: number;
   classroomId: string;
   classroomName: string;
