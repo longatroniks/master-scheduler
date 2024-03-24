@@ -6,7 +6,7 @@ export class Section {
     public course_id: string,
     public lecturer_id: string,
     public name: string,
-    public isOnline: boolean,
+    public location: string[],
     id?: string
   ) {
     if (id) this.id = id;
@@ -18,7 +18,7 @@ export class Section {
       course_id: this.course_id,
       lecturer_id: this.lecturer_id,
       name: this.name,
-      isOnline: this.isOnline,
+      location: this.location,
     };
   }
 
@@ -28,7 +28,7 @@ export class Section {
       fields.course_id ?? this.course_id,
       fields.lecturer_id ?? this.lecturer_id,
       fields.name ?? this.name,
-      fields.isOnline ?? this.isOnline,
+      fields.location ?? this.location,
       this.id
     );
   }

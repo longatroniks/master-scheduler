@@ -63,7 +63,85 @@ function addMinutesToTime(startTime: string, minutes: number): string {
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
-// Helper function to check availability and schedule a lecture
+// Function to generate the schedule
+export async function generateSchedule(
+  courses: Course[],
+  sections: Section[],
+  lecturers: Lecturer[],
+  classrooms: Classroom[]
+): Promise<ScheduleItem[]> {
+  console.log('Starting schedule generation');
+
+  // Step 0: Sort the classes by credits, lab requirement, year level
+  const sortedCourses = courses.sort(
+    (a, b) =>
+      b.credits - a.credits ||
+      Number(b.requires_lab) - Number(a.requires_lab) ||
+      b.year_level - a.year_level
+  );
+
+  const schedule: ScheduleItem[] = [];
+
+  sortedCourses.forEach((course) => {
+    const courseSections = sections.filter((section) => section.course_id === course.id);
+
+    courseSections.forEach((section) => {
+      const lectureLengthMinutes = (course.boxes / course.lecture_amount) * 30;
+      const sectionLecturer = lecturers.find((lecturer) => lecturer.id === section.lecturer_id);
+      if (!sectionLecturer) {
+        console.error('Lecturer not found for section, cannot schedule lecture.');
+        return; // Skip further processing for this section
+      }
+
+      let lecturesScheduledForSection = 0; // Counter for the number of lectures scheduled for this section
+
+      Object.entries(sectionLecturer.availability).forEach(([day, timeSlots]) => {
+        if (lecturesScheduledForSection >= course.lecture_amount) {
+          return; // Skip to next section if required lectures are scheduled
+        }
+
+        timeSlots.forEach((timeSlot) => {
+          if (lecturesScheduledForSection >= course.lecture_amount) {
+            return; // Skip to next time slot if required lectures are scheduled
+          }
+
+          let currentTime = timeSlot.start_time;
+          const endTime = timeSlot.end_time;
+
+          while (currentTime < endTime && lecturesScheduledForSection < course.lecture_amount) {
+            const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
+            if (currentEndTime > endTime) break;
+
+            // Step 1: Try to insert a class in the first available time at the first available day
+            // Step 2: If the professor is not free at that time, find the first available time on the first available day that the professor is available
+            if (
+              tryScheduleLecture(
+                day,
+                currentTime,
+                lectureLengthMinutes,
+                sectionLecturer,
+                course,
+                section,
+                classrooms,
+                schedule
+              )
+            ) {
+              lecturesScheduledForSection += 1; // Increment the counter upon successful scheduling
+              break; // Break out of the while loop once a lecture is scheduled
+            }
+
+            currentTime = addMinutesToTime(currentTime, lectureLengthMinutes); // Increment currentTime for the next iteration
+          }
+        });
+      });
+    });
+  });
+
+  console.log('Schedule generation completed');
+  return schedule;
+}
+
+// Function to try scheduling a lecture
 function tryScheduleLecture(
   day: string,
   currentTime: string,
@@ -77,9 +155,36 @@ function tryScheduleLecture(
   const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
 
   // Filter classrooms based on the course's lab requirement
-  const suitableClassrooms = classrooms.filter((classroom) =>
+  let suitableClassrooms = classrooms.filter((classroom) =>
     course.requires_lab ? classroom.lab : true
   );
+
+  // Skip scheduling in a classroom if the section is online
+  if (section.location.includes('Online')) {
+    schedule.push({
+      classroomId: 'online',
+      classroomName: 'Online',
+      courseId: course.id ?? 'unknown',
+      courseName: course.name,
+      sectionId: section.id ?? 'unknown',
+      sectionName: section.name,
+      lecturerId: sectionLecturer.id ?? 'unknown',
+      lecturerName: `${sectionLecturer.firstName} ${sectionLecturer.lastName}`,
+      day,
+      startTime: currentTime,
+      endTime: currentEndTime,
+    });
+    console.log(
+      `Lecture scheduled for section ${course.abbreviation} - ${section.name} (Online) on ${day} from ${currentTime} to ${currentEndTime}`
+    );
+    return true;
+  }
+
+  if (section.location.includes('Zagreb' || 'Dubrovnik')) {
+    suitableClassrooms = suitableClassrooms.filter((classroom) =>
+      classroom.location.includes('Zagreb' || 'Dubrovnik')
+    );
+  }
 
   let preferredClassroom: Classroom | undefined;
   // Check for back-to-back scheduling preference
@@ -144,73 +249,4 @@ function tryScheduleLecture(
   }
 
   return false; // If no classroom is available or other scheduling constraints prevent it
-}
-
-export async function generateSchedule(
-  courses: Course[],
-  sections: Section[],
-  lecturers: Lecturer[],
-  classrooms: Classroom[]
-): Promise<ScheduleItem[]> {
-  console.log('Starting schedule generation');
-  const sortedCourses = courses.sort(
-    (a, b) => b.year_level - a.year_level || Number(b.requires_lab) - Number(a.requires_lab)
-  );
-  const schedule: ScheduleItem[] = [];
-
-  sortedCourses.forEach((course) => {
-    const courseSections = sections.filter((section) => section.course_id === course.id);
-
-    courseSections.forEach((section) => {
-      const lectureLengthMinutes = (course.boxes / course.lecture_amount) * 30;
-      const sectionLecturer = lecturers.find((lecturer) => lecturer.id === section.lecturer_id);
-      if (!sectionLecturer) {
-        console.error('Lecturer not found for section, cannot schedule lecture.');
-        return; // Skip further processing for this section
-      }
-
-      let lecturesScheduledForSection = 0; // Counter for the number of lectures scheduled for this section
-
-      Object.entries(sectionLecturer.availability).forEach(([day, timeSlots]) => {
-        if (lecturesScheduledForSection >= course.lecture_amount) {
-          return; // Skip to next section if required lectures are scheduled
-        }
-
-        timeSlots.forEach((timeSlot) => {
-          if (lecturesScheduledForSection >= course.lecture_amount) {
-            return; // Skip to next time slot if required lectures are scheduled
-          }
-
-          let currentTime = timeSlot.start_time;
-          const endTime = timeSlot.end_time;
-
-          while (currentTime < endTime && lecturesScheduledForSection < course.lecture_amount) {
-            const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
-            if (currentEndTime > endTime) break;
-
-            if (
-              tryScheduleLecture(
-                day,
-                currentTime,
-                lectureLengthMinutes,
-                sectionLecturer,
-                course,
-                section,
-                classrooms,
-                schedule
-              )
-            ) {
-              lecturesScheduledForSection += 1; // Increment the counter upon successful scheduling
-              break; // Break out of the while loop once a lecture is scheduled
-            }
-
-            currentTime = addMinutesToTime(currentTime, lectureLengthMinutes); // Increment currentTime for the next iteration
-          }
-        });
-      });
-    });
-  });
-
-  console.log('Schedule generation completed');
-  return schedule;
 }

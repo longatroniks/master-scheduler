@@ -5,6 +5,7 @@ export class Classroom {
       public capacity: number,
       public lab: boolean,
       public name: string,
+      public location: string,
       id?: string
     ) {
       if (id) this.id = id;
@@ -15,6 +16,7 @@ export class Classroom {
         capacity: this.capacity,
         lab: this.lab,
         name: this.name,
+        location: this.location,
       };
     }
   
@@ -23,6 +25,7 @@ export class Classroom {
         fields.capacity ?? this.capacity,
         fields.lab ?? this.lab,
         fields.name ?? this.name,
+        fields.location ?? this.location,
         this.id
       );
     }

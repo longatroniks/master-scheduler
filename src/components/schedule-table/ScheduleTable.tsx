@@ -9,7 +9,6 @@ import {
   Paper,
   Typography,
   useTheme,
-  alpha,
 } from '@mui/material';
 import { timeSlots, daysOfWeek } from 'src/assets/data';
 import { SCHEDULE_COLORS_LIGHT, SCHEDULE_COLORS_DARK } from 'src/theme/palette';
