@@ -23,6 +23,7 @@ import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
 import { findAlternativeTimeslots } from 'src/utils/checker';
+import { exportScheduleToCSV } from 'src/utils/exporter';
 
 interface AvailableSlots {
   [day: string]: {
@@ -56,65 +57,22 @@ const ScheduleGenerator: React.FC = () => {
   const [selectedTimeslotIndex, setSelectedTimeslotIndex] = useState<number>(0);
 
   const db = getFirestore();
-  // TODO: CREATE new schedule model, serivces
   const saveScheduleToFirebase = async (savedSchedule: any) => {
-    try {
-      // Use the new modular syntax for Firestore
-      const docRef = await addDoc(collection(db, 'schedules'), {
-        schedule: savedSchedule,
-        createdAt: new Date(),
-      });
-      console.log('Schedule saved with ID: ', docRef.id);
-    } catch (error) {
-      console.error('Error saving schedule: ', error);
+    const scheduleName = prompt('Please enter a name for the schedule:');
+    if (scheduleName) {
+      try {
+        const docRef = await addDoc(collection(db, 'schedules'), {
+          name: scheduleName, // Save the name along with the schedule
+          schedule: savedSchedule,
+          createdAt: new Date(),
+        });
+        console.log('Schedule saved with ID: ', docRef.id);
+      } catch (error) {
+        console.error('Error saving schedule: ', error);
+      }
+    } else {
+      alert('Schedule not saved. A name is required.');
     }
-  };
-
-  const exportScheduleToCSV = (schedule: any) => {
-    const csvRows = [
-      // CSV Header
-      [
-        'Day',
-        'Start Time',
-        'End Time',
-        'Course Name',
-        'Section Name',
-        'Lecturer Name',
-        'Classroom Name',
-      ],
-      // Data
-      ...schedule.map(
-        (item: {
-          day: any;
-          startTime: any;
-          endTime: any;
-          courseName: any;
-          sectionName: any;
-          lecturerName: any;
-          classroomName: any;
-        }) => [
-          item.day,
-          item.startTime,
-          item.endTime,
-          `"${item.courseName}"`, // Quotes for strings to handle commas within text
-          item.sectionName,
-          `"${item.lecturerName}"`,
-          item.classroomName,
-        ]
-      ),
-    ]
-      .map((e) => e.join(','))
-      .join('\n');
-
-    const blob = new Blob([csvRows], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'schedule.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const handleGenerateSchedule = async () => {
@@ -162,8 +120,6 @@ const ScheduleGenerator: React.FC = () => {
       schedule
     );
 
-    // Here, you'll need to convert alternatives (ScheduleItem[]) to match AvailableSlots structure
-    // This is a simplistic approach; you'll need to adjust it based on how you define AvailableSlots
     const formattedAlternatives: AvailableSlots = alternatives.reduce((acc, curr) => {
       const key = `${curr.day}-${curr.startTime}`;
       if (!acc[curr.day]) acc[curr.day] = {};
@@ -176,7 +132,6 @@ const ScheduleGenerator: React.FC = () => {
     console.log('formated', formattedAlternatives);
 
     setEditLecture(lecture);
-    // Assuming you have a state to manage opening the dialog that lists alternatives
   };
   const calculateEndTimeBasedOnDuration = (
     startTime: string,
@@ -217,7 +172,6 @@ const ScheduleGenerator: React.FC = () => {
     return list;
   };
   const handleTimeslotSelectionConfirm = () => {
-    // Ensure a valid timeslot and lecture are selected
     if (!editLecture) {
       console.error('No lecture selected for updating.');
       return;
@@ -369,24 +323,6 @@ const ScheduleGenerator: React.FC = () => {
           Review Data
         </Button>
 
-        {/* <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleRandomizeLecture}
-          sx={{ ml: 2 }}
-        >
-          Randomize Lecture Timeslot
-        </Button> */}
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setTimeslotSelectionOpen(true)} // This line is updated
-          disabled={!editLecture} // Disable button if no lecture is selected
-        >
-          Move selected Lecture
-        </Button>
-
         <Button
           variant="contained"
           color="primary"
@@ -409,6 +345,14 @@ const ScheduleGenerator: React.FC = () => {
           </Button>
         )}
       </Box>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setTimeslotSelectionOpen(true)} // This line is updated
+        disabled={!editLecture} // Disable button if no lecture is selected
+      >
+        Move selected Lecture
+      </Button>
       <RenderFetchedData
         data={data}
         getLecturerNameById={getLecturerNameById}
@@ -425,24 +369,28 @@ const ScheduleGenerator: React.FC = () => {
         availableSlots={availableSlots}
       />
       <ScheduleModal open={openModal} onClose={handleCloseModal} schedule={transformedSchedule} />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => saveScheduleToFirebase(transformedSchedule)}
-        disabled={!setScheduleDone || dataLoading}
-      >
-        Save Schedule
-      </Button>
-
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => exportScheduleToCSV(schedule)}
-        disabled={!setScheduleDone || dataLoading || !Array.isArray(schedule)}
-        sx={{ ml: 2 }} // Adjust the margin as needed
-      >
-        Export Schedule
-      </Button>
+      {setScheduleDone && (
+        <>
+          {' '}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => saveScheduleToFirebase(transformedSchedule)}
+            disabled={!setScheduleDone || dataLoading}
+          >
+            Save Schedule
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => exportScheduleToCSV(schedule)}
+            disabled={!setScheduleDone || dataLoading || !Array.isArray(schedule)}
+            sx={{ ml: 2 }} // Adjust the margin as needed
+          >
+            Export Schedule
+          </Button>
+        </>
+      )}
       {timeslotSelectionDialog}
     </div>
   );
