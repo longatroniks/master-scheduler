@@ -273,6 +273,7 @@ const ScheduleGenerator: React.FC = () => {
     <Dialog open={timeslotSelectionOpen} onClose={() => setTimeslotSelectionOpen(false)}>
       <DialogTitle>Select New Timeslot</DialogTitle>
       <DialogContent>
+        <DialogContentText>These are start times of the lectures</DialogContentText>
         <Select
           fullWidth
           value={selectedTimeslotIndex}
