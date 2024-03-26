@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -19,19 +19,11 @@ import { useScheduleData } from 'src/hooks/use-schedule-data';
 import { generateSchedule } from 'src/utils/algo2';
 import { useTransformedSchedule } from 'src/hooks/use-transform-schedule';
 import { paths } from 'src/routes/paths';
+import { findAlternativeTimeslots } from 'src/utils/checker';
+import { exportScheduleToCSV } from 'src/utils/exporter';
 import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
-import { findAlternativeTimeslots } from 'src/utils/checker';
-import { exportScheduleToCSV } from 'src/utils/exporter';
-
-interface AvailableSlots {
-  [day: string]: {
-    [time: string]: {
-      [classroomId: string]: boolean;
-    };
-  };
-}
 
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading } = useScheduleData();
@@ -49,10 +41,7 @@ const ScheduleGenerator: React.FC = () => {
   const [availableSlots, setAvailableSlots] = useState<AvailableSlots>({});
 
   const [editLecture, setEditLecture] = useState<ScheduleItem | null>(null);
-  const [editTimeslot, setEditTimeslot] = useState<{ startTime: string; endTime: string } | null>(
-    null
-  );
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+
   const [timeslotSelectionOpen, setTimeslotSelectionOpen] = useState(false);
   const [selectedTimeslotIndex, setSelectedTimeslotIndex] = useState<number>(0);
 
@@ -121,7 +110,6 @@ const ScheduleGenerator: React.FC = () => {
     );
 
     const formattedAlternatives: AvailableSlots = alternatives.reduce((acc, curr) => {
-      const key = `${curr.day}-${curr.startTime}`;
       if (!acc[curr.day]) acc[curr.day] = {};
       if (!acc[curr.day][curr.startTime]) acc[curr.day][curr.startTime] = {};
       acc[curr.day][curr.startTime][curr.classroomId] = true;
@@ -159,9 +147,9 @@ const ScheduleGenerator: React.FC = () => {
     };
   }
 
-  const transformAvailableSlotsToList = (availableSlots: AvailableSlots): Timeslot[] => {
-    let list: Timeslot[] = [];
-    Object.entries(availableSlots).forEach(([day, times]) => {
+  const transformAvailableSlotsToList = (slots: AvailableSlots): Timeslot[] => {
+    const list: Timeslot[] = [];
+    Object.entries(slots).forEach(([day, times]) => {
       Object.entries(times).forEach(([time, classrooms]) => {
         Object.keys(classrooms).forEach((classroomId) => {
           const label = `${day} ${time}`;
@@ -225,47 +213,6 @@ const ScheduleGenerator: React.FC = () => {
   const getCourseNameById = (courseId: string) => {
     const course = data.courses.find((c) => c.id === courseId);
     return course ? course.name : 'Unknown';
-  };
-
-  const handleRandomizeLecture = () => {
-    if (schedule.length === 0) {
-      console.log('No lectures to randomize');
-      return;
-    }
-
-    // Simple list of example timeslots (start time and end time)
-    const exampleTimeslots = [
-      { startTime: '09:00', endTime: '10:30' },
-      { startTime: '11:00', endTime: '12:30' },
-      { startTime: '13:00', endTime: '14:30' },
-      { startTime: '15:00', endTime: '16:30' },
-    ];
-
-    // Select a random lecture from the schedule
-    const randomLectureIndex = Math.floor(Math.random() * schedule.length);
-    const randomLecture = schedule[randomLectureIndex];
-
-    // Select a random new timeslot
-    const newTimeslot = exampleTimeslots[Math.floor(Math.random() * exampleTimeslots.length)];
-
-    // Update the lecture with the new timeslot
-    const updatedLecture = {
-      ...randomLecture,
-      startTime: newTimeslot.startTime,
-      endTime: newTimeslot.endTime,
-    };
-
-    // Create a new schedule array with the updated lecture
-    const newSchedule = [
-      ...schedule.slice(0, randomLectureIndex),
-      updatedLecture,
-      ...schedule.slice(randomLectureIndex + 1),
-    ];
-
-    // Update the state with the new schedule
-    setSchedule(newSchedule);
-
-    console.log('Lecture randomized:', updatedLecture);
   };
 
   // Dialog for timeslot selection

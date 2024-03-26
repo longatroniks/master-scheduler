@@ -46,11 +46,6 @@ interface ScheduleTableProps {
   availableSlots?: AvailableSlots; // Updated type
 }
 
-// Type guard to check if the slot is a TransScheduleItem
-function isTransScheduleItem(slot: ScheduleSlot): slot is TransScheduleItem {
-  return slot !== null && slot !== 'spanned';
-}
-
 const ScheduleTable: React.FC<ScheduleTableProps> = ({
   schedule,
   isEditMode,
@@ -112,13 +107,13 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
         ...baseStyle,
         backgroundColor: `${theme.palette.primary.main}50`, // Adjust opacity as needed
       };
-    } else {
+    } 
       // Otherwise, use the course's assigned color
       return {
         ...baseStyle,
         backgroundColor: getBackgroundColor(courseName),
       };
-    }
+    
   };
 
   const handleLectureClick = (lecture: TransScheduleItem) => {
