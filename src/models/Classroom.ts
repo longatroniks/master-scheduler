@@ -5,7 +5,7 @@ export class Classroom {
     public capacity: number,
     public lab: boolean,
     public name: string,
-    public location: string,
+    public location: string[],
     id?: string
   ) {
     if (id) this.id = id;

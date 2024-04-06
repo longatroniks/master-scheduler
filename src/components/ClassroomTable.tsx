@@ -53,7 +53,7 @@ const ClassroomTable = () => {
     if (classroom) {
       setEditingClassroom(classroom);
     } else {
-      setEditingClassroom(new Classroom(0, false, '', ''));
+      setEditingClassroom(new Classroom(0, false, '', ['']));
     }
     setOpenCreateEditModal(true);
   };
