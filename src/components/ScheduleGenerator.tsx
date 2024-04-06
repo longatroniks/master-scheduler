@@ -9,6 +9,7 @@ import {
   DialogTitle,
   MenuItem,
   Select,
+  Snackbar,
 } from '@mui/material';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -24,12 +25,16 @@ import { exportScheduleToCSV } from 'src/utils/exporter';
 import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { IconButton } from '@mui/material';
 
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading } = useScheduleData();
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const [setScheduleDone, setSetScheduleDone] = useState(false);
@@ -55,7 +60,8 @@ const ScheduleGenerator: React.FC = () => {
           schedule: savedSchedule,
           createdAt: new Date(),
         });
-        console.log('Schedule saved with ID: ', docRef.id);
+        setSnackbarMessage(`Schedule: '${scheduleName}' saved`);
+        setOpenSnackbar(true);
       } catch (error) {
         console.error('Error saving schedule: ', error);
       }
@@ -83,6 +89,8 @@ const ScheduleGenerator: React.FC = () => {
         console.log('Schedule generated:', generatedSchedule); // Log on success
         setSchedule(generatedSchedule);
         setSetScheduleDone(true);
+        setSnackbarMessage('Successfully generated a schedule');
+        setOpenSnackbar(true);
       } catch (error) {
         console.error('Error generating schedule:', error);
       }
@@ -90,6 +98,7 @@ const ScheduleGenerator: React.FC = () => {
       console.log('Data not ready for schedule generation'); // Log if data isn't ready
     }
   };
+
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
     if (isEditMode) {
@@ -200,6 +209,10 @@ const ScheduleGenerator: React.FC = () => {
 
     setSchedule(updatedSchedule); // Update the schedule state
     console.log('Schedule successfully updated with new timeslot.');
+    // Reset edit mode and any relevant states
+    setIsEditMode(false); // Exit edit mode automatically
+    setEditLecture(null); // Reset selected lecture
+    setAvailableSlots({}); // Clear available slots
     // Close any open dialogs or reset any states as necessary
     setTimeslotSelectionOpen(false);
     setSelectedTimeslotIndex(0); // Reset selection
@@ -292,15 +305,20 @@ const ScheduleGenerator: React.FC = () => {
             {isEditMode ? 'Finish Editing' : 'Edit Schedule'}
           </Button>
         )}
+        {/* Conditionally render the "Move selected Lecture" button based on isEditMode */}
+        {isEditMode && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setTimeslotSelectionOpen(true)}
+            disabled={!editLecture} // This button is disabled if no lecture is selected
+            sx={{ ml: 2 }} // Adjust spacing as needed
+          >
+            Move Selected Lecture
+          </Button>
+        )}
       </Box>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setTimeslotSelectionOpen(true)} // This line is updated
-        disabled={!editLecture} // Disable button if no lecture is selected
-      >
-        Move selected Lecture
-      </Button>
+
       <RenderFetchedData
         data={data}
         getLecturerNameById={getLecturerNameById}
@@ -340,6 +358,12 @@ const ScheduleGenerator: React.FC = () => {
         </>
       )}
       {timeslotSelectionDialog}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        message={snackbarMessage}
+      />
     </div>
   );
 };
