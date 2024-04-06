@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, ChangeEvent } from 'react';
 import {
   Table,
   TableBody,
@@ -15,8 +16,10 @@ import {
   TextField,
   Switch,
   FormControlLabel,
+  MenuItem,
 } from '@mui/material';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { classroomLocations } from '../assets/data';
+
 import { ClassroomController } from '../controllers/ClassroomController';
 import { Classroom } from '../models/Classroom';
 
@@ -27,19 +30,16 @@ const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
-  
 
-
-
-  const [modalOpen, setModalOpen] = useState(false); // State for modal
-  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null); // State for selected sClassroomection
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
   const [modalMessage, setModalMessage] = useState('');
 
-  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
-
-  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false);
+  const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false);
 
   const classroomController = new ClassroomController();
+
   useEffect(() => {
     const fetchClassrooms = async () => {
       const fetchedClassrooms = await classroomController.fetchClassrooms();
@@ -53,7 +53,7 @@ const ClassroomTable = () => {
     if (classroom) {
       setEditingClassroom(classroom);
     } else {
-      setEditingClassroom(new Classroom(0, false, ''));
+      setEditingClassroom(new Classroom(0, false, '', ['']));
     }
     setOpenCreateEditModal(true);
   };
@@ -66,19 +66,16 @@ const ClassroomTable = () => {
     setModalOpen(false);
   };
 
-
   const handleDeleteClassroom = (classroom: Classroom) => {
-    
-    setSelectedClassroom(classroom); // Ensure classroom is set before opening modal
-    setDeleteConfirmationModalOpen(true); // Update state immediately
-    
+    setSelectedClassroom(classroom);
+    setDeleteConfirmationModalOpen(true);
   };
 
   const handleConfirmDeleteClassroom = async () => {
     if (selectedClassroom) {
       await classroomController.removeClassroom(selectedClassroom.id as string);
       setClassrooms(classrooms.filter((u) => u.id !== selectedClassroom.id));
-      setDeleteConfirmationModalOpen(false); // Close the delete confirmation modal
+      setDeleteConfirmationModalOpen(false);
     }
   };
 
@@ -88,42 +85,34 @@ const ClassroomTable = () => {
       setCreateConfirmationModalOpen(false);
     }, 3000);
   };
-  
+
   const handleCloseSnackbarCreate = () => {
     setCreateConfirmationModalOpen(false);
   };
-  
-  
+
   const handleCancelDeleteSection = () => {
-    setDeleteConfirmationModalOpen(false); 
+    setDeleteConfirmationModalOpen(false);
   };
 
   const handleSaveClassroom = async () => {
     if (editingClassroom) {
-
       if (!editingClassroom.name.trim()) {
         setModalMessage('Please enter a name for the classroom.');
         setModalOpen(true);
-        return; // Prevent saving if classroom name is empty
+        return;
       }
 
-    if (Number.isNaN(Number(editingClassroom.capacity))) {
-      setModalMessage('Please enter a valid number for capacity.');
-      setModalOpen(true);
-      return; // Prevent saving if capacity is not a number
-    }
+      if (Number.isNaN(Number(editingClassroom.capacity))) {
+        setModalMessage('Please enter a valid number for capacity.');
+        setModalOpen(true);
+        return;
+      }
 
-    if (editingClassroom.capacity <= 0) {
-      setModalMessage('Capacity must be a number.');
-      setModalOpen(true);
-      return;
-    }
-
-    if (editingClassroom.capacity > 50) {
-      setModalMessage('Capacity cannot exceed 50.');
-      setModalOpen(true);
-      return;
-    }
+      if (editingClassroom.capacity <= 0 || editingClassroom.capacity > 50) {
+        setModalMessage('Capacity must be a number between 1 and 50.');
+        setModalOpen(true);
+        return;
+      }
 
       if (editingClassroom.id) {
         await classroomController.updateClassroom(editingClassroom);
@@ -144,11 +133,11 @@ const ClassroomTable = () => {
 
   return (
     <div>
-              <DeleteDialog
-  open={deleteConfirmationModalOpen}
-  onClose={handleCancelDeleteSection}
-  message={`Are you sure you want to delete section ${selectedClassroom?.name} ?`}
-  onConfirm={handleConfirmDeleteClassroom}
+      <DeleteDialog
+        open={deleteConfirmationModalOpen}
+        onClose={handleCancelDeleteSection}
+        message={`Are you sure you want to delete section ${selectedClassroom?.name} ?`}
+        onConfirm={handleConfirmDeleteClassroom}
       />
 
       <CreateDialog
@@ -156,8 +145,10 @@ const ClassroomTable = () => {
         onClose={handleCloseSnackbarCreate}
         action={null}
       />
+
       <h1>Classrooms</h1>
       <Button onClick={() => handleOpenCreateEditModal(null)}>Add Classroom</Button>
+
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -165,6 +156,7 @@ const ClassroomTable = () => {
               <TableCell>Name</TableCell>
               <TableCell>Lab</TableCell>
               <TableCell>Capacity</TableCell>
+              <TableCell>Location</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -174,15 +166,16 @@ const ClassroomTable = () => {
                 <TableCell component="th" scope="row">
                   {classroom.name}
                 </TableCell>
-                <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>{' '}
+                <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>
                 <TableCell>{classroom.capacity}</TableCell>
+                <TableCell>{classroom.location || 'UNKNOWN'}</TableCell>
                 <TableCell>
-                  <Button
-                  color="primary"
-                  onClick={() => handleOpenCreateEditModal(classroom)}>Edit</Button>
-                  <Button
-                  color="primary"
-                  onClick={() => handleDeleteClassroom(classroom)}>Delete</Button>
+                  <Button color="primary" onClick={() => handleOpenCreateEditModal(classroom)}>
+                    Edit
+                  </Button>
+                  <Button color="primary" onClick={() => handleDeleteClassroom(classroom)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -194,16 +187,15 @@ const ClassroomTable = () => {
         <DialogTitle>{editingClassroom ? 'Edit Classroom' : 'Add Classroom'}</DialogTitle>
 
         <Dialog open={modalOpen} onClose={handleCloseModal}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <p>{modalMessage}</p>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Close</Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>Error</DialogTitle>
+          <DialogContent>
+            <p>{modalMessage}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Close</Button>
+          </DialogActions>
+        </Dialog>
 
-        
         <DialogContent>
           <TextField
             autoFocus
@@ -244,14 +236,29 @@ const ClassroomTable = () => {
             onChange={handleChange}
             inputProps={{ min: 0, max: 50 }}
           />
+
+          <TextField
+            select
+            margin="dense"
+            id="location"
+            label="Location"
+            fullWidth
+            variant="standard"
+            name="location"
+            value={editingClassroom?.location || ''}
+            onChange={handleChange}
+          >
+            {classroomLocations.map((location) => (
+              <MenuItem key={location} value={location}>
+                {location}
+              </MenuItem>
+            ))}
+          </TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>
           <Button onClick={handleSaveClassroom}>Save</Button>
         </DialogActions>
-
-
-
       </Dialog>
     </div>
   );

@@ -60,6 +60,17 @@ const yearLevelColors = {
   4: 'orange',
 };
 
+const sectionLocations = [
+  'Zagreb',
+  'Dubrovnik',
+  'Online'
+];
+
+const classroomLocations = [
+  'Zagreb',
+  'Dubrovnik',
+];
+
 export {
   lectureAmounts,
   programs,
@@ -70,4 +81,6 @@ export {
   daysOfWeek,
   niceColors,
   yearLevelColors,
+  sectionLocations,
+  classroomLocations
 };

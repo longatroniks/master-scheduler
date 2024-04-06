@@ -17,7 +17,9 @@ export class ClassroomService {
       return new Classroom(
         classroomDoc.data().capacity,
         classroomDoc.data().lab,
-        classroomDoc.data().name
+        classroomDoc.data().name,
+        classroomDoc.data().location,
+        classroomDoc.id
       );
     }
     console.log('No such document!');
@@ -32,13 +34,13 @@ export class ClassroomService {
           document.data().capacity,
           document.data().lab,
           document.data().name,
+          document.data().location,
           document.id // Include the document ID
         )
     );
   }
 
   // UPDATE: Update a Classroom's details
-  // eslint-disable-next-line class-methods-use-this
   async updateClassroom(classroom: Classroom): Promise<void> {
     if (!classroom.id) {
       throw new Error('Classroom ID is missing');
@@ -49,7 +51,6 @@ export class ClassroomService {
   }
 
   // DELETE: Remove a Classroom
-  // eslint-disable-next-line class-methods-use-this
   async deleteClassroom(classroomId: string): Promise<void> {
     const classroomRef = doc(db, 'classrooms', classroomId);
     await deleteDoc(classroomRef);

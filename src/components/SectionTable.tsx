@@ -15,9 +15,12 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
-  FormControlLabel,
-  Switch,
+  Select,
+  SelectChangeEvent,
 } from '@mui/material';
+
+import { sectionLocations } from '../assets/data';
+
 import { SectionController } from '../controllers/SectionController';
 import { CourseController } from '../controllers/CourseController';
 import { LecturerController } from '../controllers/LecturerController';
@@ -45,6 +48,8 @@ const SectionTable = () => {
 
   const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]); // State for selected locations
+
   const courseController = new CourseController();
   const sectionController = new SectionController();
   const lecturerController = new LecturerController();
@@ -67,7 +72,7 @@ const SectionTable = () => {
     if (section) {
       setEditingSection(section);
     } else {
-      setEditingSection(new Section(0, '', '', '', false));
+      setEditingSection(new Section(0, '', '', '', ['']));
     }
     setOpenCreateEditModal(true);
   };
@@ -117,7 +122,7 @@ const SectionTable = () => {
 
     const { capacity, lecturer_id, course_id } = editingSection;
 
-    if (!capacity || !lecturer_id || !course_id) {
+    if (!capacity || !lecturer_id || !course_id || !selectedLocations.length) {
       setModalMessage('All fields are required.');
       setModalOpen(true);
       return;
@@ -165,6 +170,7 @@ const SectionTable = () => {
       course_id,
       lecturer_id,
       capacity,
+      location: selectedLocations,
     });
 
     try {
@@ -187,7 +193,7 @@ const SectionTable = () => {
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement> | SelectChangeEvent) => {
     const { name, value } = e.target;
 
     if (name === 'course_id') {
@@ -225,7 +231,7 @@ const SectionTable = () => {
               <TableCell>Capacity</TableCell>
               <TableCell>Lecturer</TableCell>
               <TableCell>Course</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>Location</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -247,7 +253,9 @@ const SectionTable = () => {
                   <TableCell>{section.capacity}</TableCell>
                   <TableCell>{lecturerFullName}</TableCell>
                   <TableCell>{courseName}</TableCell>
-                  <TableCell>{section.isOnline ? "ONLINE" : "IN PERSON"}</TableCell>
+                  <TableCell>
+                    {Array.isArray(section.location) ? section.location.join(', ') : 'UNKNOWN'}
+                  </TableCell>
                   <TableCell>
                     <Button color="primary" onClick={() => handleOpenCreateEditModal(section)}>
                       Edit
@@ -287,7 +295,7 @@ const SectionTable = () => {
             variant="standard"
             name="capacity"
             value={editingSection?.capacity || 0}
-            onChange={handleChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)}
           />
           <TextField
             select
@@ -298,7 +306,7 @@ const SectionTable = () => {
             variant="standard"
             name="course_id"
             value={editingSection?.course_id || ''}
-            onChange={handleChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)}
           >
             {courses.map((course) => (
               <MenuItem key={course.id} value={course.id}>
@@ -315,7 +323,7 @@ const SectionTable = () => {
             variant="standard"
             name="lecturer_id"
             value={editingSection?.lecturer_id || ''}
-            onChange={handleChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)}
           >
             {lecturers.map((lecturer) => (
               <MenuItem key={lecturer.id} value={lecturer.id}>
@@ -323,21 +331,28 @@ const SectionTable = () => {
               </MenuItem>
             ))}
           </TextField>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={editingSection?.isOnline}
-                onChange={(e) =>
-                  setEditingSection((prev) => {
-                    if (!prev) return null;
-                    return prev.updateFields({ isOnline: e.target.checked });
-                  })
-                }
-                name="online"
-              />
+
+          <Select
+            multiple
+            margin="dense"
+            id="location"
+            label="Location"
+            fullWidth
+            variant="standard"
+            name="location"
+            value={selectedLocations}
+            onChange={(e) =>
+              setSelectedLocations(
+                Array.isArray(e.target.value) ? e.target.value : [e.target.value]
+              )
             }
-            label="Held Online"
-          />
+          >
+            {sectionLocations.map((location) => (
+              <MenuItem key={location} value={location}>
+                {location}
+              </MenuItem>
+            ))}
+          </Select>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

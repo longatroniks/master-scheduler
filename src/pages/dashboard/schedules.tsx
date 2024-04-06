@@ -13,11 +13,24 @@ import {
   Typography,
 } from '@mui/material';
 import ScheduleModal from 'src/components/schedule-table/ScheduleModal'; // Adjust the import path as necessary
+import { exportScheduleToCSV } from 'src/utils/exporter';
+import { ScheduleItem } from 'src/types/types';
 
 interface ScheduletoShow {
+  name: string;
   id: string;
   schedule: any; // Replace 'any' with a more specific type if you know the structure of your schedule objects
   createdAt?: any; // Replace 'any' with Date or firebase.firestore.Timestamp based on how you store dates
+}
+
+type Timeslot = ScheduleItem | 'spanned' | null;
+
+interface ClassroomSchedule {
+  [classroomId: string]: Timeslot[];
+}
+
+interface WeeklySchedule {
+  [day: string]: ClassroomSchedule;
 }
 
 const SchedulesList = () => {
@@ -32,8 +45,9 @@ const SchedulesList = () => {
       const querySnapshot = await getDocs(schedulesQuery);
       const fetchedSchedules = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        schedule: doc.data().schedule, // Assuming 'schedule' is a field in your document
-        createdAt: doc.data().createdAt, // Include other necessary fields similarly
+        name: doc.data().name, // Fetch the name
+        schedule: doc.data().schedule,
+        createdAt: doc.data().createdAt,
       }));
       setSchedules(fetchedSchedules);
     };
@@ -48,6 +62,25 @@ const SchedulesList = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
   };
+
+  function flattenSchedule(weeklySchedule: WeeklySchedule): ScheduleItem[] {
+    const flattened: ScheduleItem[] = [];
+
+    Object.entries(weeklySchedule).forEach(([day, classrooms]) => {
+      Object.values(classrooms).forEach((timeslots) => {
+        timeslots.forEach((timeslot) => {
+          if (timeslot && timeslot !== 'spanned') {
+            flattened.push({
+              ...timeslot,
+              day,
+            });
+          }
+        });
+      });
+    });
+
+    return flattened;
+  }
 
   return (
     <div>
@@ -65,11 +98,29 @@ const SchedulesList = () => {
             {schedules.map((schedule) => (
               <TableRow key={schedule.id}>
                 <TableCell component="th" scope="row">
-                  {schedule.id}
+                  {schedule.name}
                 </TableCell>
                 <TableCell>{schedule.createdAt?.toDate().toLocaleString()}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenModal(schedule.schedule)}>View</Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleOpenModal(schedule.schedule)}
+                    sx={{ mr: 1 }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      const flatSchedule = flattenSchedule(schedule.schedule); // Assuming `schedule.schedule` is your complex data structure
+                      console.log('Flat schedule for export:', flatSchedule);
+                      exportScheduleToCSV(flatSchedule);
+                    }}
+                  >
+                    Export
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

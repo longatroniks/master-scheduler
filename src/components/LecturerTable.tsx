@@ -49,7 +49,7 @@ const LecturerTable = () => {
 
   const [modalOpen, setModalOpen] = useState(false); // State for modal
   const [selectedLecturer, setSelectedLecturer] = useState<Lecturer | null>(null); // State for selected Lecturer
-  const [modalMessage, setModalMessage] = useState('');
+  const [modalMessage] = useState('');
 
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
