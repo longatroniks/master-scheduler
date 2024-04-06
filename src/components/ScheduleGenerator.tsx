@@ -89,10 +89,11 @@ const ScheduleGenerator: React.FC = () => {
         console.log('Schedule generated:', generatedSchedule); // Log on success
         setSchedule(generatedSchedule);
         setSetScheduleDone(true);
-        setSnackbarMessage('Successfully generated a schedule');
+        setSnackbarMessage('✅ Successfully generated a schedule ');
         setOpenSnackbar(true);
       } catch (error) {
         console.error('Error generating schedule:', error);
+        setSnackbarMessage('❌ Error generating schedule ');
       }
     } else {
       console.log('Data not ready for schedule generation'); // Log if data isn't ready
@@ -195,6 +196,12 @@ const ScheduleGenerator: React.FC = () => {
         lecture.day === editLecture.day &&
         lecture.startTime === editLecture.startTime
       ) {
+        // Prepare the message for snackbar before updating the state
+        const originalTimeslot = `${editLecture.day} at ${editLecture.startTime}`;
+        const newTimeslot = `${selectedTimeslot.day} at ${selectedTimeslot.startTime}`;
+        setSnackbarMessage(` ✅ Lecture moved from ${originalTimeslot} to ${newTimeslot}`);
+        setOpenSnackbar(true); // Show the snackbar
+
         // Found the lecture to update
         return {
           ...lecture,
@@ -208,12 +215,9 @@ const ScheduleGenerator: React.FC = () => {
     });
 
     setSchedule(updatedSchedule); // Update the schedule state
-    console.log('Schedule successfully updated with new timeslot.');
-    // Reset edit mode and any relevant states
     setIsEditMode(false); // Exit edit mode automatically
     setEditLecture(null); // Reset selected lecture
     setAvailableSlots({}); // Clear available slots
-    // Close any open dialogs or reset any states as necessary
     setTimeslotSelectionOpen(false);
     setSelectedTimeslotIndex(0); // Reset selection
   };
