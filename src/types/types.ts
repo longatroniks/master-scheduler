@@ -29,9 +29,6 @@ export interface ScheduleItem {
   endTime: any;
 }
 
-export interface TransformedScheduleItem extends Omit<ScheduleItem, 'startTime' | 'endTime'> {
-  durationSlots: number;
-}
 export interface TransformedScheduleDay {
   [classroomId: string]: TransformedScheduleDaySlot[];
 }

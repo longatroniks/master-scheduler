@@ -77,18 +77,8 @@ export function useNavData() {
             icon: ICONS.banking,
           },
           {
-            title: 'Lectures',
-            path: paths.dashboard.lectures,
-            icon: ICONS.booking,
-          },
-          {
             title: 'Lecturers',
             path: paths.dashboard.lecturers,
-            icon: ICONS.user,
-          },
-          {
-            title: 'Users',
-            path: paths.dashboard.users,
             icon: ICONS.user,
           },
           {

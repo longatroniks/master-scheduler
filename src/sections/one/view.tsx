@@ -42,7 +42,6 @@ export default function OneView() {
             { icon: <SchoolIcon style={iconStyle} />, path: 'courses', label: 'Courses' },
             { icon: <GroupIcon style={iconStyle} />, path: 'sections', label: 'Sections' },
             { icon: <BookIcon style={iconStyle} />, path: 'lecturers', label: 'Lecturers' },
-            { icon: <LectureIcon style={iconStyle} />, path: 'lectures', label: 'Lectures' },
             { icon: <ClassroomIcon style={iconStyle} />, path: 'classrooms', label: 'Classrooms' },
             // Add the Schedules button
             {
