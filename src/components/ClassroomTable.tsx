@@ -18,6 +18,10 @@ import {
   FormControlLabel,
   MenuItem,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  SelectChangeEvent,
 } from '@mui/material';
 import { classroomLocations } from '../assets/data';
 
@@ -30,6 +34,7 @@ import ClassroomImport from './importing-components/ClassroomImport';
 
 const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [sortKey, setSortKey] = useState('name'); // 'name' or 'capacity'
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
 
@@ -133,6 +138,10 @@ const ClassroomTable = () => {
     setEditingClassroom((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
+  const handleSortChange = (event: SelectChangeEvent) => {
+    setSortKey(event.target.value as string);
+  };
+
   return (
     <div>
       <DeleteDialog
@@ -149,20 +158,36 @@ const ClassroomTable = () => {
       />
 
       <h1>Classrooms</h1>
-      <Box display={'flex'} my={2}>
-        <Button sx={{ mr: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
-          Add Classroom
-        </Button>
-        <ClassroomImport />
-        <Button
-          sx={{ ml: 2 }}
-          variant="outlined"
-          component="a"
-          href="https://drive.google.com/uc?id=1n4xSZrsWoJcpFlcfP9b24t4Nopx4Zi6-&export=download" // The URL or relative path to your file
-          download="ClassroomImportTable.xlsx" // Suggests a default filename for downloading
-        >
-          Example Sheet for Import
-        </Button>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
+          <Button onClick={() => handleOpenCreateEditModal(null)} sx={{ textTransform: 'none' }}>
+            Add Classroom
+          </Button>
+          <ClassroomImport />
+          <Button
+            variant="outlined"
+            component="a"
+            href="https://drive.google.com/uc?id=1n4xSZrsWoJcpFlcfP9b24t4Nopx4Zi6-&export=download"
+            download="ClassroomImportTable.xlsx"
+            sx={{ textTransform: 'none' }}
+          >
+            Example Sheet for Import
+          </Button>
+        </Box>
+        <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
+          <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+            <InputLabel id="sort-select-label">Sort By</InputLabel>
+            <Select
+              labelId="sort-select-label"
+              value={sortKey}
+              onChange={handleSortChange}
+              label="Sort By"
+            >
+              <MenuItem value="name">Name</MenuItem>
+              <MenuItem value="capacity">Capacity</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
@@ -176,24 +201,31 @@ const ClassroomTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {classrooms.map((classroom) => (
-              <TableRow key={classroom.id}>
-                <TableCell component="th" scope="row">
-                  {classroom.name}
-                </TableCell>
-                <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>
-                <TableCell>{classroom.capacity}</TableCell>
-                <TableCell>{classroom.location || 'UNKNOWN'}</TableCell>
-                <TableCell>
-                  <Button color="primary" onClick={() => handleOpenCreateEditModal(classroom)}>
-                    Edit
-                  </Button>
-                  <Button color="primary" onClick={() => handleDeleteClassroom(classroom)}>
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {classrooms
+              .sort((a, b) => {
+                if (sortKey === 'name') {
+                  return a.name.localeCompare(b.name);
+                }
+                return a.capacity - b.capacity;
+              })
+              .map((classroom) => (
+                <TableRow key={classroom.id}>
+                  <TableCell component="th" scope="row">
+                    {classroom.name}
+                  </TableCell>
+                  <TableCell>{classroom.lab ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{classroom.capacity}</TableCell>
+                  <TableCell>{classroom.location || 'UNKNOWN'}</TableCell>
+                  <TableCell>
+                    <Button color="primary" onClick={() => handleOpenCreateEditModal(classroom)}>
+                      Edit
+                    </Button>
+                    <Button color="primary" onClick={() => handleDeleteClassroom(classroom)}>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>

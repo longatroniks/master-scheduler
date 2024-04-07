@@ -22,8 +22,7 @@ export class CourseService {
         courseDoc.data().credits,
         courseDoc.data().boxes,
         courseDoc.data().lecture_amount,
-        courseDoc.data().requires_lab,
-        courseDoc.data().eligible_lecturers,
+        courseDoc.data().requires_lab
       );
     }
     console.log('No such document!');
@@ -43,7 +42,6 @@ export class CourseService {
           document.data().boxes,
           document.data().lecture_amount,
           document.data().requires_lab,
-          document.data().eligible_lecturers,
           document.id
         )
     );

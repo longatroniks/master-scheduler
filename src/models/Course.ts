@@ -10,7 +10,6 @@ export class Course {
     public boxes: number,
     public lecture_amount: number,
     public requires_lab: boolean,
-    public eligible_lecturers: string[],
     id?: string
   ) {
     if (id) this.id = id;
@@ -28,7 +27,6 @@ export class Course {
         boxes: this.boxes,
         requires_lab: this.requires_lab,
         lecture_amount: this.lecture_amount,
-        eligible_lecturers: this.eligible_lecturers,
       };
     }
     return {
@@ -40,7 +38,6 @@ export class Course {
       boxes: this.boxes,
       lecture_amount: this.lecture_amount,
       requires_lab: this.requires_lab,
-      eligible_lecturers: this.eligible_lecturers,
     };
   }
 
@@ -54,7 +51,6 @@ export class Course {
       fields.boxes ?? this.boxes,
       fields.lecture_amount ?? this.lecture_amount,
       fields.requires_lab ?? this.requires_lab,
-      fields.eligible_lecturers ?? this.eligible_lecturers,
       this.id
     );
   }

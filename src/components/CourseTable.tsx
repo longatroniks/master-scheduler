@@ -17,6 +17,10 @@ import {
   Checkbox,
   FormControlLabel,
   Box,
+  SelectChangeEvent,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
 import { lectureAmounts, boxes, programs, yearLevels, credits } from 'src/assets/data';
@@ -32,6 +36,7 @@ import CourseImport from './importing-components/CourseImport';
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [sortKey, setSortKey] = useState('name'); // New state for sorting
   const [openCreateEditModal, setOpenCreateEditModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [filteredLectureAmounts, setFilteredLectureAmounts] = useState(lectureAmounts);
@@ -70,26 +75,11 @@ const CourseTable = () => {
     setCourses(fetchedCourses || []);
   }, [courseController]);
 
-  const fetchAndSetEligibleLecturers = useCallback(async (courseId: string) => {
-    const sectionController = new SectionController();
-    const sections = await sectionController.fetchSectionsByCourseId(courseId);
-    const lecturerIds = sections.map((section) => section.lecturer_id);
-    const uniqueLecturerIds = Array.from(new Set(lecturerIds));
-
-    setEditingCourse((prev) => {
-      if (prev) {
-        return prev.updateFields({ eligible_lecturers: uniqueLecturerIds });
-      }
-      return null;
-    });
-  }, []);
-
   const handleOpenCreateEditModal = (course: Course | null) => {
     if (course) {
       setEditingCourse(course);
-      fetchAndSetEligibleLecturers(course.id ? course.id : '');
     } else {
-      setEditingCourse(new Course('', '', '', 0, 0, 0, 0, false, []));
+      setEditingCourse(new Course('', '', '', 0, 0, 0, 0, false));
     }
     setOpenCreateEditModal(true);
   };
@@ -139,8 +129,7 @@ const CourseTable = () => {
       editingCourse.year_level !== null &&
       editingCourse.year_level !== undefined &&
       editingCourse.credits !== null &&
-      editingCourse.credits !== undefined &&
-      editingCourse.eligible_lecturers
+      editingCourse.credits !== undefined
     ) {
       if (editingCourse.id) {
         await courseController.updateCourse(editingCourse);
@@ -184,6 +173,10 @@ const CourseTable = () => {
     setEditingCourse((prev) => (prev ? prev.updateFields({ [name]: value }) : null));
   };
 
+  const handleSortChange = (event: SelectChangeEvent) => {
+    setSortKey(event.target.value as 'name' | 'abbreviation');
+  };
+
   return (
     <div>
       <DeleteDialog
@@ -200,20 +193,31 @@ const CourseTable = () => {
       />
 
       <h1>Courses</h1>
-      <Box display={'flex'} my={2}>
-        <Button sx={{ mr: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
-          Add Course
-        </Button>
-        <CourseImport />
-        <Button
-          sx={{ ml: 2 }}
-          variant="outlined"
-          component="a"
-          href="https://drive.google.com/uc?id=1w13fw6fCcMfGGs9e04l8KRGrtEKnAL32&export=download" // The URL or relative path to your file
-          download="CourseImportTable.xlsx" // Suggests a default filename for downloading
-        >
-          Example Sheet for Import
-        </Button>
+      <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
+        <Box display="flex" gap={2}>
+          <Button onClick={() => handleOpenCreateEditModal(null)}>Add Course</Button>
+          <CourseImport />
+          <Button
+            variant="outlined"
+            component="a"
+            href="https://drive.google.com/uc?id=1w13fw6fCcMfGGs9e04l8KRGrtEKnAL32&export=download"
+            download="CourseImportTable.xlsx"
+          >
+            Example Sheet for Import
+          </Button>
+        </Box>
+        <FormControl variant="outlined">
+          <InputLabel id="sort-select-label">Sort By</InputLabel>
+          <Select
+            labelId="sort-select-label"
+            value={sortKey}
+            onChange={handleSortChange}
+            label="Sort By"
+          >
+            <MenuItem value="name">Name</MenuItem>
+            <MenuItem value="abbreviation">Abbreviation</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
@@ -227,34 +231,35 @@ const CourseTable = () => {
               <TableCell>Boxes</TableCell>
               <TableCell>Lecture Amount</TableCell>
               <TableCell>Requires Lab</TableCell>
-              <TableCell>Eligible Lecturers</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses.map((course) => (
-              <TableRow key={course.id}>
-                <TableCell component="th" scope="row">
-                  {course.name}
-                </TableCell>
-                <TableCell>{course.abbreviation}</TableCell>
-                <TableCell>{course.program}</TableCell>
-                <TableCell>{course.year_level}</TableCell>
-                <TableCell>{course.credits}</TableCell>
-                <TableCell>{course.boxes}</TableCell>
-                <TableCell>{course.lecture_amount}</TableCell>
-                <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
-                <TableCell>
-                  {course.eligible_lecturers
-                    ? course.eligible_lecturers
-                    : 'No sections created yet'}
-                </TableCell>
-                <TableCell>
-                  <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
-                  <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {courses
+              .sort((a, b) => {
+                if (sortKey === 'name') {
+                  return a.name.localeCompare(b.name);
+                }
+                return a.abbreviation.localeCompare(b.abbreviation);
+              })
+              .map((course) => (
+                <TableRow key={course.id}>
+                  <TableCell component="th" scope="row">
+                    {course.name}
+                  </TableCell>
+                  <TableCell>{course.abbreviation}</TableCell>
+                  <TableCell>{course.program}</TableCell>
+                  <TableCell>{course.year_level}</TableCell>
+                  <TableCell>{course.credits}</TableCell>
+                  <TableCell>{course.boxes}</TableCell>
+                  <TableCell>{course.lecture_amount}</TableCell>
+                  <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
+                    <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>

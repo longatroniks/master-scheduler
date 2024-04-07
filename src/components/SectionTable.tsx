@@ -17,6 +17,9 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  FormControl,
+  InputLabel,
+  Stack,
 } from '@mui/material';
 
 import { sectionLocations } from '../assets/data';
@@ -49,6 +52,8 @@ const SectionTable = () => {
   const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]); // State for selected locations
+
+  const [sortKey, setSortKey] = useState('course'); // Possible values: 'course', 'lecturer'
 
   const courseController = new CourseController();
   const sectionController = new SectionController();
@@ -222,7 +227,39 @@ const SectionTable = () => {
   return (
     <div>
       <h1>Sections</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Section</Button>
+      <Stack direction="row" py={3} spacing={2} alignItems="center" justifyContent="space-between">
+        <Button
+          onClick={() => handleOpenCreateEditModal(null)}
+          sx={{
+            whiteSpace: 'nowrap',
+            flexGrow: 0,
+            flexShrink: 0,
+          }}
+        >
+          Add Section
+        </Button>
+
+        <FormControl
+          sx={{
+            flexGrow: 1,
+            flexShrink: 1,
+            maxWidth: '250px', // Adjust based on your layout needs
+          }}
+          margin="normal"
+        >
+          <InputLabel id="sort-label">Sort By</InputLabel>
+          <Select
+            labelId="sort-label"
+            value={sortKey}
+            label="Sort By"
+            onChange={(e) => setSortKey(e.target.value)}
+          >
+            <MenuItem value="course">Course Name</MenuItem>
+            <MenuItem value="lecturer">Lecturer Last Name</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -236,37 +273,53 @@ const SectionTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sections.map((section) => {
-              const courseName =
-                courses.find((course) => course.id === section.course_id)?.name || 'Unknown Course';
+            {sections
+              .sort((a, b) => {
+                if (sortKey === 'course') {
+                  const courseA = courses.find((course) => course.id === a.course_id)?.name || '';
+                  const courseB = courses.find((course) => course.id === b.course_id)?.name || '';
+                  return courseA.localeCompare(courseB);
+                }
+                const lecturerA = lecturers.find((lect) => lect.id === a.lecturer_id) || {
+                  lastName: '',
+                };
+                const lecturerB = lecturers.find((lect) => lect.id === b.lecturer_id) || {
+                  lastName: '',
+                };
+                return lecturerA.lastName.localeCompare(lecturerB.lastName);
+              })
+              .map((section) => {
+                const courseName =
+                  courses.find((course) => course.id === section.course_id)?.name ||
+                  'Unknown Course';
 
-              const lecturer = lecturers.find((lect) => lect.id === section.lecturer_id);
-              const lecturerFullName = lecturer
-                ? `${lecturer.firstName} ${lecturer.lastName}`
-                : 'Unknown Lecturer';
+                const lecturer = lecturers.find((lect) => lect.id === section.lecturer_id);
+                const lecturerFullName = lecturer
+                  ? `${lecturer.firstName} ${lecturer.lastName}`
+                  : 'Unknown Lecturer';
 
-              return (
-                <TableRow key={section.id}>
-                  <TableCell component="th" scope="row">
-                    {section.name}
-                  </TableCell>
-                  <TableCell>{section.capacity}</TableCell>
-                  <TableCell>{lecturerFullName}</TableCell>
-                  <TableCell>{courseName}</TableCell>
-                  <TableCell>
-                    {Array.isArray(section.location) ? section.location.join(', ') : 'UNKNOWN'}
-                  </TableCell>
-                  <TableCell>
-                    <Button color="primary" onClick={() => handleOpenCreateEditModal(section)}>
-                      Edit
-                    </Button>
-                    <Button color="primary" onClick={() => handleDeleteSection(section)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow key={section.id}>
+                    <TableCell component="th" scope="row">
+                      {section.name}
+                    </TableCell>
+                    <TableCell>{section.capacity}</TableCell>
+                    <TableCell>{lecturerFullName}</TableCell>
+                    <TableCell>{courseName}</TableCell>
+                    <TableCell>
+                      {Array.isArray(section.location) ? section.location.join(', ') : 'UNKNOWN'}
+                    </TableCell>
+                    <TableCell>
+                      <Button color="primary" onClick={() => handleOpenCreateEditModal(section)}>
+                        Edit
+                      </Button>
+                      <Button color="primary" onClick={() => handleDeleteSection(section)}>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -308,11 +361,13 @@ const SectionTable = () => {
             value={editingSection?.course_id || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)}
           >
-            {courses.map((course) => (
-              <MenuItem key={course.id} value={course.id}>
-                {course.name}
-              </MenuItem>
-            ))}
+            {courses
+              .map((course) => (
+                <MenuItem key={course.id} value={course.id}>
+                  {course.name}
+                </MenuItem>
+              ))
+              .sort((a, b) => a.props.children.localeCompare(b.props.children))}
           </TextField>
           <TextField
             select

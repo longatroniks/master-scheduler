@@ -11,11 +11,9 @@ import {
   ListItem,
   ListItemText,
   Typography,
-  IconButton,
   Alert,
   Snackbar,
   styled,
-  Box,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { CourseService } from 'src/services/CourseService';
@@ -37,9 +35,9 @@ const CourseImport = () => {
 
   const handleConfirm = async () => {
     try {
-      for (const course of courses) {
+      courses.forEach(async (course) => {
         await courseService.createCourse(course);
-      }
+      });
       setCourses([]);
       setOpenDialog(false);
       setSnackbarMessage('All courses uploaded successfully!');
@@ -54,7 +52,7 @@ const CourseImport = () => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const {files} = event.target;
     if (files && files[0]) {
       Papa.parse(files[0], {
         header: true,
@@ -67,8 +65,7 @@ const CourseImport = () => {
     }
   };
 
-  const transformData = (data: any[]): Course[] => {
-    return data.map(
+  const transformData = (data: any[]): Course[] => data.map(
       (row) =>
         new Course(
           row.abbreviation,
@@ -79,18 +76,16 @@ const CourseImport = () => {
           parseInt(row.boxes, 10),
           parseInt(row.lecture_amount, 10),
           row.requires_lab.toLowerCase() === 'true',
-          row.eligible_lecturers ? row.eligible_lecturers.split(';') : [], // Assuming eligible lecturers are separated by semicolons
           row.id
         )
     );
-  };
 
   return (
     <div>
       <label htmlFor="contained-button-file">
         <Input
           accept=".csv"
-          id="contained-button-file"
+          id="contained-button-file" // Add the id attribute
           multiple
           type="file"
           onChange={handleFileUpload}
@@ -136,11 +131,6 @@ const CourseImport = () => {
                       <ListItem>
                         <ListItemText
                           primary={`Requires Lab: ${course.requires_lab ? 'Yes' : 'No'}`}
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText
-                          primary={`Eligible Lecturers: ${course.eligible_lecturers.join(', ')}`}
                         />
                       </ListItem>
                     </List>

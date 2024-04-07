@@ -16,6 +16,10 @@ import {
   FormControlLabel,
   Switch,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -58,6 +62,7 @@ const LecturerTable = () => {
   const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
   const lecturerController = new LecturerController();
+  const [sortKey, setSortKey] = useState('lastName');
 
   const fetchLecturers = async () => {
     const fetchedLecturers = await lecturerController.fetchLecturers();
@@ -214,20 +219,42 @@ const LecturerTable = () => {
 
       <h1>Lecturers</h1>
 
-      <Box display={'flex'}>
-        <Button sx={{ mx: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
-          Add Lecturer
-        </Button>
-        <LecturerImport />
-        <Button
-          sx={{ ml: 2 }}
-          variant="outlined"
-          component="a"
-          href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download" // The URL or relative path to your file
-          download="LecturerImportTable.xlsx" // Suggests a default filename for downloading
-        >
-          Example Sheet for Import
-        </Button>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => handleOpenCreateEditModal(null)}
+            sx={{ textTransform: 'none', height: '40px' }} // Ensures button height is uniform
+          >
+            Add Lecturer
+          </Button>
+
+          <LecturerImport />
+
+          <Button
+            variant="outlined"
+            component="a"
+            href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download"
+            download="LecturerImportTable.xlsx"
+            sx={{ textTransform: 'none', height: '40px' }} // Standardizes button height
+          >
+            Example Sheet for Import
+          </Button>
+        </Box>
+        <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
+          <FormControl variant="outlined" sx={{ minWidth: 180, height: '40px' }}>
+            <InputLabel id="sort-label">Sort By</InputLabel>
+            <Select
+              labelId="sort-label"
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value)}
+              label="Sort By"
+              sx={{ height: '40px' }} // Makes Select height consistent with buttons
+            >
+              <MenuItem value="lastName">Last Name</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       <TableContainer component={Paper}>
@@ -242,65 +269,73 @@ const LecturerTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {lecturers.map((lecturer) => (
-              <TableRow key={lecturer.id}>
-                <TableCell>{lecturer.firstName}</TableCell>
-                <TableCell>{lecturer.lastName}</TableCell>
-                <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
+            {lecturers
+              .sort((a, b) => {
+                const sortA = (a[sortKey as keyof Lecturer] || '') as string;
+                const sortB = (b[sortKey as keyof Lecturer] || '') as string;
+                return sortA.localeCompare(sortB);
+              })
+              .map((lecturer) => (
+                <TableRow key={lecturer.id}>
+                  <TableCell>{lecturer.firstName}</TableCell>
+                  <TableCell>{lecturer.lastName}</TableCell>
+                  <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
 
-                <TableCell>
-                  <Tooltip
-                    title={
-                      <Table size="small" sx={{ bgcolor: 'background.paper' }}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Day</TableCell>
-                            <TableCell>Start Time</TableCell>
-                            <TableCell>End Time</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {daysOfWeek.map((day) => {
-                            // Accessing each lecturer's availability directly
-                            const dayAvailability = lecturer.availability[day];
-                            return (
-                              <TableRow key={day}>
-                                <TableCell>{day.charAt(0).toUpperCase() + day.slice(1)}</TableCell>
-                                <TableCell>
-                                  {dayAvailability && dayAvailability.length > 0
-                                    ? dayAvailability[0].start_time
-                                    : 'N/A'}
-                                </TableCell>
-                                <TableCell>
-                                  {dayAvailability && dayAvailability.length > 0
-                                    ? dayAvailability[0].end_time
-                                    : 'N/A'}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    }
-                    placement="right"
-                    arrow
-                  >
-                    <IconButton>
-                      <AccessTimeIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
+                  <TableCell>
+                    <Tooltip
+                      title={
+                        <Table size="small" sx={{ bgcolor: 'background.paper' }}>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Day</TableCell>
+                              <TableCell>Start Time</TableCell>
+                              <TableCell>End Time</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {daysOfWeek.map((day) => {
+                              // Accessing each lecturer's availability directly
+                              const dayAvailability = lecturer.availability[day];
+                              return (
+                                <TableRow key={day}>
+                                  <TableCell>
+                                    {day.charAt(0).toUpperCase() + day.slice(1)}
+                                  </TableCell>
+                                  <TableCell>
+                                    {dayAvailability && dayAvailability.length > 0
+                                      ? dayAvailability[0].start_time
+                                      : 'N/A'}
+                                  </TableCell>
+                                  <TableCell>
+                                    {dayAvailability && dayAvailability.length > 0
+                                      ? dayAvailability[0].end_time
+                                      : 'N/A'}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      }
+                      placement="right"
+                      arrow
+                    >
+                      <IconButton>
+                        <AccessTimeIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
 
-                <TableCell>
-                  <Button color="primary" onClick={() => handleOpenCreateEditModal(lecturer)}>
-                    Edit
-                  </Button>
-                  <Button color="primary" onClick={() => handleDeleteLecturer(lecturer)}>
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell>
+                    <Button color="primary" onClick={() => handleOpenCreateEditModal(lecturer)}>
+                      Edit
+                    </Button>
+                    <Button color="primary" onClick={() => handleDeleteLecturer(lecturer)}>
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
