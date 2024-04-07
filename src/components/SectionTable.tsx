@@ -64,7 +64,7 @@ const SectionTable = () => {
       const fetchedSections = await sectionController.fetchSections();
       const fetchedCourses = await courseController.fetchCourses();
       const fetchedLecturers = await lecturerController.fetchLecturers();
-
+      fetchedLecturers.sort((a, b) => a.lastName.localeCompare(b.lastName));
       setSections(fetchedSections || []);
       setCourses(fetchedCourses || []);
       setLecturers(fetchedLecturers || []);
