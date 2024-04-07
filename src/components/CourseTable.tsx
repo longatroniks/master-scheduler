@@ -16,6 +16,7 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
+  Box,
 } from '@mui/material';
 import { useState, useEffect, ChangeEvent, useCallback, useMemo } from 'react';
 import { lectureAmounts, boxes, programs, yearLevels, credits } from 'src/assets/data';
@@ -27,6 +28,7 @@ import { SectionController } from '../controllers/SectionController';
 
 import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
 import CreateDialog from './confirmation/ConfirmationCreateDialog';
+import CourseImport from './importing-components/CourseImport';
 
 const CourseTable = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -101,10 +103,8 @@ const CourseTable = () => {
   };
 
   const handleDeleteCourse = (course: Course) => {
-    
     setSelectedCourse(course); // Ensure course is set before opening modal
     setDeleteConfirmationModalOpen(true); // Update state immediately
-    
   };
 
   const handleConfirmDeleteCourse = async () => {
@@ -121,14 +121,13 @@ const CourseTable = () => {
       setCreateConfirmationModalOpen(false);
     }, 3000);
   };
-  
+
   const handleCloseSnackbarCreate = () => {
     setCreateConfirmationModalOpen(false);
   };
-  
-  
+
   const handleCancelDeleteSection = () => {
-    setDeleteConfirmationModalOpen(false); 
+    setDeleteConfirmationModalOpen(false);
   };
 
   const handleSaveCourse = async () => {
@@ -187,11 +186,11 @@ const CourseTable = () => {
 
   return (
     <div>
-                   <DeleteDialog
-  open={deleteConfirmationModalOpen}
-  onClose={handleCancelDeleteSection}
-  message={`Are you sure you want to delete section ${selectedCourse?.name} ?`}
-  onConfirm={handleConfirmDeleteCourse}
+      <DeleteDialog
+        open={deleteConfirmationModalOpen}
+        onClose={handleCancelDeleteSection}
+        message={`Are you sure you want to delete section ${selectedCourse?.name} ?`}
+        onConfirm={handleConfirmDeleteCourse}
       />
 
       <CreateDialog
@@ -201,7 +200,21 @@ const CourseTable = () => {
       />
 
       <h1>Courses</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Course</Button>
+      <Box display={'flex'} my={2}>
+        <Button sx={{ mr: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
+          Add Course
+        </Button>
+        <CourseImport />
+        <Button
+          sx={{ ml: 2 }}
+          variant="outlined"
+          component="a"
+          href="https://drive.google.com/uc?id=1w13fw6fCcMfGGs9e04l8KRGrtEKnAL32&export=download" // The URL or relative path to your file
+          download="CourseImportTable.xlsx" // Suggests a default filename for downloading
+        >
+          Example Sheet for Import
+        </Button>
+      </Box>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>

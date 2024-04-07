@@ -15,6 +15,7 @@ import {
   TextField,
   FormControlLabel,
   Switch,
+  Box,
 } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -30,6 +31,7 @@ import { LecturerController } from '../controllers/LecturerController';
 
 import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
 import CreateDialog from './confirmation/ConfirmationCreateDialog';
+import LecturerImport from './importing-components/LecturerImport';
 
 const initialAvailability: { [key: string]: { start_time: string; end_time: string }[] } = {
   monday: [],
@@ -55,7 +57,6 @@ const LecturerTable = () => {
 
   const [createConfirmationModalOpen, setCreateConfirmationModalOpen] = useState(false); // State for delete confirmation modal
 
-
   const lecturerController = new LecturerController();
 
   const fetchLecturers = async () => {
@@ -77,16 +78,13 @@ const LecturerTable = () => {
     setOpenCreateEditModal(true);
   };
 
-
   const handleCloseModal = () => {
     setModalOpen(false);
   };
 
   const handleDeleteLecturer = (lecturer: Lecturer) => {
-    
     setSelectedLecturer(lecturer); // Ensure course is set before opening modal
     setDeleteConfirmationModalOpen(true); // Update state immediately
-    
   };
 
   const handleConfirmDeleteLecturer = async () => {
@@ -113,7 +111,6 @@ const LecturerTable = () => {
     return preparedAvailability;
   };
 
-
   const timeToIndex = (time: string) => timeSlots.indexOf(time);
 
   const handleOpenSnackbarCreate = () => {
@@ -122,16 +119,14 @@ const LecturerTable = () => {
       setCreateConfirmationModalOpen(false);
     }, 3000);
   };
-  
+
   const handleCloseSnackbarCreate = () => {
     setCreateConfirmationModalOpen(false);
   };
-  
-  
-  const handleCancelDeleteSection = () => {
-    setDeleteConfirmationModalOpen(false); 
-  };
 
+  const handleCancelDeleteSection = () => {
+    setDeleteConfirmationModalOpen(false);
+  };
 
   const handleSaveLecturer = async () => {
     const exceedsTimeLimit = Object.entries(availability).some(([day, slots]) =>
@@ -176,22 +171,20 @@ const LecturerTable = () => {
     handleOpenSnackbarCreate();
   };
 
-  
-
   const handleChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>,
     checked?: boolean
   ) => {
     const field = event.target.name as keyof Lecturer;
-  
+
     const isCheckbox = checked !== undefined;
     const value: any = isCheckbox ? checked : event.target.value;
-  
+
     setEditingLecturer((prev) => {
       if (!prev) return null;
-  
+
       const updatedLecturer: Partial<Lecturer> = { ...prev, [field]: value };
-  
+
       return new Lecturer(
         updatedLecturer.firstName || prev.firstName,
         updatedLecturer.lastName || prev.lastName,
@@ -203,15 +196,14 @@ const LecturerTable = () => {
       );
     });
   };
-  
 
   return (
     <div>
-        <DeleteDialog
-  open={deleteConfirmationModalOpen}
-  onClose={handleCancelDeleteSection}
-  message= ' Are you sure you want to delete this lecturer '
-  onConfirm={handleConfirmDeleteLecturer}
+      <DeleteDialog
+        open={deleteConfirmationModalOpen}
+        onClose={handleCancelDeleteSection}
+        message=" Are you sure you want to delete this lecturer "
+        onConfirm={handleConfirmDeleteLecturer}
       />
 
       <CreateDialog
@@ -221,7 +213,23 @@ const LecturerTable = () => {
       />
 
       <h1>Lecturers</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Lecturer</Button>
+
+      <Box display={'flex'}>
+        <Button sx={{ mx: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
+          Add Lecturer
+        </Button>
+        <LecturerImport />
+        <Button
+          sx={{ ml: 2 }}
+          variant="outlined"
+          component="a"
+          href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download" // The URL or relative path to your file
+          download="LecturerImportTable.xlsx" // Suggests a default filename for downloading
+        >
+          Example Sheet for Import
+        </Button>
+      </Box>
+
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
@@ -239,7 +247,6 @@ const LecturerTable = () => {
                 <TableCell>{lecturer.firstName}</TableCell>
                 <TableCell>{lecturer.lastName}</TableCell>
                 <TableCell>{lecturer.outsideAffiliate ? 'OUTSIDE' : 'FULL-TIME'}</TableCell>
- 
 
                 <TableCell>
                   <Tooltip
@@ -285,12 +292,12 @@ const LecturerTable = () => {
                 </TableCell>
 
                 <TableCell>
-                  <Button
-                  color="primary"
-                  onClick={() => handleOpenCreateEditModal(lecturer)}>Edit</Button>
-                  <Button
-                  color="primary"
-                  onClick={() => handleDeleteLecturer(lecturer)}>Delete</Button>
+                  <Button color="primary" onClick={() => handleOpenCreateEditModal(lecturer)}>
+                    Edit
+                  </Button>
+                  <Button color="primary" onClick={() => handleDeleteLecturer(lecturer)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -355,14 +362,14 @@ const LecturerTable = () => {
         </DialogContent>
 
         <Dialog open={modalOpen} onClose={handleCloseModal}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <p>{modalMessage}</p>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Close</Button>
-        </DialogActions>
-      </Dialog>
+          <DialogTitle>Error</DialogTitle>
+          <DialogContent>
+            <p>{modalMessage}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Close</Button>
+          </DialogActions>
+        </Dialog>
 
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

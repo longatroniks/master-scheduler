@@ -17,6 +17,7 @@ import {
   Switch,
   FormControlLabel,
   MenuItem,
+  Box,
 } from '@mui/material';
 import { classroomLocations } from '../assets/data';
 
@@ -25,6 +26,7 @@ import { Classroom } from '../models/Classroom';
 
 import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
 import CreateDialog from './confirmation/ConfirmationCreateDialog';
+import ClassroomImport from './importing-components/ClassroomImport';
 
 const ClassroomTable = () => {
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
@@ -147,8 +149,21 @@ const ClassroomTable = () => {
       />
 
       <h1>Classrooms</h1>
-      <Button onClick={() => handleOpenCreateEditModal(null)}>Add Classroom</Button>
-
+      <Box display={'flex'} my={2}>
+        <Button sx={{ mr: 2 }} onClick={() => handleOpenCreateEditModal(null)}>
+          Add Classroom
+        </Button>
+        <ClassroomImport />
+        <Button
+          sx={{ ml: 2 }}
+          variant="outlined"
+          component="a"
+          href="https://drive.google.com/uc?id=1n4xSZrsWoJcpFlcfP9b24t4Nopx4Zi6-&export=download" // The URL or relative path to your file
+          download="ClassroomImportTable.xlsx" // Suggests a default filename for downloading
+        >
+          Example Sheet for Import
+        </Button>
+      </Box>
       <TableContainer component={Paper}>
         <Table aria-label="simple table">
           <TableHead>
