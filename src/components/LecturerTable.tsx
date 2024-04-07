@@ -222,7 +222,6 @@ const LecturerTable = () => {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
           <Button
-            variant="contained"
             onClick={() => handleOpenCreateEditModal(null)}
             sx={{ textTransform: 'none', height: '40px' }} // Ensures button height is uniform
           >
