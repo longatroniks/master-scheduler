@@ -62,13 +62,12 @@ const yearLevelColors = {
 
 const sectionLocations = [
   'Zagreb',
-  'Dubrovnik',
   'Online'
 ];
 
 const classroomLocations = [
   'Zagreb',
-  'Dubrovnik',
+  'Online'
 ];
 
 export {

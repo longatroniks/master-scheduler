@@ -43,7 +43,7 @@ export interface TransformedScheduleItem {
   courseName: string;
   sectionName: string;
   classroomName: string;
-  // startTime can be included if you plan to use it for display or sorting
+  classroomId: string;
   startTime?: string; // You can adjust the type based on your actual data format, e.g., Date or string
 }
 export type TransformedScheduleDaySlot = TransformedScheduleItem | 'spanned' | null;

@@ -56,6 +56,7 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
+  
   useEffect(() => {
     const scheduleColors = isDarkMode ? SCHEDULE_COLORS_DARK : SCHEDULE_COLORS_LIGHT;
     const updatedMap: { [courseName: string]: string } = {};
@@ -107,13 +108,12 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
         ...baseStyle,
         backgroundColor: `${theme.palette.primary.main}50`, // Adjust opacity as needed
       };
-    } 
-      // Otherwise, use the course's assigned color
-      return {
-        ...baseStyle,
-        backgroundColor: getBackgroundColor(courseName),
-      };
-    
+    }
+    // Otherwise, use the course's assigned color
+    return {
+      ...baseStyle,
+      backgroundColor: getBackgroundColor(courseName),
+    };
   };
 
   const handleLectureClick = (lecture: TransScheduleItem) => {
@@ -146,7 +146,11 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
                 <TableBody>
                   {Object.entries(schedule[day]).map(([classroomId, slots], rowIndex) => (
                     <TableRow key={`${day}-${classroomId}-${rowIndex}`}>
-                      <TableCell>{classroomId}</TableCell>
+                      <TableCell>
+                        {slots[0] && typeof slots[0] === 'object' && 'classroomName' in slots[0]
+                          ? slots[0].classroomName
+                          : ''}
+                      </TableCell>
 
                       {slots.map((slot, slotIndex) => {
                         const time = timeSlots[slotIndex];

@@ -6,13 +6,13 @@ import { Section } from 'src/models/Section';
 // Define the structure for each scheduled item
 interface ScheduleItem {
   classroomId: string;
-  classroomName: string; // Adding classroom name for readability
+  classroomName: string;
   courseId: string;
-  courseName: string; // Adding course name
+  courseName: string;
   sectionId: string;
-  sectionName: string; // Adding section name
+  sectionName: string;
   lecturerId: string;
-  lecturerName: string; // Adding lecturer name
+  lecturerName: string;
   day: string;
   startTime: string;
   endTime: string;
@@ -52,6 +52,22 @@ function isLecturerAvailable(
         (item.startTime < endTime && item.endTime >= endTime))
   );
   return !isBooked; // Lecturer is available if they are not already booked
+}
+
+function isSectionAvailable(
+  sectionId: string,
+  day: string,
+  startTime: string,
+  endTime: string,
+  schedule: ScheduleItem[]
+): boolean {
+  return !schedule.some(
+    (item) =>
+      item.sectionId === sectionId &&
+      item.day === day &&
+      ((item.startTime <= startTime && item.endTime > startTime) ||
+        (item.startTime < endTime && item.endTime >= endTime))
+  );
 }
 
 // Function to add a certain number of minutes to a time string
@@ -154,52 +170,6 @@ function tryScheduleLecture(
 ): boolean {
   const currentEndTime = addMinutesToTime(currentTime, lectureLengthMinutes);
 
-  // Filter classrooms based on the course's lab requirement
-  let suitableClassrooms = classrooms.filter((classroom) =>
-    course.requires_lab ? classroom.lab : true
-  );
-
-  // Skip scheduling in a classroom if the section is online
-  if (section.location.includes('Online')) {
-    schedule.push({
-      classroomId: 'online',
-      classroomName: 'Online',
-      courseId: course.id ?? 'unknown',
-      courseName: course.name,
-      sectionId: section.id ?? 'unknown',
-      sectionName: section.name,
-      lecturerId: sectionLecturer.id ?? 'unknown',
-      lecturerName: `${sectionLecturer.firstName} ${sectionLecturer.lastName}`,
-      day,
-      startTime: currentTime,
-      endTime: currentEndTime,
-    });
-    console.log(
-      `Lecture scheduled for section ${course.abbreviation} - ${section.name} (Online) on ${day} from ${currentTime} to ${currentEndTime}`
-    );
-    return true;
-  }
-
-  if (section.location.includes('Zagreb' || 'Dubrovnik')) {
-    suitableClassrooms = suitableClassrooms.filter((classroom) =>
-      classroom.location.includes('Zagreb' || 'Dubrovnik')
-    );
-  }
-
-  let preferredClassroom: Classroom | undefined;
-  // Check for back-to-back scheduling preference
-  schedule.forEach((item) => {
-    if (item.courseId === course.id && item.lecturerId === sectionLecturer.id && item.day === day) {
-      const itemEndTime = item.endTime;
-      if (addMinutesToTime(itemEndTime, 0) === currentTime) {
-        // Ensure the preferred classroom also meets the lab requirement
-        preferredClassroom = suitableClassrooms.find(
-          (classroom) => classroom.id === item.classroomId
-        );
-      }
-    }
-  });
-
   // Function to handle the actual scheduling logic, avoiding repetition
   const scheduleInClassroom = (classroom: Classroom) => {
     schedule.push({
@@ -216,7 +186,7 @@ function tryScheduleLecture(
       endTime: currentEndTime,
     });
     console.log(
-      `Lecture scheduled for section ${course.abbreviation} - ${section.name} in classroom ${classroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
+      `Lecture scheduled for section ${course.abbreviation} - ${section.name} in location ${section.location} in classroom ${classroom.name} on ${day} from ${currentTime} to ${currentEndTime}`
     );
   };
 
@@ -225,11 +195,34 @@ function tryScheduleLecture(
     return false;
   }
 
+
+  // Filter classrooms based on the course's lab requirement
+  const suitableClassrooms = classrooms.filter(
+    (classroom) =>
+      (course.requires_lab ? classroom.lab : true) &&
+      section.location.every((location) => classroom.location.includes(location))
+  );
+
+  let preferredClassroom: Classroom | undefined;
+  // Check for back-to-back scheduling preference
+  schedule.forEach((item) => {
+    if (item.courseId === course.id && item.lecturerId === sectionLecturer.id && item.day === day) {
+      const itemEndTime = item.endTime;
+      if (addMinutesToTime(itemEndTime, 0) === currentTime) {
+        // Ensure the preferred classroom also meets the lab requirement
+        preferredClassroom = suitableClassrooms.find(
+          (classroom) => classroom.id === item.classroomId
+        );
+      }
+    }
+  });
+
   // Attempt to schedule in the preferred classroom first, if it exists and is available
   if (
     preferredClassroom &&
     isClassroomAvailable(preferredClassroom, day, currentTime, currentEndTime, schedule) &&
-    isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
+    isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule) &&
+    isSectionAvailable(section.id ?? '', day, currentTime, currentEndTime, schedule)
   ) {
     scheduleInClassroom(preferredClassroom);
     return true;
@@ -240,7 +233,8 @@ function tryScheduleLecture(
     (classroom) =>
       sectionLecturer.id &&
       isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule) &&
-      isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule)
+      isLecturerAvailable(sectionLecturer.id, day, currentTime, currentEndTime, schedule) &&
+      isSectionAvailable(section.id ?? '', day, currentTime, currentEndTime, schedule)
   );
 
   if (availableClassroom) {

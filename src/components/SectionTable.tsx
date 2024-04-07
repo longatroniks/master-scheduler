@@ -158,7 +158,7 @@ const SectionTable = () => {
     const existingSections = sections.filter((section) => section.course_id === course_id);
     const sectionNumbers = existingSections.map((section) => parseInt(section.name, 10));
     let newName = '800';
-    for (let i = 800; i <= 802; i += 1) {
+    for (let i = 800; i <= 804; i += 1) {
       if (!sectionNumbers.includes(i)) {
         newName = i.toString();
         break;
@@ -201,7 +201,7 @@ const SectionTable = () => {
         (section) => section.course_id === value
       ).length;
 
-      if (existingSectionsCount >= 3) {
+      if (existingSectionsCount >= 5) {
         setModalMessage('Maximum number of sections for this course already reached.');
         setModalOpen(true);
         if (editingSection) {
@@ -272,7 +272,7 @@ const SectionTable = () => {
       </TableContainer>
 
       <Dialog open={openCreateEditModal} onClose={handleCloseCreateEditModal}>
-        <DialogTitle>{editingSection ? 'Edit Section' : 'Add Section'}</DialogTitle>
+        <DialogTitle>{editingSection?.id ? 'Edit Section' : 'Add Section'}</DialogTitle>
 
         <Dialog open={modalOpen} onClose={handleCloseModal}>
           <DialogTitle>Error</DialogTitle>
