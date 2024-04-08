@@ -235,7 +235,7 @@ const LecturerTable = () => {
           <Button
             variant="outlined"
             component="a"
-            href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download"
+            href="https://res.cloudinary.com/dcl3zybft/raw/upload/v1712566231/ImportLecturers_vyi28g.xlsx"
             download="LecturerImportTable.xlsx"
             sx={{ textTransform: 'none', height: '40px' }} // Standardizes button height
           >

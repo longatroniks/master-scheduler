@@ -172,7 +172,7 @@ const ClassroomTable = () => {
           <Button
             variant="outlined"
             component="a"
-            href="https://drive.google.com/uc?id=1n4xSZrsWoJcpFlcfP9b24t4Nopx4Zi6-&export=download"
+            href="https://res.cloudinary.com/dcl3zybft/raw/upload/v1712566184/ImportClassrooms_1_gepu0h.xlsx"
             download="ClassroomImportTable.xlsx"
             sx={{ textTransform: 'none' }}
           >

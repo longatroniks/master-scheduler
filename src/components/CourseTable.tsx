@@ -206,7 +206,7 @@ const CourseTable = () => {
           <Button
             variant="outlined"
             component="a"
-            href="https://drive.google.com/uc?id=1w13fw6fCcMfGGs9e04l8KRGrtEKnAL32&export=download"
+            href="https://res.cloudinary.com/dcl3zybft/raw/upload/v1712563991/ImportCourses_1_xr0cy0.xlsx"
             download="CourseImportTable.xlsx"
           >
             Example Sheet for Import
