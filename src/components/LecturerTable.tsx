@@ -223,6 +223,8 @@ const LecturerTable = () => {
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
           <Button
             onClick={() => handleOpenCreateEditModal(null)}
+            color="primary"
+            variant="contained"
             sx={{ textTransform: 'none', height: '40px' }} // Ensures button height is uniform
           >
             Add Lecturer
@@ -326,10 +328,19 @@ const LecturerTable = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Button color="primary" onClick={() => handleOpenCreateEditModal(lecturer)}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => handleOpenCreateEditModal(lecturer)}
+                    >
                       Edit
                     </Button>
-                    <Button color="primary" onClick={() => handleDeleteLecturer(lecturer)}>
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      sx={{ ml: 0.3 }}
+                      onClick={() => handleDeleteLecturer(lecturer)}
+                    >
                       Delete
                     </Button>
                   </TableCell>

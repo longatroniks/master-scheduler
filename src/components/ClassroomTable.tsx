@@ -160,7 +160,12 @@ const ClassroomTable = () => {
       <h1>Classrooms</h1>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
-          <Button onClick={() => handleOpenCreateEditModal(null)} sx={{ textTransform: 'none' }}>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => handleOpenCreateEditModal(null)}
+            sx={{ textTransform: 'none' }}
+          >
             Add Classroom
           </Button>
           <ClassroomImport />
@@ -217,10 +222,19 @@ const ClassroomTable = () => {
                   <TableCell>{classroom.capacity}</TableCell>
                   <TableCell>{classroom.location || 'UNKNOWN'}</TableCell>
                   <TableCell>
-                    <Button color="primary" onClick={() => handleOpenCreateEditModal(classroom)}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => handleOpenCreateEditModal(classroom)}
+                    >
                       Edit
                     </Button>
-                    <Button color="primary" onClick={() => handleDeleteClassroom(classroom)}>
+                    <Button
+                      color="secondary"
+                      sx={{ ml: 0.3 }}
+                      variant="contained"
+                      onClick={() => handleDeleteClassroom(classroom)}
+                    >
                       Delete
                     </Button>
                   </TableCell>

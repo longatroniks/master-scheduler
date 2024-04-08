@@ -195,7 +195,13 @@ const CourseTable = () => {
       <h1>Courses</h1>
       <Box display="flex" justifyContent="space-between" alignItems="center" my={2}>
         <Box display="flex" gap={2}>
-          <Button onClick={() => handleOpenCreateEditModal(null)}>Add Course</Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => handleOpenCreateEditModal(null)}
+          >
+            Add Course
+          </Button>
           <CourseImport />
           <Button
             variant="outlined"
@@ -255,8 +261,21 @@ const CourseTable = () => {
                   <TableCell>{course.lecture_amount}</TableCell>
                   <TableCell>{course.requires_lab ? 'LAB' : 'NO LAB'}</TableCell>
                   <TableCell>
-                    <Button onClick={() => handleOpenCreateEditModal(course)}>Edit</Button>
-                    <Button onClick={() => handleDeleteCourse(course)}>Delete</Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleOpenCreateEditModal(course)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      sx={{ my: 1 }}
+                      onClick={() => handleDeleteCourse(course)}
+                    >
+                      Delete
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
