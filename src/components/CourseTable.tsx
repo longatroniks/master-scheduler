@@ -158,8 +158,11 @@ const CourseTable = () => {
       case 6:
         setFilteredLectureAmounts([1, 2, 3]); // 1, 2, or 3 lectures are possible
         break;
+      case 8:
+          setFilteredLectureAmounts([2]); // 2 lectures are possible
+          break; 
       case 12:
-        setFilteredLectureAmounts([2]); // 2 lectures are possible
+        setFilteredLectureAmounts([2, 3]); // 2, 3 lectures are possible
         break;
       default:
         setFilteredLectureAmounts(lectureAmounts); // Reset to all possible values if none matches
