@@ -128,12 +128,12 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
       {daysOfWeek.map((day, dayIndex) => {
         if (schedule[day]) {
           return (
-            <TableContainer key={day} component={Paper} style={{ marginBottom: '20px' }}>
+            <TableContainer key={day} component={Paper}  sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}>
               <Typography variant="h6" style={{ margin: '10px' }}>
                 {day}
               </Typography>
               <Table size="small">
-                <TableHead>
+                <TableHead sx={{ position: 'sticky', top: '62.5px', zIndex: '20' }}>
                   <TableRow>
                     <TableCell align="left">Classroom / Time</TableCell>
                     {timeSlots.map((time, timeIndex) => (

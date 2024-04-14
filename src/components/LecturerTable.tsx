@@ -223,7 +223,7 @@ const LecturerTable = () => {
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
           <Button
             onClick={() => handleOpenCreateEditModal(null)}
-            sx={{ textTransform: 'none', height: '40px' }} // Ensures button height is uniform
+            sx={{ textTransform: 'none' }} // Ensures button height is uniform
           >
             Add Lecturer
           </Button>
@@ -235,20 +235,19 @@ const LecturerTable = () => {
             component="a"
             href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download"
             download="LecturerImportTable.xlsx"
-            sx={{ textTransform: 'none', height: '40px' }} // Standardizes button height
+            sx={{ textTransform: 'none'}} // Standardizes button height
           >
             Example Sheet for Import
           </Button>
         </Box>
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
-          <FormControl variant="outlined" sx={{ minWidth: 180, height: '40px' }}>
+          <FormControl variant="outlined" sx={{ minWidth: 180 }}>
             <InputLabel id="sort-label">Sort By</InputLabel>
             <Select
               labelId="sort-label"
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value)}
               label="Sort By"
-              sx={{ height: '40px' }} // Makes Select height consistent with buttons
             >
               <MenuItem value="lastName">Last Name</MenuItem>
             </Select>
@@ -256,9 +255,9 @@ const LecturerTable = () => {
         </Box>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}>
         <Table aria-label="simple table">
-          <TableHead>
+          <TableHead sx={{ position: 'sticky', top: '62.5px', zIndex: '20' }}>
             <TableRow>
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>

@@ -28,7 +28,6 @@ import { lectureAmounts, boxes, programs, yearLevels, credits } from 'src/assets
 import { Course } from '../models/Course';
 
 import { CourseController } from '../controllers/CourseController';
-import { SectionController } from '../controllers/SectionController';
 
 import DeleteDialog from './confirmation/ConfirmationDeleteDialog';
 import CreateDialog from './confirmation/ConfirmationCreateDialog';
@@ -159,6 +158,9 @@ const CourseTable = () => {
       case 6:
         setFilteredLectureAmounts([1, 2, 3]); // 1, 2, or 3 lectures are possible
         break;
+      case 12:
+        setFilteredLectureAmounts([2]); // 2 lectures are possible
+        break;
       default:
         setFilteredLectureAmounts(lectureAmounts); // Reset to all possible values if none matches
     }
@@ -219,9 +221,9 @@ const CourseTable = () => {
           </Select>
         </FormControl>
       </Box>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}>
         <Table aria-label="simple table">
-          <TableHead>
+          <TableHead sx={{ position: 'sticky', top: '62.5px', zIndex: '20' }}>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Abbreviation</TableCell>

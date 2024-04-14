@@ -1,8 +1,8 @@
 const lectureAmounts = [1, 2, 3];
-const programs = ['WMC', 'IB', 'HT', 'ALL'];
+const programs = ['WMC', 'IB', 'HT', 'NMD', 'ALL'];
 const yearLevels = [0, 1, 2, 3, 4];
 const credits = [0, 3, 4]; // Does not conflict, only matters for prioritizing
-const boxes = [2, 3, 4, 6]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h
+const boxes = [2, 3, 4, 6, 12]; // 2 boxes = 1h, 3 boxes = 1h 30m,, 4 boxes = 2h, 6 boxes = 3h, 12 boxes = 6h
 const timeSlots = [
   '08:00',
   '08:30',
@@ -60,15 +60,9 @@ const yearLevelColors = {
   4: 'orange',
 };
 
-const sectionLocations = [
-  'Zagreb',
-  'Online'
-];
+const sectionLocations = ['Zagreb', 'Online'];
 
-const classroomLocations = [
-  'Zagreb',
-  'Online'
-];
+const classroomLocations = ['Zagreb', 'Online'];
 
 export {
   lectureAmounts,
@@ -81,5 +75,5 @@ export {
   niceColors,
   yearLevelColors,
   sectionLocations,
-  classroomLocations
+  classroomLocations,
 };

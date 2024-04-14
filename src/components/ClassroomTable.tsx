@@ -189,9 +189,9 @@ const ClassroomTable = () => {
           </FormControl>
         </Box>
       </Box>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}>
         <Table aria-label="simple table">
-          <TableHead>
+          <TableHead sx={{ position: 'sticky', top: '62.5px', zIndex: '20' }}>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Lab</TableCell>
