@@ -223,7 +223,9 @@ const LecturerTable = () => {
         <Box display="flex" alignItems="center" sx={{ marginBottom: 2, gap: 2 }}>
           <Button
             onClick={() => handleOpenCreateEditModal(null)}
-            sx={{ textTransform: 'none' }} // Ensures button height is uniform
+            color="primary"
+            variant="contained"
+            sx={{ textTransform: 'none', height: '40px' }} // Ensures button height is uniform
           >
             Add Lecturer
           </Button>
@@ -233,7 +235,7 @@ const LecturerTable = () => {
           <Button
             variant="outlined"
             component="a"
-            href="https://drive.google.com/uc?id=1dhAoYLmSRHOht2UNOt36tyAnnPio91k-&export=download"
+            href="https://res.cloudinary.com/dcl3zybft/raw/upload/v1712566231/ImportLecturers_vyi28g.xlsx"
             download="LecturerImportTable.xlsx"
             sx={{ textTransform: 'none'}} // Standardizes button height
           >
@@ -325,10 +327,19 @@ const LecturerTable = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Button color="primary" onClick={() => handleOpenCreateEditModal(lecturer)}>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => handleOpenCreateEditModal(lecturer)}
+                    >
                       Edit
                     </Button>
-                    <Button color="primary" onClick={() => handleDeleteLecturer(lecturer)}>
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      sx={{ ml: 0.3 }}
+                      onClick={() => handleDeleteLecturer(lecturer)}
+                    >
                       Delete
                     </Button>
                   </TableCell>

@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import ScheduleModal from 'src/components/schedule-table/ScheduleModal'; // Adjust the import path as necessary
 import { exportScheduleToCSV } from 'src/utils/exporter';
-import { ScheduleItem } from 'src/types/types';
+import { ScheduleItem, TransformedSchedule } from 'src/types/types';
 
 interface ScheduletoShow {
   name: string;
@@ -35,7 +35,10 @@ interface WeeklySchedule {
 
 const SchedulesList = () => {
   const [schedules, setSchedules] = useState<ScheduletoShow[]>([]);
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<TransformedSchedule | undefined>(
+    undefined
+  );
+
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
@@ -54,7 +57,8 @@ const SchedulesList = () => {
     fetchSchedules();
   }, []);
 
-  const handleOpenModal = (schedule: React.SetStateAction<null>) => {
+  const handleOpenModal = (schedule: TransformedSchedule) => {
+    // Ensure this type matches your actual schedule type
     setSelectedSchedule(schedule);
     setModalOpen(true);
   };
@@ -104,7 +108,7 @@ const SchedulesList = () => {
                 <TableCell>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    color="primary"
                     onClick={() => handleOpenModal(schedule.schedule)}
                     sx={{ mr: 1 }}
                   >
@@ -112,7 +116,7 @@ const SchedulesList = () => {
                   </Button>
                   <Button
                     variant="contained"
-                    color="primary"
+                    color="secondary"
                     onClick={() => {
                       const flatSchedule = flattenSchedule(schedule.schedule); // Assuming `schedule.schedule` is your complex data structure
                       console.log('Flat schedule for export:', flatSchedule);
@@ -128,7 +132,9 @@ const SchedulesList = () => {
         </Table>
       </TableContainer>
 
-     {/* <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} /> */}
+      {selectedSchedule && ( // Render ScheduleModal only if selectedSchedule is not undefined
+        <ScheduleModal open={modalOpen} onClose={handleCloseModal} schedule={selectedSchedule} />
+      )}
     </div>
   );
 };

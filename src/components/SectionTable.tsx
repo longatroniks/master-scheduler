@@ -228,14 +228,7 @@ const SectionTable = () => {
     <div>
       <h1>Sections</h1>
       <Stack direction="row" py={3} spacing={2} alignItems="center" justifyContent="space-between">
-        <Button
-          onClick={() => handleOpenCreateEditModal(null)}
-          sx={{
-            whiteSpace: 'nowrap',
-            flexGrow: 0,
-            flexShrink: 0,
-          }}
-        >
+        <Button color="primary" variant="contained" onClick={() => handleOpenCreateEditModal(null)}>
           Add Section
         </Button>
 
@@ -310,10 +303,19 @@ const SectionTable = () => {
                       {Array.isArray(section.location) ? section.location.join(', ') : 'UNKNOWN'}
                     </TableCell>
                     <TableCell>
-                      <Button color="primary" onClick={() => handleOpenCreateEditModal(section)}>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={() => handleOpenCreateEditModal(section)}
+                      >
                         Edit
                       </Button>
-                      <Button color="primary" onClick={() => handleDeleteSection(section)}>
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{ ml: 0.3 }}
+                        onClick={() => handleDeleteSection(section)}
+                      >
                         Delete
                       </Button>
                     </TableCell>
