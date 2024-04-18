@@ -20,6 +20,8 @@ import {
   FormControl,
   InputLabel,
   Stack,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 
 import { sectionLocations } from '../assets/data';
@@ -125,7 +127,7 @@ const SectionTable = () => {
       return;
     }
 
-    const { capacity, lecturer_id, course_id } = editingSection;
+    const { capacity, lecturer_id, course_id, joined } = editingSection;
 
     if (!capacity || !lecturer_id || !course_id || !selectedLocations.length) {
       setModalMessage('All fields are required.');
@@ -253,7 +255,10 @@ const SectionTable = () => {
         </FormControl>
       </Stack>
 
-      <TableContainer component={Paper} sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}>
+      <TableContainer
+        component={Paper}
+        sx={{ overflowX: 'initial', position: 'sticky', top: '200px' }}
+      >
         <Table aria-label="simple table">
           <TableHead sx={{ position: 'sticky', top: '62.5px', zIndex: '20' }}>
             <TableRow>
@@ -262,6 +267,7 @@ const SectionTable = () => {
               <TableCell>Lecturer</TableCell>
               <TableCell>Course</TableCell>
               <TableCell>Location</TableCell>
+              <TableCell>Joined</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -302,6 +308,7 @@ const SectionTable = () => {
                     <TableCell>
                       {Array.isArray(section.location) ? section.location.join(', ') : 'UNKNOWN'}
                     </TableCell>
+                    <TableCell>{section.joined ? 'JOINED' : 'no'}</TableCell>
                     <TableCell>
                       <Button
                         color="primary"
@@ -410,6 +417,20 @@ const SectionTable = () => {
               </MenuItem>
             ))}
           </Select>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={editingSection?.joined || false}
+                onChange={(e) =>
+                  handleChange({
+                    target: { name: 'joined', value: e.target.checked },
+                  } as unknown as ChangeEvent<HTMLInputElement>)
+                }
+                name="joined"
+              />
+            }
+            label="Is Joined"
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCreateEditModal}>Cancel</Button>

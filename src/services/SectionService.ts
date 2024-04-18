@@ -20,7 +20,7 @@ export class SectionService {
         sectionDoc.data().course_id,
         sectionDoc.data().lecturer_id,
         sectionDoc.data().name,
-        sectionDoc.data().location,
+        sectionDoc.data().location
       );
     }
     console.log('No such document!');
@@ -38,6 +38,7 @@ export class SectionService {
           document.data().lecturer_id,
           document.data().name,
           document.data().location,
+          document.data().joined,
           document.id // Include the document ID
         )
     );
