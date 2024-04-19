@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useRef, useState } from 'react';
 import Papa from 'papaparse';
 import {
@@ -10,9 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListSubheader,
   Typography,
-  IconButton,
   Alert,
   Snackbar,
 } from '@mui/material';
@@ -43,9 +42,9 @@ const LecturerImport = () => {
   const lecturerService = new LecturerService();
   const handleConfirm = async () => {
     try {
-      for (const lecturer of lecturers) {
+      lecturers.forEach(async (lecturer) => {
         await lecturerService.createLecturer(lecturer);
-      }
+      });
       setLecturers([]);
       setOpenDialog(false);
       setSnackbarMessage('All lecturers uploaded successfully!');
@@ -59,7 +58,7 @@ const LecturerImport = () => {
     }
   };
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const {files} = event.target;
     if (files && files[0]) {
       Papa.parse(files[0], {
         header: true,
@@ -114,7 +113,7 @@ const LecturerImport = () => {
       </label>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="lg" fullWidth>
-        <DialogTitle>Review and Confirm Lecturers' Data</DialogTitle>
+        <DialogTitle>Review and Confirm Lecturers&apos; Data</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2}>
             {lecturers.map((lecturer, index) => (

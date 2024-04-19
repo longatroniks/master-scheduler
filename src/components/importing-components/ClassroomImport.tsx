@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useRef, useState } from 'react';
 import Papa from 'papaparse';
 import {
@@ -11,10 +12,10 @@ import {
   ListItem,
   ListItemText,
   Typography,
-  IconButton,
   Alert,
   Snackbar,
   styled,
+  Box,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Classroom } from 'src/models/Classroom';
@@ -38,9 +39,7 @@ const ClassroomImport = () => {
 
   const handleConfirm = async () => {
     try {
-      for (const classroom of classrooms) {
-        await classroomService.createClassroom(classroom);
-      }
+      await Promise.all(classrooms.map((classroom) => classroomService.createClassroom(classroom)));
       setClassrooms([]);
       setOpenDialog(false);
       setSnackbarMessage('All classrooms uploaded successfully!');
@@ -55,7 +54,7 @@ const ClassroomImport = () => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const { files } = event.target;
     if (files && files[0]) {
       Papa.parse(files[0], {
         header: true,
@@ -68,8 +67,8 @@ const ClassroomImport = () => {
     }
   };
 
-  const transformData = (data: any[]): Classroom[] => {
-    return data.map(
+  const transformData = (data: any[]): Classroom[] =>
+    data.map(
       (row) =>
         new Classroom(
           parseInt(row.capacity, 10),
@@ -79,10 +78,9 @@ const ClassroomImport = () => {
           row.id
         )
     );
-  };
 
   return (
-    <div>
+    <Box>
       <label htmlFor="contained-button-file">
         <Input
           accept=".csv"
@@ -136,7 +134,7 @@ const ClassroomImport = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </div>
+    </Box>
   );
 };
 

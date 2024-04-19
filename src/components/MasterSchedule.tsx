@@ -31,7 +31,6 @@ export const MasterSchedule = () => {
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
   const [sectionCourseMap, setSectionCourseMap] = useState<{ [key: string]: Course }>({});
 
   const calculateDurationInSlots = (startTime: string, endTime: string): number => {
@@ -58,7 +57,6 @@ export const MasterSchedule = () => {
       setLectures(fetchedLectures);
       setClassrooms(fetchedClassrooms);
       setSections(fetchedSections);
-      setCourses(fetchedCourses);
       setSectionCourseMap(sectionToCourse);
     };
 
