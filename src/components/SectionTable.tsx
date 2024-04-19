@@ -127,7 +127,7 @@ const SectionTable = () => {
       return;
     }
 
-    const { capacity, lecturer_id, course_id, joined } = editingSection;
+    const { capacity, lecturer_id, course_id } = editingSection;
 
     if (!capacity || !lecturer_id || !course_id || !selectedLocations.length) {
       setModalMessage('All fields are required.');

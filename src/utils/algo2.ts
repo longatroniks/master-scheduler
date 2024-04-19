@@ -37,20 +37,6 @@ function isClassroomAvailable(
   return !isBooked; // Classroom is available if it's not already booked
 }
 
-function isClassroomsAvailableForJoinedSection(
-  classroom1: Classroom,
-  classroom2: Classroom,
-  day: string,
-  startTime: string,
-  endTime: string,
-  schedule: ScheduleItem[]
-) {
-  return (
-    isClassroomAvailable(classroom1, day, startTime, endTime, schedule) &&
-    isClassroomAvailable(classroom2, day, startTime, endTime, schedule)
-  );
-}
-
 function isLecturerAvailable(
   lecturerId: string,
   day: string,
