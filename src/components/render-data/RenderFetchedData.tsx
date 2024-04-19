@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Section } from 'src/models/Section';
 import { Grid, Paper, Typography, Button, Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { RenderLecturers } from './RenderLecturers';
@@ -33,9 +33,6 @@ const RenderFetchedData: React.FC<RenderFetchedDataProps> = ({
   };
 
   const [firstHalfSections, secondHalfSections] = splitArrayInHalf(data.sections);
-  const [openDataModal, setOpenDataModal] = useState(false);
-  const handleOpenDataModal = () => setOpenDataModal(true);
-  const handleCloseDataModal = () => setOpenDataModal(false);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">

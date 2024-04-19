@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from 'src/firebase'; // Adjust the import according to your firebase config initialization file
 import {
@@ -10,7 +10,6 @@ import {
   TableRow,
   Paper,
   Button,
-  Typography,
 } from '@mui/material';
 import ScheduleModal from 'src/components/schedule-table/ScheduleModal'; // Adjust the import path as necessary
 import { exportScheduleToCSV } from 'src/utils/exporter';

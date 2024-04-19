@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupIcon from '@mui/icons-material/Group';
 import BookIcon from '@mui/icons-material/Book';
-import LectureIcon from '@mui/icons-material/MenuBook';
 import ClassroomIcon from '@mui/icons-material/MeetingRoom';
 import ScheduleIcon from '@mui/icons-material/Schedule'; // Import the schedule icon
 import SeoIllustration from 'src/assets/illustrations/seo-illustration';

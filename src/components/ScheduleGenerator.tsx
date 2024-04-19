@@ -25,8 +25,6 @@ import { exportScheduleToCSV } from 'src/utils/exporter';
 import ScheduleTable, { TransScheduleItem } from './schedule-table/ScheduleTable';
 import ScheduleModal from './schedule-table/ScheduleModal';
 import RenderFetchedData from './render-data/RenderFetchedData';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { IconButton } from '@mui/material';
 
 const ScheduleGenerator: React.FC = () => {
   const { data, dataLoading } = useScheduleData();
@@ -55,7 +53,7 @@ const ScheduleGenerator: React.FC = () => {
     const scheduleName = prompt('Please enter a name for the schedule:');
     if (scheduleName) {
       try {
-        const docRef = await addDoc(collection(db, 'schedules'), {
+        await addDoc(collection(db, 'schedules'), {
           name: scheduleName, // Save the name along with the schedule
           schedule: savedSchedule,
           createdAt: new Date(),

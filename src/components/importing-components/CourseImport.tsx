@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useRef, useState } from 'react';
 import Papa from 'papaparse';
 import {
@@ -52,7 +53,7 @@ const CourseImport = () => {
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const {files} = event.target;
+    const { files } = event.target;
     if (files && files[0]) {
       Papa.parse(files[0], {
         header: true,
@@ -65,7 +66,8 @@ const CourseImport = () => {
     }
   };
 
-  const transformData = (data: any[]): Course[] => data.map(
+  const transformData = (data: any[]): Course[] =>
+    data.map(
       (row) =>
         new Course(
           row.abbreviation,
