@@ -7,6 +7,7 @@ export class Section {
     public lecturer_id: string,
     public name: string,
     public location: string[],
+    public joined: boolean = false,
     id?: string
   ) {
     if (id) this.id = id;
@@ -19,6 +20,7 @@ export class Section {
       lecturer_id: this.lecturer_id,
       name: this.name,
       location: this.location,
+      joined: this.joined,
     };
   }
 
@@ -29,6 +31,7 @@ export class Section {
       fields.lecturer_id ?? this.lecturer_id,
       fields.name ?? this.name,
       fields.location ?? this.location,
+      fields.joined ?? this.joined,
       this.id
     );
   }

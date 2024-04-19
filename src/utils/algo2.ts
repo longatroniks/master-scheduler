@@ -195,7 +195,6 @@ function tryScheduleLecture(
     return false;
   }
 
-
   // Filter classrooms based on the course's lab requirement
   const suitableClassrooms = classrooms.filter(
     (classroom) =>
@@ -216,6 +215,30 @@ function tryScheduleLecture(
       }
     }
   });
+
+  if (section.joined) {
+    const classroomsInZagreb = classrooms.filter((classroom) =>
+      classroom.location.includes('Zagreb')
+    );
+    const classroomsInDubrovnik = classrooms.filter((classroom) =>
+      classroom.location.includes('Dubrovnik')
+    );
+
+    const availableZagrebClassroom = classroomsInZagreb.find((classroom) =>
+      isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule)
+    );
+    const availableDubrovnikClassroom = classroomsInDubrovnik.find((classroom) =>
+      isClassroomAvailable(classroom, day, currentTime, currentEndTime, schedule)
+    );
+
+    if (availableZagrebClassroom && availableDubrovnikClassroom) {
+      // Schedule in both locations
+      scheduleInClassroom(availableZagrebClassroom);
+      scheduleInClassroom(availableDubrovnikClassroom);
+      return true; // Return true when both locations are successfully scheduled
+    }
+    return false; // Return false if unable to schedule in both locations
+  }
 
   // Attempt to schedule in the preferred classroom first, if it exists and is available
   if (

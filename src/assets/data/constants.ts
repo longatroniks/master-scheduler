@@ -60,9 +60,9 @@ const yearLevelColors = {
   4: 'orange',
 };
 
-const sectionLocations = ['Zagreb', 'Online'];
+const sectionLocations = ['Zagreb', 'Online', 'Dubrovnik'];
 
-const classroomLocations = ['Zagreb', 'Online'];
+const classroomLocations = ['Zagreb', 'Online', 'Dubrovnik'];
 
 export {
   lectureAmounts,

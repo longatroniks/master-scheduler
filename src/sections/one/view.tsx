@@ -21,7 +21,7 @@ export default function OneView() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <AppWelcome
-            title={`Hy 👋 \n `}
+            title={`Welcome 👋 \n `}
             description="First input all the necessary data, when you are done you can start generating schedules! "
             img={<SeoIllustration />}
             action={
@@ -31,8 +31,8 @@ export default function OneView() {
             }
           />
         </Grid>
-        <Box width='100%' textAlign='center'>
-          <Typography variant="h4" textAlign='center' m={2}>
+        <Box width="100%" textAlign="center">
+          <Typography variant="h4" textAlign="center" m={2}>
             Data Managment
           </Typography>
         </Box>
@@ -45,7 +45,7 @@ export default function OneView() {
             // Add the Schedules button
             {
               icon: <ScheduleIcon style={iconStyle} />,
-              path: '#',
+              path: 'schedules',
               label: 'Schedules',
               comingSoon: true,
             },
@@ -69,7 +69,6 @@ export default function OneView() {
                         fontSize: '1.25rem',
                         boxShadow: theme.shadows[3],
                       }}
-                      disabled // Disable the button
                     >
                       <Typography variant="button" sx={{ fontWeight: 'bold' }}>
                         {button.label}
