@@ -6,7 +6,7 @@ The Academic Scheduling System is a comprehensive solution designed to facilitat
 
 With an intuitive interface, users across the academic spectrum—from administrators to faculty—can engage with the system effortlessly to perform their respective roles.
 
-## Team
+## The Team
 
 - Karlo Longin
 - David Kraljić
