@@ -8,12 +8,8 @@ With an intuitive interface, users across the academic spectrum—from administr
 
 ## Team
 
-**Schedule Team 1:**
 - Karlo Longin
 - David Kraljić
-- Hrvoje Buljan
-- Fran Barišić
-- Domagoj Kurfurst
 
 ## Key Features
 
