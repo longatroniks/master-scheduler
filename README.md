@@ -113,7 +113,3 @@ npm start
 - Take advantage of the settings panel to customize your experience
 
 ---
-
-*Last Updated: May 20, 2025*
-
-For further assistance, please refer to the complete user documentation or contact your system administrator.
