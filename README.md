@@ -1,8 +1,8 @@
-# Academic Scheduling System
+# Master Scheduler
 
 ## Overview
 
-The Academic Scheduling System is a comprehensive solution designed to facilitate the intricate process of managing academic timetables and resource allocation. This web application simplifies the traditionally labor-intensive task of schedule management, handling various facets such as course offerings, classroom assignments, lecturer schedules, and section allocations.
+Master Scheduler is a comprehensive solution designed to facilitate the process of managing academic timetables and resource allocation. This web application simplifies the traditionally labor-intensive task of schedule management, handling various facets such as course offerings, classroom assignments, lecturer schedules, and section allocations.
 
 With an intuitive interface, users across the academic spectrum—from administrators to faculty—can engage with the system effortlessly to perform their respective roles.
 
